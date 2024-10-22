@@ -79,10 +79,10 @@
         <table>
             <thead>
                 <tr>
-                    <th>教室ID</th>
-                    <th>学籍番号</th>
-                    <th>授業開始時間</th>
-                    <th>授業終了時間</th>
+                    
+                    <th>月日</th>
+                    <th>何限</th>
+                    <th>教室名</th>
                     <th>出席時間</th>
                     <th>退出時間</th>
                 </tr>
@@ -90,7 +90,7 @@
             <tbody>
                 {% for attendance in attendances %}
                 <tr>
-                    <td>{{ attendance.classroom_id }}</td>
+                    <td>{{ attendance.classroom_name }}</td>
                     <td>{{ attendance.student_id }}</td>
                     <td>{{ attendance.start_time }}</td>
                     <td>{{ attendance.end_time }}</td>
