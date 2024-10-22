@@ -6,4 +6,5 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('beconconect/', views.beacon_connect, name='beacon_connect'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
+    path('teacher_submit/', views.teacher_submit, name='teacher_submit'),
 ]
