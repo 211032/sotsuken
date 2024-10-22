@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
 from .models import Student  # データベースのStudentモデルをインポート
+from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
 
+import asyncio
+from . import ble_utils
+
+
+# Create your views here.
 def index(request):
     return render(request, 'index.html')  # トップページを表示
 
@@ -28,6 +35,26 @@ def login_student(request):  # ログインページのビュー
 
     return render(request, 'login.html', {'error_message': error_message})
 
+
+def register_view(request):
+
+    return render(request, 'accountReg.html')
+
+def registercomp(request):
+    return render(request, 'RegComplete.html')
+
+def beacon_connect(request):
+    return render(request, 'beacon_connect.html')
+
+def attendance_confirmation(request):
+    return render(request, 'attendance_confirmation.html')
+
+def teacher_submit(request):
+    return render(request, 'teacher_submit.html')
+
+async def beacon_scan_view(request):
+    devices = await ble_utils.scan_beacons()
+    return JsonResponse({'devices': [str(device) for device in devices]})
 def home(request):
     # セッションからメールアドレスを取得
     student_email = request.session.get('student_email')

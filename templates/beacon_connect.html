@@ -40,6 +40,25 @@
         <h2>Bluetooth自動接続</h2>
         <div id="status" class="status">接続中...</div>
     </div>
+    <h1>Beacon Data</h1>
+    <ul id="beacon-list"></ul>
+
+    <script>
+        async function fetchBeacons() {
+            const response = await fetch('/beacon_scan/');
+            const data = await response.json();
+            const list = document.getElementById('beacon-list');
+            list.innerHTML = '';
+            data.devices.forEach(device => {
+                const li = document.createElement('li');
+                li.textContent = device;
+                list.appendChild(li);
+            });
+        }
+
+        // ページがロードされたときにビーコンデータをフェッチ
+        window.onload = fetchBeacons;
+    </script>
 
     <script>
         // Bluetooth自動接続のシミュレーション
@@ -54,6 +73,7 @@
                     document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
                 }
             } catch (error) {
+                //エラーだけは別のページへ飛ぶように変更
                 document.getElementById("status").innerText = "エラーが発生しました。";
             }
         };

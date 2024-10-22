@@ -1,93 +1,36 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン画面</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Login</title>
+    <link href="{% static 'CSS/css.css' %}" rel="stylesheet">
 </head>
-<style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #87CEEB; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        /* ログインコンテナを中央に配置 */
-        .login-container {
-            background-color: #fff;
-            padding: 100px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            text-align: center;
-        }
-
-        /* フォームのスタイル */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #2E7D32;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        button:hover {
-            background-color: #1B5E20;
-        }
-
-        /* メッセージのスタイル */
-        .messages {
-            list-style-type: none;
-            padding: 0;
-            margin-top: 10px;
-        }
-
-        .messages li {
-            color: red;
-        }
-        
-        /* タイトルのスタイル */
-        h2 {
-            font-size: 40px; /* 文字サイズを大きくする */
-            margin-bottom: 20px;
-        }
-</style>
 <body>
     <h2>ログイン</h2>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="email">メールアドレス:</label>
-        <input type="email" id="email" name="email" required><br>
 
-        <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password" required><br>
+{% if messages %}
+    <div class="message">
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
 
-        <button type="submit">ログイン</button>
-    </form>
+<form action="{% url 'login' %}" method="POST">
+    {% csrf_token %}
+    <label for="student-id">学籍番号:</label>
+    <input type="text" id="student-id" name="student_id" required>
+
+    <label for="password">パスワード:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">ログイン</button>
+</form>
+
+<a href="{% url 'register' %}">アカウント登録画面へ戻る</a>
+
 </body>
 </html>
