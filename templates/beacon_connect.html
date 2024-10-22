@@ -46,9 +46,11 @@
     <script>
         async function fetchBeacons() {
             const response = await fetch('/beacon_scan/');
-            const data = await {{ devices }}
+            const data = await response.json();  // JSON形式で受け取る
             const list = document.getElementById('beacon-list');
             list.innerHTML = '';
+
+            // 受け取ったデバイスデータをリストに表示
             data.devices.forEach(device => {
                 const li = document.createElement('li');
                 li.textContent = device;

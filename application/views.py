@@ -58,12 +58,16 @@ def registercomp(request):
     return render(request, 'RegComplete.html')
 
 async def beacon_connect(request):
-    devices = await ble_utils.scan_beacons()
-    return render(request, 'beacon_connect.html', {'devices': [str(device) for device in devices]})
+    return render(request, 'beacon_connect.html')
 
 def attendance_confirmation(request):
     return render(request, 'attendance_confirmation.html')
 
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
+
+async def beacon_scan(request):
+    devices = await ble_utils.scan_beacons()
+    print(JsonResponse({'devices': [str(device) for device in devices]}))
+    return JsonResponse({'devices': [str(device) for device in devices]})
 
