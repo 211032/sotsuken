@@ -9,4 +9,5 @@ urlpatterns = [
     path('registercomp/', views.registercomp, name='registercomp'),
     path('beconconect/', views.beacon_connect, name='beacon_connect'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
+    path('beacon_scan/', views.beacon_scan_view, name='beacon_scan'),
 ]
