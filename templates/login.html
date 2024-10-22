@@ -7,29 +7,30 @@
     <link href="{% static 'css/css.css' %}" rel="stylesheet">
 </head>
 <body>
-    <div class="wrapper">
-        <div class="container">
-            <h1>Login</h1>
-            <form method="post" class="login-form">
-                {% csrf_token %}
-                {{ form.email }}
-                {{ form.password }}
-                <input type="submit" value="Login" class="login-submit" />
-            </form>
-            <a href="#" class="login-forgot-pass">Forgot password?</a>
-        </div>
-        <ul class="bg-bubbles">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
+    <h2>ログイン</h2>
+
+{% if messages %}
+    <div class="message">
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
         </ul>
     </div>
+{% endif %}
+
+<form action="{% url 'login' %}" method="POST">
+    {% csrf_token %}
+    <label for="student-id">学籍番号:</label>
+    <input type="text" id="student-id" name="student_id" required>
+
+    <label for="password">パスワード:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">ログイン</button>
+</form>
+
+<a href="{% url 'register' %}">アカウント登録画面へ戻る</a>
+
 </body>
 </html>
