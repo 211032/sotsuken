@@ -35,6 +35,20 @@ def login_student(request):  # ログインページのビュー
 
     return render(request, 'login.html', {'error_message': error_message})
 
+def home(request):
+    # セッションからメールアドレスを取得
+    student_email = request.session.get('student_email')
+    if student_email:
+        try:
+            student = Student.objects.get(email=student_email)
+            return render(request, 'home.html', {'student': student})
+        except Student.DoesNotExist:
+            return redirect('login')  # 学生が存在しない場合はログイン画面にリダイレクト
+    else:
+        return redirect('login')  # ログインしていない場合はログイン画面にリダイレクト
+
+def logout(request):
+    return render(request, 'login.html')  # トップページを表示
 
 def register_view(request):
 
@@ -55,17 +69,4 @@ def teacher_submit(request):
 async def beacon_scan_view(request):
     devices = await ble_utils.scan_beacons()
     return JsonResponse({'devices': [str(device) for device in devices]})
-def home(request):
-    # セッションからメールアドレスを取得
-    student_email = request.session.get('student_email')
-    if student_email:
-        try:
-            student = Student.objects.get(email=student_email)
-            return render(request, 'home.html', {'student': student})
-        except Student.DoesNotExist:
-            return redirect('login')  # 学生が存在しない場合はログイン画面にリダイレクト
-    else:
-        return redirect('login')  # ログインしていない場合はログイン画面にリダイレクト
 
-def logout(request):
-    return render(request, 'login.html')  # トップページを表示
