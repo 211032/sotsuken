@@ -13,3 +13,6 @@ def beacon_connect(request):
 
 def attendance_confirmation(request):
     return render(request, 'attendance_confirmation.html')
+
+def teacher_submit(request):
+    return render(request, 'teacher_submit.html')
