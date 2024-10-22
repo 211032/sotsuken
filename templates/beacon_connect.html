@@ -46,7 +46,7 @@
     <script>
         async function fetchBeacons() {
             const response = await fetch('/beacon_scan/');
-            const data = await response.json();
+            const data = await {{ devices }}
             const list = document.getElementById('beacon-list');
             list.innerHTML = '';
             data.devices.forEach(device => {

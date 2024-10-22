@@ -67,7 +67,3 @@ def attendance_confirmation(request):
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
-async def beacon_scan_view(request):
-    devices = await ble_utils.scan_beacons()
-    return JsonResponse({'devices': [str(device) for device in devices]})
-
