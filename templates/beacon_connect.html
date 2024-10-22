@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluetooth自動接続</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #87CEEB;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .bluetooth-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bluetooth-container">
+        <h2>Bluetooth自動接続</h2>
+        <div id="status" class="status">接続中...</div>
+    </div>
+
+    <script>
+        // Bluetooth自動接続のシミュレーション
+        window.onload = async function() {
+            try {
+                // Bluetoothデバイスへの接続を試みる（仮想的な処理）
+                const response = await fetch("/", { method: "POST" });
+
+                if (response.ok) {
+                    document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
+                } else {
+                    document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
+                }
+            } catch (error) {
+                //エラーだけは別のページへ飛ぶように変更
+                document.getElementById("status").innerText = "エラーが発生しました。";
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出席情報確認</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0 20px; /* 左右のパディングを追加 */
+        }
+
+        .attendance-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1000px; /* 最大幅を指定 */
+            overflow-x: auto; /* 横スクロールを可能に */
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto; /* 自動レイアウト */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4682B4;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4682B4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #5A9BD5;
+        }
+    </style>
+</head>
+<body>
+    <div class="attendance-container">
+        <h2>出席情報確認</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>出席状態</th>
+                    <th>月日</th>
+                    <th>何限</th>
+                    <th>教室名</th>
+                    <th>出席時間</th>
+                    <th>退出時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attendance in attendances %}
+                <tr>
+                    <td>{{ attendance.state }}</td>
+                    <td>{{ attendance.date }}</td>
+                    <td>{{ attendance.period }}</td>
+                    <td>{{ attendance.classroom_name }}</td>
+                    <td>{{ attendance.check_in_time }}</td>
+                    <td>{{ attendance.check_out_time }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="button-container">
+            <button onclick="">戻る</button>
+        </div>
+    </div>
+</body>
+</html>
