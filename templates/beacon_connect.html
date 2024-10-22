@@ -54,6 +54,7 @@
                     document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
                 }
             } catch (error) {
+                //エラーだけは別のページへ飛ぶように変更
                 document.getElementById("status").innerText = "エラーが発生しました。";
             }
         };
