@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>アカウント登録</title>
 </head>
 <body>
-<h2>ログイン</h2>
-<form action="{% url 'login' %}" method="POST">
+<h2>アカウント登録</h2>
+<form action="{% url 'registercomp' %}" method="POST">
     {% csrf_token %}
     <label for="student-id">学籍番号:</label>
     <input type="text" id="student-id" name="student_id" required>
@@ -14,8 +14,12 @@
     <label for="password">パスワード:</label>
     <input type="password" id="password" name="password" required>
 
-    <button type="submit">ログイン</button>
+    <label for="confirm-password">パスワード確認:</label>
+    <input type="password" id="confirm-password" name="confirm_password" required>
+
+    <button type="submit">登録</button>
 </form>
+
 {% if messages %}
     <div class="message">
         <ul>
@@ -25,6 +29,8 @@
         </ul>
     </div>
 {% endif %}
-<a href="{% url 'register' %}" class="link">アカウント登録画面へ</a>
+
+<a href="{% url 'login' %}">ログイン画面へ戻る</a>
+
 </body>
 </html>
