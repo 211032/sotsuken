@@ -40,23 +40,5 @@
         <h2>Bluetooth自動接続</h2>
         <div id="status" class="status">接続中...</div>
     </div>
-
-    <script>
-        // Bluetooth自動接続のシミュレーション
-        window.onload = async function() {
-            try {
-                // Bluetoothデバイスへの接続を試みる（仮想的な処理）
-                const response = await fetch("/", { method: "POST" });
-
-                if (response.ok) {
-                    document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
-                } else {
-                    document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
-                }
-            } catch (error) {
-                document.getElementById("status").innerText = "エラーが発生しました。";
-            }
-        };
-    </script>
 </body>
 </html>
