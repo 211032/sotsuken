@@ -79,7 +79,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>履修ID</th>
                     <th>教室ID</th>
                     <th>学籍番号</th>
                     <th>授業開始時間</th>
@@ -91,7 +90,6 @@
             <tbody>
                 {% for attendance in attendances %}
                 <tr>
-                    <td>{{ attendance.enrollment_id }}</td>
                     <td>{{ attendance.classroom_id }}</td>
                     <td>{{ attendance.student_id }}</td>
                     <td>{{ attendance.start_time }}</td>
