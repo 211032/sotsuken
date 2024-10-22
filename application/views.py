@@ -57,8 +57,9 @@ def register_view(request):
 def registercomp(request):
     return render(request, 'RegComplete.html')
 
-def beacon_connect(request):
-    return render(request, 'beacon_connect.html')
+async def beacon_connect(request):
+    devices = await ble_utils.scan_beacons()
+    return render(request, 'beacon_connect.html', {'devices': [str(device) for device in devices]})
 
 def attendance_confirmation(request):
     return render(request, 'attendance_confirmation.html')
