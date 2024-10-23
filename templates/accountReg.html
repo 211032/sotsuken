@@ -9,14 +9,12 @@
 <h2>アカウント登録</h2>
 <form action="{% url 'registercomp' %}" method="POST">
     {% csrf_token %}
-    <label for="student-id">学籍番号:</label>
-    <input type="text" id="student-id" name="student_id" required>
     
     <label for="student-name">名前:</label>
     <input type="text" id="student-name" name="student_name" required>
     
     <label for="student-mail">メールアドレス:</label>
-    <input type="text" id="student-mail" name="student_mail" required>
+    <input type="email" id="student-mail" name="student_mail" required>
     
     <label for="student-class">クラス名:</label>
     <input type="text" id="student-class" name="student_class" required>

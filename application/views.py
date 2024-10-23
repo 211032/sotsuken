@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from .models import Student  # データベースのStudentモデルをインポート
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
 import asyncio
@@ -56,7 +58,35 @@ def register_view(request):
     return render(request, 'accountReg.html')
 
 def registercomp(request):
-    return render(request, 'RegComplete.html')
+    if request.method == 'POST':
+        name = request.POST.get('student_name')
+        email = request.POST.get('student_mail')
+        class_name = request.POST.get('student_class')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # パスワード確認
+        if password != confirm_password:
+            messages.error(request, "パスワードが一致しません。")
+            return render(request, 'accountReg.html', {'messages': messages.get_messages(request)})
+
+        # メールアドレスの重複チェック
+        if Student.objects.filter(email=email).exists():
+            messages.error(request, "このメールアドレスはすでに使用されています。")
+            return render(request, 'accountReg.html', {'messages': messages.get_messages(request)})
+
+        # 学生データの作成
+        student = Student(
+            email=email,
+            name=name,
+            class_name=class_name,
+            password=password  # パスワードをハッシュ化
+        )
+        student.save()  # データベースに保存
+
+        messages.success(request, "アカウントが正常に登録されました。")
+        return render(request, 'RegComplete.html')
+    return render(request, 'accountReg.html')
 
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
