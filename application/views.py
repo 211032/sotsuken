@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Student  # データベースのStudentモデルをインポート
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 import asyncio
 from . import ble_utils
@@ -68,6 +69,5 @@ def teacher_submit(request):
 
 async def beacon_scan(request):
     devices = await ble_utils.scan_beacons()
-    print(JsonResponse({'devices': [str(device) for device in devices]}))
     return JsonResponse({'devices': [str(device) for device in devices]})
 

@@ -41,26 +41,50 @@
         <div id="status" class="status">接続中...</div>
     </div>
     <h1>Beacon Data</h1>
-    <ul id="beacon-list"></ul>
+<ul id="beacon-list"></ul>
 
-    <script>
-        async function fetchBeacons() {
-            const response = await fetch('/beacon_scan/');
-            const data = await response.json();  // JSON形式で受け取る
-            const list = document.getElementById('beacon-list');
-            list.innerHTML = '';
+<script>
+    async function fetchBeacons() {
+        const csrftoken = getCookie('csrftoken');  // CSRFトークンを取得
 
-            // 受け取ったデバイスデータをリストに表示
-            data.devices.forEach(device => {
-                const li = document.createElement('li');
-                li.textContent = device;
-                list.appendChild(li);
-            });
+        const response = await fetch('/beacon_scan/', {
+            method: 'POST',  // もしPOSTならmethodを'POST'に変更
+            headers: {
+                'X-CSRFToken': csrftoken  // CSRFトークンをヘッダーに追加
+            }
+        });
+
+        const data = await response.json();
+        const list = document.getElementById('beacon-list');
+        list.innerHTML = '';
+
+        data.devices.forEach(device => {
+            const li = document.createElement('li');
+            li.textContent = device;
+            list.appendChild(li);
+        });
+    }
+
+    // CookieからCSRFトークンを取得する関数
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
         }
+        return cookieValue;
+    }
 
-        // ページがロードされたときにビーコンデータをフェッチ
-        window.onload = fetchBeacons;
-    </script>
+    // ページがロードされたときにビーコンデータをフェッチ
+    window.onload = fetchBeacons;
+</script>
+
 
     <script>
         // Bluetooth自動接続のシミュレーション
