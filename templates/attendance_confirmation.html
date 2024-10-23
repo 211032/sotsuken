@@ -90,12 +90,12 @@
             <tbody>
                 {% for attendance in attendances %}
                 <tr>
-                    <td>{{ attendance.state }}</td>
-                    <td>{{ attendance.date }}</td>
-                    <td>{{ attendance.period }}</td>
-                    <td>{{ attendance.classroom_name }}</td>
-                    <td>{{ attendance.check_in_time }}</td>
-                    <td>{{ attendance.check_out_time }}</td>
+                    <td>{{ attendance.attendance_status }}</td>  <!-- 出席状態 -->
+                    <td>{{ attendance.start_time|date:"Y-m-d" }}</td>  <!-- 月日 -->
+                    <td>{{ attendance.period }}</td>  <!-- 何限 -->
+                    <td>{{ attendance.classroom_id }}</td>  <!-- 教室名 -->
+                    <td>{{ attendance.attendance_time|time:"H:i" }}</td>  <!-- 出席時間 -->
+                    <td>{{ attendance.exit_time|time:"H:i" }}</td>  <!-- 退出時間 -->
                 </tr>
                 {% endfor %}
             </tbody>
