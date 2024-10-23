@@ -75,8 +75,6 @@ def register_view(request):
 
     return render(request, 'accountReg.html')
 
-def registercomp(request):
-    return render(request, 'RegComplete.html')
 def register_comp(request):
     if request.method == 'POST':
         name = request.POST.get('student_name')
@@ -118,7 +116,8 @@ def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
 async def beacon_scan(request):
-    devices = await ble_utils.scan_beacons()
-    print(JsonResponse({'devices': [str(device) for device in devices]}))
-    return JsonResponse({'devices': [str(device) for device in devices]})
+    devices = await ble_utils.scan_beacons()  # 特定のUUIDに一致するデバイスをスキャン
+    return JsonResponse({'devices': devices})  # デバイス情報を返す
+
+
 
