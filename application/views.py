@@ -4,6 +4,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.csrf import csrf_exempt
+
 import asyncio
 from . import ble_utils
 
@@ -87,8 +89,7 @@ def registercomp(request):
     return render(request, 'accountReg.html')
 
 async def beacon_connect(request):
-    devices = await ble_utils.scan_beacons()
-    return render(request, 'beacon_connect.html', {'devices': [str(device) for device in devices]})
+    return render(request, 'beacon_connect.html')
 
 def attendance_confirmation(request):
     return render(request, 'attendance_confirmation.html')
@@ -96,7 +97,7 @@ def attendance_confirmation(request):
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
-async def beacon_scan_view(request):
+async def beacon_scan(request):
     devices = await ble_utils.scan_beacons()
     return JsonResponse({'devices': [str(device) for device in devices]})
 
