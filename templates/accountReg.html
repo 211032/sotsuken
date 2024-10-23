@@ -6,7 +6,7 @@
 </head>
 <body>
 <h2>アカウント登録</h2>
-<form action="{% url 'registercomp' %}" method="POST">
+<form action="{% url 'register_comp' %}" method="POST">
     {% csrf_token %}
     <label for="student-id">学籍番号:</label>
     <input type="text" id="student-id" name="student_id" required>
