@@ -4,70 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ホーム画面</title>
-    <link rel="stylesheet" >
-    <style>
-        .home-container {
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .button-container {
-            margin-top: 30px;
-        }
-
-        /* ボタンスタイル */
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #2E7D32;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .button:hover {
-            background-color: #1B5E20;
-        }
-
-        /* ログアウトボタンのスタイル */
-        .logout-button {
-            margin-top: 40px;
-            background-color: #D32F2F;
-        }
-
-        .logout-button:hover {
-            background-color: #B71C1C;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/CSS/css.css"> <!-- 外部CSSファイルをリンク -->
 </head>
 <body>
-    <div class="home-container">
+    <header class="header">
         <h2>ようこそ、{{ student.name }}さん</h2>
         <p>クラス名: {{ student.class_name }}</p>
         <p>メールアドレス: {{ student.email }}</p>
+    </header>
 
-        <!-- ボタンの追加 -->
-        <div class="button-container">
-            <a href="/beacon_connect/" class="button">出欠接続</a>
-            <a href="#" class="button">時間割</a>
+    <div class="home-wrapper">
+        <div class="home-container">
+            <!-- ボタンコンテナ -->
+            <div class="button-container">
+                <a href="/beacon_connect/" class="button">出欠接続</a>
+                <a href="#" class="button">時間割</a>
+                <a href="{% url 'logout' %}" class="button logout-button">ログアウト</a>
+            </div>
         </div>
-
-        <!-- ログアウトボタン -->
-        <a href="{% url 'logout' %}" class="button logout-button">ログアウト</a>
     </div>
 </body>
 </html>
