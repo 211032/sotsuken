@@ -33,6 +33,18 @@
             margin-top: 15px;
             font-size: 18px;
         }
+
+        #beacon-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #beacon-list li {
+            margin: 5px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -42,70 +54,68 @@
         <ul id="beacon-list"></ul>
     </div>
 
-<script>
-    // Bluetooth自動接続のシミュレーション
-    async function simulateBluetoothConnection() {
-        try {
-            // Bluetoothデバイスへの接続を試みる（仮想的な処理）
-            const response = await fetch("/", { method: "GET" });
+    <script>
+        // Bluetooth自動接続のシミュレーション
+        async function fetchBeacons() {
+            try {
+                // Bluetoothデバイスへの接続を試みる（仮想的な処理）
+                const csrftoken = getCookie('csrftoken');  // CSRFトークンを取得
 
-            if (response.ok) {
-                document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
-            } else {
-                document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
+                const response = await fetch('/beacon_scan/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken  // CSRFトークンをヘッダーに追加
+                    }
+                });
+                const data = await response.json();
+                const list = document.getElementById('beacon-list');
+                list.innerHTML = '';
+    
+                // Bluetooth接続されたビーコンだけをフィルタリング
+                const connectedBeacons = data.devices.filter(device => device.is_connected);
+    
+                // 接続されたビーコンのみ表示
+                connectedBeacons.forEach(device => {
+                    const li = document.createElement('li');
+                    li.textContent = device.name || 'Unknown Beacon';
+                    list.appendChild(li);
+                });
+
+                if (response.ok) {
+                    document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
+                } else {
+                    document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
+                }
+            } catch (error) {
+                // エラーが発生した場合
+                document.getElementById("status").innerText = "エラーが発生しました。";
             }
-        } catch (error) {
-            // エラーが発生した場合
-            document.getElementById("status").innerText = "エラーが発生しました。";
-            // エラーが発生した場合に別ページに遷移させたい場合は、以下を使用
-            // window.location.href = "/error_page";
         }
-    }
 
-    // ビーコンデータを取得してリストに表示する関数
-    async function fetchBeacons() {
-        const csrftoken = getCookie('csrftoken');  // CSRFトークンを取得
-
-        const response = await fetch('/beacon_scan/', {
-            method: 'GET',  // もしPOSTならmethodを'POST'に変更
-            headers: {
-                'X-CSRFToken': csrftoken  // CSRFトークンをヘッダーに追加
-            }
-        });
-
-        const data = await response.json();
-        const list = document.getElementById('beacon-list');
-        list.innerHTML = '';
-
-        data.devices.forEach(device => {
-            const li = document.createElement('li');
-            li.textContent = device;
-            list.appendChild(li);
-        });
-    }
-
-    // CookieからCSRFトークンを取得する関数
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+        // CookieからCSRFトークンを取得する関数
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
         }
-        return cookieValue;
-    }
 
-    // ページがロードされたときにBluetooth接続とビーコンデータの取得を同時に実行
-    window.onload = async function() {
-        await simulateBluetoothConnection();  // Bluetooth接続をシミュレーション
-        await fetchBeacons();  // ビーコンデータを取得
-    };
-</script>
+        // Bluetooth接続とビーコンデータを定期的に更新
+        window.onload = async function() {
+            await fetchBeacons();  // Bluetooth接続をシミュレーション
+
+            // 5秒ごとにビーコンデータを更新
+            setInterval(fetchBeacons, 5000);  // 5秒間隔でデータ更新
+        };
+    </script>
 
 </body>
 </html>
