@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Student  # データベースのStudentモデルをインポート
+from .models import Student, teacher  # データベースのStudentモデルをインポート
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
@@ -53,10 +53,30 @@ def home(request):
 def logout(request):
     return render(request, 'login.html')  # トップページを表示
 
+def login_teacher(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        try:
+            Teacher = teacher.objects.get(teacher_id=username, password=password)
+            request.session['teacher_id'] = Teacher.id # empidをセッションに保持
+            if Teacher.roll == 0:
+                return redirect(request,'/')
+            elif Teacher.roll == 1:
+                return redirect(request,'/')
+        except teacher.DoesNotExist:
+            error_message = "ユーザーが見つかりませんでした。"
+            return render(request, '/', {'error_message': error_message})
+
+    return render(request, '/')# ログアウト時の画面へのURLを指定
+
+
 def register_view(request):
 
     return render(request, 'accountReg.html')
 
+def registercomp(request):
+    return render(request, 'RegComplete.html')
 def register_comp(request):
     if request.method == 'POST':
         name = request.POST.get('student_name')
@@ -99,5 +119,6 @@ def teacher_submit(request):
 
 async def beacon_scan(request):
     devices = await ble_utils.scan_beacons()
+    print(JsonResponse({'devices': [str(device) for device in devices]}))
     return JsonResponse({'devices': [str(device) for device in devices]})
 

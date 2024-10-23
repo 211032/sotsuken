@@ -70,10 +70,10 @@
                 const data = await response.json();
                 const list = document.getElementById('beacon-list');
                 list.innerHTML = '';
-    
+
                 // Bluetooth接続されたビーコンだけをフィルタリング
                 const connectedBeacons = data.devices.filter(device => device.is_connected);
-    
+
                 // 接続されたビーコンのみ表示
                 connectedBeacons.forEach(device => {
                     const li = document.createElement('li');
