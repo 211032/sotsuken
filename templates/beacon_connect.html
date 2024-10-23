@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluetooth自動接続</title>
+    <title>UUID指定ビーコン接続</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,18 +33,6 @@
             margin-top: 15px;
             font-size: 18px;
         }
-
-        #beacon-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        #beacon-list li {
-            margin: 5px 0;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
@@ -54,68 +42,40 @@
         <ul id="beacon-list"></ul>
     </div>
 
-    <script>
-        // Bluetooth自動接続のシミュレーション
-        async function fetchBeacons() {
-            try {
-                // Bluetoothデバイスへの接続を試みる（仮想的な処理）
-                const csrftoken = getCookie('csrftoken');  // CSRFトークンを取得
+<script>
+    // 特定UUIDのビーコンを接続して表示する
+    async function fetchBeacons() {
+        try {
+            const response = await fetch('/beacon_scan/');
+            const data = await response.json();
+            
+            const list = document.getElementById('beacon-list');
+            list.innerHTML = '';  // リストを初期化
 
-                const response = await fetch('/beacon_scan/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrftoken  // CSRFトークンをヘッダーに追加
-                    }
-                });
-                const data = await response.json();
-                const list = document.getElementById('beacon-list');
-                list.innerHTML = '';
-
-                // Bluetooth接続されたビーコンだけをフィルタリング
-                const connectedBeacons = data.devices.filter(device => device.is_connected);
-
-                // 接続されたビーコンのみ表示
-                connectedBeacons.forEach(device => {
+            if (data.devices.length > 0) {
+                const device = data.devices[0];  // 接続したデバイスを取得
+                if (device.is_connected) {
+                    document.getElementById('status').innerText = `接続成功: ${device.name}`;
                     const li = document.createElement('li');
-                    li.textContent = device.name || 'Unknown Beacon';
+                    li.textContent = `デバイス名: ${device.name}, 接続可否: ${device.is_connected}`;
                     list.appendChild(li);
-                });
-
-                if (response.ok) {
-                    document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
                 } else {
-                    document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
+                    document.getElementById('status').innerText = "接続に失敗しました。";
                 }
-            } catch (error) {
-                // エラーが発生した場合
-                document.getElementById("status").innerText = "エラーが発生しました。";
+            } else {
+                document.getElementById('status').innerText = "ビーコンが見つかりません。";
             }
+        } catch (error) {
+            document.getElementById('status').innerText = "エラーが発生しました。";
         }
+    }
 
-        // CookieからCSRFトークンを取得する関数
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // Bluetooth接続とビーコンデータを定期的に更新
-        window.onload = async function() {
-            await fetchBeacons();  // Bluetooth接続をシミュレーション
-
-            // 5秒ごとにビーコンデータを更新
-            setInterval(fetchBeacons, 5000);  // 5秒間隔でデータ更新
-        };
-    </script>
+    // ページがロードされたときにビーコンデータをフェッチし、一定間隔で更新
+    window.onload = async function() {
+        await fetchBeacons()
+        setInterval(fetchBeacons, 5000);  // 5秒ごとにスキャンを実行
+    };
+</script>
 
 </body>
 </html>
