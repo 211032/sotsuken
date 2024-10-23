@@ -39,16 +39,35 @@
     <div class="bluetooth-container">
         <h2>Bluetooth自動接続</h2>
         <div id="status" class="status">接続中...</div>
+        <ul id="beacon-list"></ul>
     </div>
-    <h1>Beacon Data</h1>
-<ul id="beacon-list"></ul>
 
 <script>
+    // Bluetooth自動接続のシミュレーション
+    async function simulateBluetoothConnection() {
+        try {
+            // Bluetoothデバイスへの接続を試みる（仮想的な処理）
+            const response = await fetch("/", { method: "GET" });
+
+            if (response.ok) {
+                document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
+            } else {
+                document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
+            }
+        } catch (error) {
+            // エラーが発生した場合
+            document.getElementById("status").innerText = "エラーが発生しました。";
+            // エラーが発生した場合に別ページに遷移させたい場合は、以下を使用
+            // window.location.href = "/error_page";
+        }
+    }
+
+    // ビーコンデータを取得してリストに表示する関数
     async function fetchBeacons() {
         const csrftoken = getCookie('csrftoken');  // CSRFトークンを取得
 
         const response = await fetch('/beacon_scan/', {
-            method: 'POST',  // もしPOSTならmethodを'POST'に変更
+            method: 'GET',  // もしPOSTならmethodを'POST'に変更
             headers: {
                 'X-CSRFToken': csrftoken  // CSRFトークンをヘッダーに追加
             }
@@ -81,28 +100,12 @@
         return cookieValue;
     }
 
-    // ページがロードされたときにビーコンデータをフェッチ
-    window.onload = fetchBeacons;
+    // ページがロードされたときにBluetooth接続とビーコンデータの取得を同時に実行
+    window.onload = async function() {
+        await simulateBluetoothConnection();  // Bluetooth接続をシミュレーション
+        await fetchBeacons();  // ビーコンデータを取得
+    };
 </script>
 
-
-    <script>
-        // Bluetooth自動接続のシミュレーション
-        window.onload = async function() {
-            try {
-                // Bluetoothデバイスへの接続を試みる（仮想的な処理）
-                const response = await fetch("/", { method: "POST" });
-
-                if (response.ok) {
-                    document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
-                } else {
-                    document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
-                }
-            } catch (error) {
-                //エラーだけは別のページへ飛ぶように変更
-                document.getElementById("status").innerText = "エラーが発生しました。";
-            }
-        };
-    </script>
 </body>
 </html>
