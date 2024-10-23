@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluetooth自動接続</title>
+    <title>UUID指定ビーコン接続</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,46 +39,43 @@
     <div class="bluetooth-container">
         <h2>Bluetooth自動接続</h2>
         <div id="status" class="status">接続中...</div>
+        <ul id="beacon-list"></ul>
     </div>
-    <h1>Beacon Data</h1>
-    <ul id="beacon-list"></ul>
 
-    <script>
-        async function fetchBeacons() {
+<script>
+    // 特定UUIDのビーコンを接続して表示する
+    async function fetchBeacons() {
+        try {
             const response = await fetch('/beacon_scan/');
-            const data = await response.json();  // JSON形式で受け取る
+            const data = await response.json();
+            
             const list = document.getElementById('beacon-list');
-            list.innerHTML = '';
+            list.innerHTML = '';  // リストを初期化
 
-            // 受け取ったデバイスデータをリストに表示
-            data.devices.forEach(device => {
-                const li = document.createElement('li');
-                li.textContent = device;
-                list.appendChild(li);
-            });
-        }
-
-        // ページがロードされたときにビーコンデータをフェッチ
-        window.onload = fetchBeacons;
-    </script>
-
-    <script>
-        // Bluetooth自動接続のシミュレーション
-        window.onload = async function() {
-            try {
-                // Bluetoothデバイスへの接続を試みる（仮想的な処理）
-                const response = await fetch("/", { method: "POST" });
-
-                if (response.ok) {
-                    document.getElementById("status").innerText = "Bluetooth接続に成功しました！";
+            if (data.devices.length > 0) {
+                const device = data.devices[0];  // 接続したデバイスを取得
+                if (device.is_connected) {
+                    document.getElementById('status').innerText = `接続成功: ${device.name}`;
+                    const li = document.createElement('li');
+                    li.textContent = `デバイス名: ${device.name}, 接続可否: ${device.is_connected}`;
+                    list.appendChild(li);
                 } else {
-                    document.getElementById("status").innerText = "接続に失敗しました。再試行してください。";
+                    document.getElementById('status').innerText = "接続に失敗しました。";
                 }
-            } catch (error) {
-                //エラーだけは別のページへ飛ぶように変更
-                document.getElementById("status").innerText = "エラーが発生しました。";
+            } else {
+                document.getElementById('status').innerText = "ビーコンが見つかりません。";
             }
-        };
-    </script>
+        } catch (error) {
+            document.getElementById('status').innerText = "エラーが発生しました。";
+        }
+    }
+
+    // ページがロードされたときにビーコンデータをフェッチし、一定間隔で更新
+    window.onload = async function() {
+        await fetchBeacons()
+        setInterval(fetchBeacons, 5000);  // 5秒ごとにスキャンを実行
+    };
+</script>
+
 </body>
 </html>
