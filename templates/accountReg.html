@@ -7,7 +7,7 @@
 </head>
 <body>
 <h2>アカウント登録</h2>
-<form action="{% url 'registercomp' %}" method="POST">
+<form action="{% url 'register_comp' %}" method="POST">
     {% csrf_token %}
     
     <label for="student-name">名前:</label>

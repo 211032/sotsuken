@@ -57,7 +57,7 @@ def register_view(request):
 
     return render(request, 'accountReg.html')
 
-def registercomp(request):
+def register_comp(request):
     if request.method == 'POST':
         name = request.POST.get('student_name')
         email = request.POST.get('student_mail')
