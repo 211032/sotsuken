@@ -59,16 +59,23 @@ def login_teacher(request):
         password = request.POST['password']
         try:
             Teacher = teacher.objects.get(teacher_id=username, password=password)
-            request.session['teacher_id'] = Teacher.id # empidをセッションに保持
+            request.session['teacher_id'] = Teacher.id # idをセッションに保持
             if Teacher.roll == 0:
-                return redirect(request,'/')
+                return redirect(request,'adomin_teacher_home.html')
             elif Teacher.roll == 1:
-                return redirect(request,'/')
+                return redirect(request,'teacher_home.html')
         except teacher.DoesNotExist:
             error_message = "ユーザーが見つかりませんでした。"
             return render(request, '/', {'error_message': error_message})
 
-    return render(request, '/')# ログアウト時の画面へのURLを指定
+    return render(request, 'login.html')# ログアウト時の画面へのURLを指定
+def teacher_home(request):
+    return render(request, 'teacher_home.html')
+
+def adomin_teacher_home(request):
+    return render(request, 'adomin_teacher_home.html')
+
+
 
 
 def register_view(request):
