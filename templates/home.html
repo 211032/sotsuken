@@ -4,61 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ホーム画面</title>
-    <link rel="stylesheet" >
-    <style>
-        .home-container {
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .button-container {
-            margin-top: 30px;
-        }
-
-        /* ボタンスタイル */
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #2E7D32;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .button:hover {
-            background-color: #1B5E20;
-        }
-
-        /* ログアウトボタンのスタイル */
-        .logout-button {
-            margin-top: 40px;
-            background-color: #D32F2F;
-        }
-
-        .logout-button:hover {
-            background-color: #B71C1C;
-        }
-    </style>
+    <link rel="stylesheet" href="/static/CSS/css.css">
 </head>
 <body>
-    <div class="home-container">
+    <form method="POST">
+     <div class="home-container">
+            <!-- アイコンボタン -->
+            <div class="icon-button" onclick="toggleInfo()">
+                <img src="/static/images/kkrn_icon_user_2.png" alt="アイコン" style="width: 50px; cursor: pointer;">
+            </div>
+
+            <!-- クリックで表示される情報 -->
+            <div id="student-info" style="display: none;">
+                <p>クラス名: {{ student.class_name }}</p>
+                <p>メールアドレス: {{ student.email }}</p>
+            </div>
+
         <h2>ようこそ、{{ student.name }}さん</h2>
-        <p>クラス名: {{ student.class_name }}</p>
-        <p>メールアドレス: {{ student.email }}</p>
 
         <!-- ボタンの追加 -->
         <div class="button-container">
@@ -69,5 +31,16 @@
         <!-- ログアウトボタン -->
         <a href="{% url 'logout' %}" class="button logout-button">ログアウト</a>
     </div>
+    </form>
+   <script>
+        function toggleInfo() {
+            var info = document.getElementById('student-info');
+            if (info.style.display === "none") {
+                info.style.display = "block"; // 情報を表示
+            } else {
+                info.style.display = "none"; // 情報を非表示
+            }
+        }
+    </script>
 </body>
 </html>
