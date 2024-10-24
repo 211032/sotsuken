@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
-
+from .models import Attendance
 import asyncio
 from . import ble_utils
 
@@ -110,7 +110,9 @@ async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
 def attendance_confirmation(request):
-    return render(request, 'attendance_confirmation.html')
+
+    attendances = Attendance.objects.filter(student_id=request.user.id)
+    return render(request, 'attendance_confirmation.html', {'attendances': attendances})
 
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
