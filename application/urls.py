@@ -13,6 +13,7 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('login_teacher/', views.login_teacher, name='login_teacher'),  # login_studentに変更
     path('teacher_home/', views.teacher_home, name='teacher_home'),
+    path('adomin_teacher_home/', views.adomin_teacher_home, name='adomin_teacher_home'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
 
 ]

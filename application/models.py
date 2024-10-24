@@ -11,7 +11,7 @@ class teacher(models.Model):
     name = models.CharField(max_length=100)  # 講師の名前
     password = models.CharField(max_length=128)  # ハッシュ化されたパスワードを保存
     romanized_last_name = models.CharField(max_length=100)  # 講師のローマ字の姓
-    roll = models.CharField(max_length=50)  # 役割
+    roll = models.IntegerField(max_length=50)  # 役割
 
 
 class Subject(models.Model):

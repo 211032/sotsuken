@@ -57,18 +57,25 @@ def login_teacher(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        try:
-            Teacher = teacher.objects.get(teacher_id=username, password=password)
-            request.session['teacher_id'] = Teacher.id # idをセッションに保持
-            if Teacher.roll == 0:
-                return redirect(request,'adomin_teacher_home.html')
-            elif Teacher.roll == 1:
-                return redirect(request,'teacher_home.html')
-        except teacher.DoesNotExist:
-            error_message = "ユーザーが見つかりませんでした。"
-            return render(request, '/', {'error_message': error_message})
 
-    return render(request, 'login.html')# ログアウト時の画面へのURLを指定
+        try:
+            # Teacher モデルの取得
+            Teacher = teacher.objects.get(teacher_id=username, password=password)
+
+            # teacher_idをセッションに保持
+            request.session['teacher_id'] = Teacher.teacher_id
+
+            # ロールに応じてリダイレクト
+            if Teacher.roll == 0:  # 管理者ロールの場合
+                return redirect('adomin_teacher_home')
+            elif Teacher.roll == 1:  # 教師ロールの場合
+                return redirect('teacher_home')
+        except Teacher.DoesNotExist:
+            error_message = "ユーザーが見つかりませんでした。"
+            return render(request, 'login_teacher.html', {'error_message': error_message})
+
+    return render(request, 'login_teacher.html')
+
 def teacher_home(request):
     return render(request, 'teacher_home.html')
 
