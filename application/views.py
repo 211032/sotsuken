@@ -116,6 +116,9 @@ def register_comp(request):
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
+async def beacon_scan(request):
+    devices = await ble_utils.scan_beacons()
+    return JsonResponse({'devices': devices})  # デバイス情報を返す
 def attendance_confirmation(request):
 
     attendances = Attendance.objects.filter(student_id=request.user.id)
@@ -124,9 +127,7 @@ def attendance_confirmation(request):
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
-async def beacon_scan(request):
-    devices = await ble_utils.scan_beacons()  # 特定のUUIDに一致するデバイスをスキャン
-    return JsonResponse({'devices': devices})  # デバイス情報を返す
+
 
 
 
