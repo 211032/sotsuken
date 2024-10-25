@@ -4,6 +4,8 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
+
+from .ble_utils import scan_beacons
 from .models import Attendance,Student,Teacher #modelsはDB
 import asyncio
 from . import ble_utils
@@ -150,9 +152,17 @@ def register_comp(request):
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
-async def beacon_scan(request):
-    devices = await ble_utils.scan_beacons()
-    return JsonResponse({'devices': devices})  # デバイス情報を返す
+async def async_scan():
+    return await scan_beacons()
+
+def scan_beacon(request):
+    # 非同期でBLEビーコンをスキャン
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    devices = loop.run_until_complete(async_scan())
+
+    # スキャン結果をJSON形式で返す
+    return JsonResponse(devices, safe=False)
 def attendance_confirmation(request):
 
     attendances = Attendance.objects.filter(student_id=request.user.id)

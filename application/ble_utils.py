@@ -9,7 +9,6 @@ TARGET_NAME = "ProxBeacon"
 MAJOR_UUID = "12300102-39fa-4005-860c-09362f6169da"
 MINOR_UUID = "12300103-39fa-4005-860c-09362f6169da"
 
-
 async def scan_beacons():
     devices = []
 
@@ -59,9 +58,3 @@ async def scan_beacons():
         await asyncio.sleep(5)  # 5秒間スキャンを実行
 
     return devices
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    devices = loop.run_until_complete(scan_beacons())
-    print(devices)
