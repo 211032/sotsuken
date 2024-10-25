@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
-from .models import Student, teacher  # データベースのStudentモデルをインポート
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
-from .models import Attendance
+from .models import Attendance,Student,Teacher #modelsはDB
 import asyncio
 from . import ble_utils
 
@@ -60,27 +59,55 @@ def login_teacher(request):
 
         try:
             # Teacher モデルの取得
-            Teacher = teacher.objects.get(teacher_id=username, password=password)
+            teacher = Teacher.objects.get(teacher_id=username, password=password)
 
             # teacher_idをセッションに保持
-            request.session['teacher_id'] = Teacher.teacher_id
+            request.session['teacher_id'] = teacher.teacher_id
 
             # ロールに応じてリダイレクト
-            if Teacher.roll == 0:  # 管理者ロールの場合
+            if teacher.roll == 0:  # 管理者ロールの場合
                 return redirect('adomin_teacher_home')
-            elif Teacher.roll == 1:  # 教師ロールの場合
+            elif teacher.roll == 1:  # 教師ロールの場合
                 return redirect('teacher_home')
-        except Teacher.DoesNotExist:
+        except teacher.DoesNotExist:
             error_message = "ユーザーが見つかりませんでした。"
             return render(request, 'login_teacher.html', {'error_message': error_message})
 
     return render(request, 'login_teacher.html')
 
+
 def teacher_home(request):
-    return render(request, 'teacher_home.html')
+    # Retrieve teacher_id from session
+    teacher_id = request.session.get('teacher_id')
+
+    if teacher_id:
+        try:
+            # Fetch the teacher object using the teacher_id from the session
+            teacher = Teacher.objects.get(teacher_id=teacher_id)
+            return render(request, 'teacher_home.html', {'teacher': teacher})
+        except teacher.DoesNotExist:
+            # If teacher is not found, redirect to the login page
+            return redirect('login_teacher')
+    else:
+        # If no teacher_id in session, redirect to the login page
+        return redirect('login_teacher')
+
 
 def adomin_teacher_home(request):
-    return render(request, 'adomin_teacher_home.html')
+    # Retrieve teacher_id from session
+    teacher_id = request.session.get('teacher_id')
+
+    if teacher_id:
+        try:
+            # Fetch the teacher object using the teacher_id from the session
+            teacher = Teacher.objects.get(teacher_id=teacher_id)
+            return render(request, 'adomin_teacher_home.html', {'teacher': teacher})
+        except teacher.DoesNotExist:
+            # If teacher is not found, redirect to the login page
+            return redirect('login_teacher')
+    else:
+        # If no teacher_id in session, redirect to the login page
+        return redirect('login_teacher')
 
 
 
