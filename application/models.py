@@ -6,7 +6,7 @@ class Student(models.Model):
     name = models.CharField(max_length=100)  # 学生の名前
     password = models.CharField(max_length=128)  # パスワード
 
-class teacher(models.Model):
+class Teacher(models.Model):
     teacher_id = models.AutoField(primary_key=True)  # 講師ID（自動で増加する）
     name = models.CharField(max_length=100)  # 講師の名前
     password = models.CharField(max_length=128)  # ハッシュ化されたパスワードを保存
