@@ -12,22 +12,26 @@
             top: 10px;
             left: 10px;
         }
+        .student-info{
+            position: absolute;
+            top: 50px;
+            left: 10px;
+        }
     </style>
 </head>
 <body>
-    <form method="POST">
-     <div class="home-container">
             <!-- アイコンボタン -->
             <div class="icon-button" onclick="toggleInfo()">
                 <img src="/static/images/kkrn_icon_user_2.png" alt="アイコン" style="width: 50px; cursor: pointer;">
             </div>
 
             <!-- クリックで表示される情報 -->
-            <div id="student-info" style="display: none;">
+            <div id="student-info" style="display: none;" class="student-info">
                 <p>クラス名: {{ student.class_name }}</p>
                 <p>メールアドレス: {{ student.email }}</p>
             </div>
-
+    <form method="POST">
+     <div class="home-container">
         <h2>ようこそ、{{ student.name }}さん</h2>
 
         <!-- ボタンの追加 -->
