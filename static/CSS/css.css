@@ -26,6 +26,7 @@ h2 {
 }
 
 form {
+    text-align: center;
     background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
     padding: 20px;
     border-radius: 10px; /* 角を丸める */
@@ -125,3 +126,6 @@ a.logout-button {
     text-decoration: none;
     border-radius: 5px;
 }
+.h{
+    margin-top: 20px;
+    }
