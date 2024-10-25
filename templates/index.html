@@ -13,13 +13,13 @@
 </style>
 <body>
   <div>
-    <h2>ログイン</h2>
     <form action="/login/" method="POST">
         {% csrf_token %}
-        <label for="email">メールアドレス:</label>
+        <h2>ログイン</h2>
+        <label for="email">メールアドレス</label>
         <input type="email" id="email" name="email" required><br>
 
-        <label for="password">パスワード:</label>
+        <label for="password">パスワード</label>
         <input type="password" id="password" name="password" required><br>
 
         <button type="submit">ログイン</button>
