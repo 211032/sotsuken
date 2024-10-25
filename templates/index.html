@@ -10,6 +10,7 @@
     
 </style>
 <body>
+  <div>
     <h2>ログイン</h2>
     <form action="/login/" method="POST">
         {% csrf_token %}
@@ -28,8 +29,9 @@
     {% endif %}
 
  <!-- 教師用ログインページへのボタン -->
-        <form action="/login_teacher/" method="get" class="h">
+        <form action="/login_teacher/" method="get">
             <button type="submit">教師用ログインページ</button>
         </form>
+  </div>
 </body>
 </html>
