@@ -51,6 +51,7 @@
             
             const list = document.getElementById('beacon-list');
             list.innerHTML = '';  // リストを初期化
+            console.log(data.devices)
 
             if (data.devices.length > 0) {
                 const device = data.devices[0];  // 接続したデバイスを取得
@@ -73,7 +74,7 @@
     // ページがロードされたときにビーコンデータをフェッチし、一定間隔で更新
     window.onload = async function() {
         await fetchBeacons()
-        setInterval(fetchBeacons, 5000);  // 5秒ごとにスキャンを実行
+        setInterval(fetchBeacons, 3000);  // 5秒ごとにスキャンを実行
     };
 </script>
 

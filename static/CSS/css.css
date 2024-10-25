@@ -26,6 +26,7 @@ h2 {
 }
 
 form {
+    text-align: center;
     background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
     padding: 20px;
     border-radius: 10px; /* 角を丸める */
@@ -84,3 +85,47 @@ button:hover {
     color: red; /* メッセージのテキストカラー */
     margin: 10px 0; /* 上下の余白 */
 }
+
+/* 左上に配置するためのスタイル */
+.top-left-info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+/* クラス名とメールアドレスの文字を白くする */
+.top-left-info p {
+    color: black;
+}
+
+/* 左上の情報の背景を白にする */
+.info-item {
+    background-color: white; /* 背景を白に */
+    padding: 5px; /* 内側の余白を追加 */
+    border-radius: 5px; /* 角を丸める */
+    margin-bottom: 5px; /* 要素間に余白を追加 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 影を追加して強調 */
+}
+
+/* ログアウトボタンを赤くする */
+a.logout-button {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/* その他のスタイル */
+.button {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #4CAF50; /* 他のボタンの色 */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.h{
+    margin-top: 20px;
+    }

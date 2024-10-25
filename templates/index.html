@@ -6,7 +6,9 @@
     <title>初回画面</title>
     <link rel="stylesheet" href="/static/CSS/css.css">
 </head>
-
+<style>
+    
+</style>
 <body>
     <h2>ログイン</h2>
     <form action="/login/" method="POST">
@@ -18,16 +20,16 @@
         <input type="password" id="password" name="password" required><br>
 
         <button type="submit">ログイン</button>
+        
+          <!-- 教師用ログインページへのボタン -->
+        <div action="/login_teacher/" method="get" class="h">
+            <button type="submit">教師用ログインページ</button>
+        </div>
     </form>
 
     <!-- エラーメッセージの表示 -->
     {% if error_message %}
         <p style="color: red;">{{ error_message }}</p>
     {% endif %}
-
-    <!-- 教師用ログインページへのボタン -->
-    <form action="/login_teacher/" method="get">
-        <button type="submit">教師用ログインページ</button>
-    </form>
 </body>
 </html>
