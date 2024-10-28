@@ -1,165 +1,69 @@
+/* 共通のレイアウト */
 body {
-    background-color: #87CEEB; /* 水色の背景 */
-    font-family: 'Arial', sans-serif; /* フォントの設定 */
-    color: #333; /* テキストカラー */
-    height: 100vh; /* ビューポートの高さを100%に設定 */
-    margin: 0; /* デフォルトのマージンをリセット */
+    background-color: #87CEEB;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    height: 100vh;
+    margin: 0;
     display: flex;
-    justify-content: center; /* 水平方向に中央揃え */
-    align-items: center; /* 垂直方向に中央揃え */
-}
-
-.container {
-    display: flex;
-    flex-direction: column;
+    align-content: center;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
+    padding: 10px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    animation: fadeIn 1s;
+}
+
+/* 共通のフォームスタイル */
+form {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.5s;
     width: 100%;
-    max-width: 400px; /* 最大幅を設定 */
+    max-width: 400px; /* フォームの最大幅 */
 }
 
-h2 {
-    margin-bottom: 20px; /* ヘッダーとフォームの間の余白 */
-    animation: fadeIn 1s; /* フェードインアニメーション */
-    text-align: center; /* 見出しを中央揃え */
+label, input, button {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-/* フェードインのアニメーション */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-form {
-    width: 100%; /* フォームの幅を100%に設定 */
-    background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
-    padding: 20px;
-    border-radius: 10px; /* 角を丸める */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ボックスシャドウ */
-    animation: slideIn 0.5s; /* スライドインアニメーション */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* フォーム内の要素を中央揃え */
-}
-
-/* スライドインのアニメーション */
-@keyframes slideIn {
-    from {
-        transform: translateY(-30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-label {
-    margin: 10px 0 5px; /* 上下のマージン */
-    text-align: center; /* ラベルを中央揃え */
-}
-
-input {
-    width: 250px; /* 入力フィールドの幅を固定 */
-    padding: 10px; /* 内側の余白 */
-    margin-bottom: 15px; /* 下に余白を追加 */
-    border: 1px solid #ccc; /* ボーダー */
-    border-radius: 5px; /* 角を丸める */
-    font-size: 16px; /* フォントサイズ */
-    transition: border-color 0.3s; /* ボーダーカラーのトランジション */
-    text-align: left; /* 入力内容を左揃え */
-}
-
-input:focus {
-    border-color: #53e3a6; /* フォーカス時のボーダーカラー */
-}
-
+/* ボタンの共通スタイル */
 button {
-    width: 250px; /* ボタンの幅を固定 */
-    padding: 10px; /* 内側の余白 */
-    border: none; /* ボーダーをなし */
-    border-radius: 5px; /* 角を丸める */
-    background-color: #53e3a6; /* ボタンの背景色 */
-    color: white; /* ボタンの文字色 */
-    font-size: 16px; /* フォントサイズ */
-    cursor: pointer; /* カーソルをポインタに */
-    transition: background-color 0.3s; /* 背景色のトランジション */
-    margin-bottom: 10px; /* ボタン間に余白 */
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #53e3a6;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #46d6a1; /* ホバー時の背景色 */
+    background-color: #46d6a1;
 }
 
-.message {
-    color: red; /* メッセージのテキストカラー */
-    margin: 10px 0; /* 上下の余白 */
-    text-align: center; /* メッセージを中央揃え */
-}
+/* レスポンシブデザイン */
+@media (max-width: 600px) {
+    body {
+        padding: 5px;
+        align-items: flex-start;
+    }
 
-/* 教師用ログインボタンのスタイル */
-a.button {
-    display: block;
-    width: 250px; /* ボタンの幅を固定 */
-    padding: 10px;
-    margin-top: 15px; /* ボタン間の余白 */
-    text-align: center; /* ボタン内のテキストを中央揃え */
-    background-color: #4CAF50;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-}
+    form {
+        padding: 15px;
+    }
 
-a.button:hover {
-    background-color: #46a049;
-}
-
-
-/* 左上に配置するためのスタイル */
-.top-left-info {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-}
-
-/* クラス名とメールアドレスの文字を白くする */
-.top-left-info p {
-    color: black;
-}
-
-/* 左上の情報の背景を白にする */
-.info-item {
-    background-color: white; /* 背景を白に */
-    padding: 5px; /* 内側の余白を追加 */
-    border-radius: 5px; /* 角を丸める */
-    margin-bottom: 5px; /* 要素間に余白を追加 */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 影を追加して強調 */
-}
-
-/* ログアウトボタンを赤くする */
-a.logout-button {
-    background-color: red;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-}
-
-/* その他のスタイル */
-.button {
-    display: inline-block;
-    margin: 10px;
-    padding: 10px 20px;
-    background-color: #4CAF50; /* 他のボタンの色 */
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
+    button {
+        font-size: 14px;
+        padding: 8px;
+    }
 }
