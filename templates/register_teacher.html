@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>教師登録</title>
+    <link rel="stylesheet" href="/static/CSS/css.css">
+    <style>
+       form {
+           width: 300px;
+       }
+   </style>
 </head>
 <body>
-    <h2>教師登録</h2>
+    <form method="post">
+        {% csrf_token %}
+        <h2>教師登録</h2>
 
     <!-- メッセージ表示エリア -->
     {% if messages %}
@@ -14,9 +22,6 @@
             <p style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">{{ message }}</p>
         {% endfor %}
     {% endif %}
-
-    <form method="post">
-        {% csrf_token %}
         
         <label for="teacher_id">教師ID:</label>
         <input type="number" id="teacher_id" name="teacher_id" required><br>
@@ -37,7 +42,9 @@
         <input type="password" id="confirm_password" name="confirm_password" required><br>
 
         <button type="submit">登録</button>
+        
+        <a class="button" href="{% url 'adomin_teacher_home' %}">管理者ホームに戻る</a>
     </form>
-    <a href="{% url 'adomin_teacher_home' %}">管理者ホームに戻る</a>
+   
 </body>
 </html>

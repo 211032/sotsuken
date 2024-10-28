@@ -26,7 +26,7 @@ form {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     animation: slideIn 0.5s;
     width: 100%;
-    max-width: 400px; /* フォームの最大幅 */
+    max-width: 200px; /* フォームの最大幅 */
 }
 
 label, input, button {
