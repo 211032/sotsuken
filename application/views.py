@@ -111,12 +111,51 @@ def adomin_teacher_home(request):
         # If no teacher_id in session, redirect to the login page
         return redirect('login_teacher')
 
-
-
-
 def register_view(request):
-
     return render(request, 'accountReg.html')
+
+def register_teacher(request):
+    if request.method == 'POST':
+        # フォームデータを取得
+        teacher_id = request.POST.get('teacher_id')
+        name = request.POST.get('name')
+        romanized_last_name = request.POST.get('romanized_last_name')
+        roll = request.POST.get('roll')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # 必須フィールドのバリデーション
+        if not all([teacher_id, name, romanized_last_name, roll, password, confirm_password]):
+            messages.error(request, "すべてのフィールドを入力してください。")
+            return render(request, 'register_teacher.html')
+
+        # `teacher_id`の重複チェック
+        if Teacher.objects.filter(teacher_id=teacher_id).exists():
+            messages.error(request, "この教師IDは既に使用されています。")
+            return render(request, 'register_teacher.html')
+
+        # パスワードの確認
+        if password != confirm_password:
+            messages.error(request, "パスワードが一致しません。")
+            return render(request, 'register_teacher.html')
+
+        # 教師の登録処理（パスワードをハッシュ化）
+        Teacher.objects.create(
+            teacher_id=teacher_id,
+            name=name,
+            romanized_last_name=romanized_last_name,
+            roll=int(roll),
+            password=make_password(password)
+        )
+
+        messages.success(request, "教師が正常に登録されました！")
+        return redirect('teacher_registration_success')  # 登録成功ページにリダイレクト
+
+    return render(request, 'register_teacher.html')
+
+def registration_success(request):
+    return render(request, 'registration_success.html')
+
 
 def register_comp(request):
     if request.method == 'POST':

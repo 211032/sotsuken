@@ -3,26 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン画面</title>
+    <title>初回画面</title>
     <link rel="stylesheet" href="/static/CSS/css.css">
 </head>
-
+<style>
+    
+    
+    
+</style>
 <body>
-    <h2>ログイン</h2>
+  <div>
     <form action="/login/" method="POST">
         {% csrf_token %}
-        <label for="email">メールアドレス:</label>
+        <h2>ログイン</h2>
+        <label for="email">メールアドレス</label>
         <input type="email" id="email" name="email" required><br>
 
-        <label for="password">パスワード:</label>
+        <label for="password">パスワード</label>
         <input type="password" id="password" name="password" required><br>
 
         <button type="submit">ログイン</button>
+        <a class="button" href="/login_teacher/">教師用ログインページ</a>
     </form>
 
     <!-- エラーメッセージの表示 -->
     {% if error_message %}
         <p style="color: red;">{{ error_message }}</p>
     {% endif %}
+  
+  </div>
 </body>
 </html>
