@@ -84,7 +84,7 @@ input:focus {
 }
 
 button {
-    width: 250px; /* ボタンの幅を固定 */
+    width: 270px; /* ボタンの幅を固定 */
     padding: 10px; /* 内側の余白 */
     border: none; /* ボーダーをなし */
     border-radius: 5px; /* 角を丸める */
@@ -147,6 +147,7 @@ a.button:hover {
 
 /* ログアウトボタンを赤くする */
 a.logout-button {
+    width: 230px;
     background-color: red;
     color: white;
     padding: 10px 20px;
