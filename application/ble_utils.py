@@ -1,30 +1,34 @@
 import asyncio
 from bleak import BleakScanner, BLEDevice, AdvertisementData
+import binascii
+from application import ble_connect_utils
 
 # デバイス情報
-TARGET_UUID = "12300100-39fa-4005-860c-09362f6169da"
 TARGET_NAME = "ProxBeacon"
-
+TARGET_UUID = "12300200-39fa-4005-860c-09362f6169da"  # Maintenance ServiceのUUID
+DEVICE_ID_CHAR_UUID = "12300201-39fa-4005-860c-09362f6169da"  # デバイスIDのCharacteristic UUID
 
 async def scan_beacons():
     devices = []
 
     async def detection_callback(device: BLEDevice, advertisement_data: AdvertisementData):
         try:
-            # デバイス情報を取得
-            uuid = advertisement_data.service_uuids[0] if advertisement_data.service_uuids else None
             name = device.name
+            address = device.address
             manufacturer_data = advertisement_data.manufacturer_data
 
             # 条件に合うデバイスを見つけた場合
-            if name == TARGET_NAME and uuid == TARGET_UUID:
-                print(f"Device found: {device} with advertisement_data: {advertisement_data}")
+            if name == TARGET_NAME and manufacturer_data:
 
-                # メーカー特有のデータを抽出し、majorとminorを解読
-                print(f"manufactur:{manufacturer_data}")
-                manufacturer_bytes = list(manufacturer_data.values())[0] if manufacturer_data else None #
-                if manufacturer_bytes:
-                    # バイトデータの構造を確認し、majorとminorを抽出
+                # メーカー特有のデータを抽出し、UUID、major、minorを解読
+                manufacturer_bytes = list(manufacturer_data.values())[0] if manufacturer_data else None
+                if manufacturer_bytes and len(manufacturer_bytes) >= 22:
+                    # UUIDを取得
+                    uuid = binascii.hexlify(manufacturer_bytes[2:18]).decode("utf-8")
+                    formatted_uuid = f"{uuid[:8]}-{uuid[8:12]}-{uuid[12:16]}-{uuid[16:20]}-{uuid[20:]}"
+                    print(f"UUID: {formatted_uuid}")
+
+                    # Major と Minor を取得
                     major = int.from_bytes(manufacturer_bytes[18:20], 'big')
                     minor = int.from_bytes(manufacturer_bytes[20:22], 'big')
                     print(f"major: {major}, minor: {minor}")
@@ -32,11 +36,15 @@ async def scan_beacons():
                     # デバイス情報をリストに追加
                     devices.append({
                         'name': name,
+                        'address': address,
                         'is_connected': True,
-                        'uuid': uuid,
+                        'uuid': formatted_uuid,
                         'major': major,
                         'minor': minor,
                     })
+
+                    # 追加：デバイスIDを取得
+                    await ble_connect_utils.get_device_id(address)
 
         except Exception as e:
             print(f"Error processing device: {e}")
@@ -47,13 +55,13 @@ async def scan_beacons():
 
     return devices
 
-
 # メイン関数
 async def main():
     found_devices = await scan_beacons()
     for device in found_devices:
         print(f"Found device: {device}")
 
-
 # 実行
 asyncio.run(main())
+
+
