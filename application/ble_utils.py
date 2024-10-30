@@ -1,7 +1,6 @@
 import asyncio
 from bleak import BleakScanner, BLEDevice, AdvertisementData
 import binascii
-from application import ble_connect_utils
 
 # デバイス情報
 TARGET_NAME = "ProxBeacon"
