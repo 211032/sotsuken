@@ -14,6 +14,7 @@ class Teacher(models.Model):
     roll = models.IntegerField(max_length=50)  # 役割
 
 
+
 class Subject(models.Model):
     subject_id = models.AutoField(primary_key=True)  # 科目ID
     subject_name = models.CharField(max_length=100)  # 科目名

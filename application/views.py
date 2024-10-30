@@ -156,8 +156,7 @@ def register_teacher(request):
 def registration_success(request):
     return render(request, 'registration_success.html')
 
-
-def register_comp(request):
+def register_student(request):
     if request.method == 'POST':
         name = request.POST.get('student_name')
         email = request.POST.get('student_mail')
@@ -168,12 +167,12 @@ def register_comp(request):
         # パスワード確認
         if password != confirm_password:
             messages.error(request, "パスワードが一致しません。")
-            return render(request, 'accountReg.html', {'messages': messages.get_messages(request)})
+            return render(request, 'register_student.html', {'messages': messages.get_messages(request)})
 
         # メールアドレスの重複チェック
         if Student.objects.filter(email=email).exists():
             messages.error(request, "このメールアドレスはすでに使用されています。")
-            return render(request, 'accountReg.html', {'messages': messages.get_messages(request)})
+            return render(request, 'register_student.html', {'messages': messages.get_messages(request)})
 
         # 学生データの作成
         student = Student(
@@ -184,9 +183,9 @@ def register_comp(request):
         )
         student.save()  # データベースに保存
 
-        messages.success(request, "アカウントが正常に登録されました。")
-        return render(request, 'RegComplete.html')
-    return render(request, 'accountReg.html')
+        messages.success(request, "生徒が正常に登録されました。")
+        return render(request, 'register_student.html')
+    return render(request, 'register_student.html')
 
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
