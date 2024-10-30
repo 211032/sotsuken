@@ -191,6 +191,7 @@ def register_comp(request):
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
+
 async def async_scan():
     return await scan_beacons()
 
@@ -200,8 +201,9 @@ def scan_beacon(request):
     asyncio.set_event_loop(loop)
     devices = loop.run_until_complete(async_scan())
 
-    # スキャン結果をJSON形式で返す
-    return JsonResponse(devices, safe=False)
+    # 期待するJSON形式でデバイス情報を返す
+    response_data = {'devices': devices}
+    return JsonResponse(response_data)
 def attendance_confirmation(request):
 
     attendances = Attendance.objects.filter(student_id=request.user.id)
