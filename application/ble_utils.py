@@ -21,21 +21,22 @@ async def scan_beacons():
                 print(f"Device found: {device} with advertisement_data: {advertisement_data}")
 
                 # メーカー特有のデータを抽出し、majorとminorを解読
-                #manufacturer_bytes = list(manufacturer_data.values())[0] if manufacturer_data else None #個々の行がとってこれているのか次回検証
-                #if manufacturer_bytes and len(manufacturer_bytes) >= 25:
+                print(f"manufactur:{manufacturer_data}")
+                manufacturer_bytes = list(manufacturer_data.values())[0] if manufacturer_data else None #
+                if manufacturer_bytes:
                     # バイトデータの構造を確認し、majorとminorを抽出
-                    #major = int.from_bytes(manufacturer_bytes[18:20], 'big')
-                    #minor = int.from_bytes(manufacturer_bytes[20:22], 'big')
-                    #print(f"major: {major}, minor: {minor}")
+                    major = int.from_bytes(manufacturer_bytes[18:20], 'big')
+                    minor = int.from_bytes(manufacturer_bytes[20:22], 'big')
+                    print(f"major: {major}, minor: {minor}")
 
                     # デバイス情報をリストに追加
-            devices.append({
-                'name': name,
-                'is_connected': True,
-                'uuid': uuid,
-                #'major': major,
-                #'minor': minor,
-            })
+                    devices.append({
+                        'name': name,
+                        'is_connected': True,
+                        'uuid': uuid,
+                        'major': major,
+                        'minor': minor,
+                    })
 
         except Exception as e:
             print(f"Error processing device: {e}")
