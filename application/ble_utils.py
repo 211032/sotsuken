@@ -1,6 +1,7 @@
 import asyncio
 from bleak import BleakScanner, BLEDevice, AdvertisementData
 import binascii
+from .classroom_checker import get_classroom_name
 
 # デバイス情報
 TARGET_NAME = "ProxBeacon"
@@ -30,6 +31,7 @@ async def scan_beacons():
                     # Major と Minor を取得
                     major = int.from_bytes(manufacturer_bytes[18:20], 'big')
                     minor = int.from_bytes(manufacturer_bytes[20:22], 'big')
+                    classname = await get_classroom_name(minor)
                     print(f"major: {major}, minor: {minor}")
 
                     # デバイス情報をリストに追加
@@ -40,10 +42,10 @@ async def scan_beacons():
                         'uuid': formatted_uuid,
                         'major': major,
                         'minor': minor,
+                        'classname': classname,
                     })
 
-                    # 追加：デバイスIDを取得
-                    await ble_connect_utils.get_device_id(address)
+
 
         except Exception as e:
             print(f"Error processing device: {e}")
