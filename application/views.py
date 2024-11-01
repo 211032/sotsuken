@@ -55,27 +55,31 @@ def logout(request):
     return render(request, 'login.html')  # トップページを表示
 
 def login_teacher(request):
+    error_message = None
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        teacher = None
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         try:
             # Teacher モデルの取得
-            teacher = Teacher.objects.get(teacher_id=username, password=password)
+            teacher = Teacher.objects.get(teacher_id=username)
 
-            # teacher_idをセッションに保持
-            request.session['teacher_id'] = teacher.teacher_id
+            # 入力されたパスワードと保存されている平文のパスワードを直接比較
+            if teacher.password == password:
+                # teacher_idをセッションに保持
+                request.session['teacher_id'] = teacher.teacher_id
 
-            # ロールに応じてリダイレクト
-            if teacher.roll == "0":  # 管理者ロールの場合
-                return redirect('adomin_teacher_home')
-            elif teacher.roll == "1":  # 教師ロールの場合
-                return redirect('teacher_home')
-        except teacher.DoesNotExist:
-            error_message = "ユーザーが見つかりませんでした。"
-            return render(request, 'login_teacher.html', {'error_message': error_message})
-    return render(request, 'login_teacher.html')
+                # ロールに応じてリダイレクト
+                if teacher.roll == 0:  # 管理者ロールの場合
+                    return redirect('adomin_teacher_home')
+                elif teacher.roll == 1:  # 教師ロールの場合
+                    return redirect('teacher_home')
+            else:
+                error_message = "パスワードが違います"  # パスワードが一致しない場合
+        except Teacher.DoesNotExist:
+            error_message = "ユーザーが見つかりませんでした"  # ユーザーが存在しない場合
+
+    return render(request, 'login_teacher.html', {'error_message': error_message})
 
 
 def teacher_home(request):
