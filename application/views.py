@@ -194,6 +194,11 @@ async def beacon_connect(request):
 async def async_scan():
     return await scan_beacons()
 
+def teacher_list(request):
+    teachers = Teacher.objects.all()
+    return render(request, 'teacher_list.html', {'teachers': teachers})
+
+
 def scan_beacon(request):
     # 非同期でBLEビーコンをスキャン
     loop = asyncio.new_event_loop()
