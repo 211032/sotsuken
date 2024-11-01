@@ -1,3 +1,5 @@
+from tkinter.constants import CASCADE
+
 from django.db import models
 
 class Student(models.Model):
@@ -22,16 +24,20 @@ class Subject(models.Model):
 
 class Enrollment(models.Model):
     enrollment_id = models.AutoField(primary_key=True)  # 履修ID
-    instructor_id = models.IntegerField()  # 講師ID（外部キーとして講師モデルを追加するのが望ましい）
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # 科目ID（外部キー）
+    instructor_id = models.ForeignKey('Teacher',on_delete=models.CASCADE)  # 講師ID（外部キーとして講師モデルを追加するのが望ましい）
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)  # 科目ID（外部キー）
     class_identifier = models.CharField(max_length=50)  # クラス識別
+
+class Classroom(models.Model):
+    classroom_id = models.CharField(max_length=50,primary_key=True)
+    classroom_name = models.CharField(max_length=10, unique=True)
 
 
 class Attendance(models.Model):
-    attendance_id = models.AutoField(primary_key=True)  # 出欠ID
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)  # 履修ID（外部キー）
-    classroom_id = models.IntegerField()  # 教室ID
-    student_id = models.CharField(max_length=20)  # 学籍番号
+    attendance_id = models.CharField(max_length=50, primary_key=True)  # 出欠IDを文字列型の主キーに設定
+    enrollment = models.ForeignKey('Enrollment', on_delete=models.CASCADE)  # 履修ID（外部キー）
+    classroom = models.ForeignKey('Classroom', on_delete=models.CASCADE)  # 教室ID（外部キー）
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)  # 学籍番号（メールアドレスの外部キー）
     period = models.IntegerField()  # 何限
     start_time = models.TimeField()  # 授業開始時間
     end_time = models.TimeField()  # 授業終了時間
@@ -43,15 +49,15 @@ class Attendance(models.Model):
         ('late', '遅刻'),
         ('leave_early', '早退'),
         ('not_attended', '退席'),
-    ])  # 出欠（出席 or 退席 or 遅刻 or 早退 or 欠席）
+    ])
 
 class Timetable(models.Model):
     email = models.EmailField(primary_key=True)  # メールアドレス
     date = models.DateField()  # 日にち
-    period1 = models.CharField(max_length=100, blank=True, null=True)  # 1コマ目
-    period2 = models.CharField(max_length=100, blank=True, null=True)  # 2コマ目
-    period3 = models.CharField(max_length=100, blank=True, null=True)  # 3コマ目
-    period4 = models.CharField(max_length=100, blank=True, null=True)  # 4コマ目
+    period1 = models.ForeignKey('Attendance', related_name='timetable_period1', on_delete=models.SET_NULL, null=True, blank=True)  # 1コマ目
+    period2 = models.ForeignKey('Attendance', related_name='timetable_period2', on_delete=models.SET_NULL, null=True, blank=True)  # 2コマ目
+    period3 = models.ForeignKey('Attendance', related_name='timetable_period3', on_delete=models.SET_NULL, null=True, blank=True)  # 3コマ目
+    period4 = models.ForeignKey('Attendance', related_name='timetable_period4', on_delete=models.SET_NULL, null=True, blank=True)  # 4コマ目
     is_special_class = models.BooleanField(default=False)
 
     class Meta:
@@ -59,5 +65,5 @@ class Timetable(models.Model):
 
 class Equipment(models.Model):
     minor = models.IntegerField(primary_key=True)  # 機器IDを主キーに設定
-    location = models.CharField(max_length=100)  # 場所
+    location = models.ForeignKey('Classroom',on_delete=models.CASCADE)  # 場所
     macaddress = models.CharField(max_length=100)  # メジャー
