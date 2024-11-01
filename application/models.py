@@ -11,7 +11,7 @@ class Teacher(models.Model):
     name = models.CharField(max_length=100)  # 講師の名前
     password = models.CharField(max_length=128)  # ハッシュ化されたパスワードを保存
     romanized_last_name = models.CharField(max_length=100)  # 講師のローマ字の姓
-    roll = models.IntegerField(max_length=50)  # 役割
+    roll = models.IntegerField()  # 役割
 
 
 
@@ -44,3 +44,20 @@ class Attendance(models.Model):
         ('leave_early', '早退'),
         ('not_attended', '退席'),
     ])  # 出欠（出席 or 退席 or 遅刻 or 早退 or 欠席）
+
+class Timetable(models.Model):
+    email = models.EmailField(primary_key=True)  # メールアドレス
+    date = models.DateField()  # 日にち
+    period1 = models.CharField(max_length=100, blank=True, null=True)  # 1コマ目
+    period2 = models.CharField(max_length=100, blank=True, null=True)  # 2コマ目
+    period3 = models.CharField(max_length=100, blank=True, null=True)  # 3コマ目
+    period4 = models.CharField(max_length=100, blank=True, null=True)  # 4コマ目
+    is_special_class = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (('email', 'date'),)  # emailとdateの複合キー設定
+
+class Equipment(models.Model):
+    minor = models.IntegerField(primary_key=True)  # 機器IDを主キーに設定
+    location = models.CharField(max_length=100)  # 場所
+    macaddress = models.CharField(max_length=100)  # メジャー
