@@ -18,7 +18,7 @@ class Teacher(models.Model):
 
 
 class Subject(models.Model):
-    subject_id = models.AutoField(primary_key=True)  # 科目ID
+    subject_id = models.IntegerField(primary_key=True)  # 科目ID
     subject_name = models.CharField(max_length=100)  # 科目名
 
 
@@ -34,7 +34,7 @@ class Classroom(models.Model):
 
 
 class Attendance(models.Model):
-    attendance_id = models.CharField(max_length=50, primary_key=True)  # 出欠IDを文字列型の主キーに設定
+    attendance_id = models.AutoField(primary_key=True)  # 出欠IDを文字列型の主キーに設定
     enrollment = models.ForeignKey('Enrollment', on_delete=models.CASCADE)  # 履修ID（外部キー）
     classroom = models.ForeignKey('Classroom', on_delete=models.CASCADE)  # 教室ID（外部キー）
     student = models.ForeignKey('Student', on_delete=models.CASCADE)  # 学籍番号（メールアドレスの外部キー）
