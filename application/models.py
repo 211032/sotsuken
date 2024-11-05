@@ -63,8 +63,9 @@ class Timetable(models.Model):
     class Meta:
         unique_together = (('email', 'date'),)  # emailとdateの複合キー設定
 
+
 class Equipment(models.Model):
-    minor = models.IntegerField(primary_key=True)  # 機器IDを主キーに設定
+    device_id = models.CharField(max_length=10,primary_key=True)  # 機器IDを主キーに設定
     location = models.ForeignKey('Classroom',on_delete=models.CASCADE)  # 場所
-    macaddress = models.CharField(max_length=100)  # メジャー
+    minor = models.IntegerField()
 
