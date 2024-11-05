@@ -57,9 +57,9 @@
             if (data.devices.length > 0) {
                 const device = data.devices[0];  // 接続したデバイスを取得
                 if (device.is_connected) {
-                    document.getElementById('status').innerText = `接続成功: ${device.name} クラス名:${device.classname}`;
+                    document.getElementById('status').innerText = `接続成功しました。`;
                     const li = document.createElement('li');
-                    li.textContent = `デバイス名: ${device.name}, 接続可否: ${device.is_connected}`;
+                    li.textContent = `クラス名:${device.classname}`;
                     list.appendChild(li);
                 } else {
                     document.getElementById('status').innerText = "接続に失敗しました。";
