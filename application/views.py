@@ -226,8 +226,8 @@ def teacher_submit(request):
 def time_table(request):
     return render(request, 'time_table.html')
 
-def course_registration(request):
-    return render(request, 'course_registration.html')
+def subject_registration(request):
+    return render(request, 'subject_registration.html')
 
 
 

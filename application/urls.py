@@ -20,6 +20,6 @@ urlpatterns = [
     path('teacher_list/', views.teacher_list, name='teacher_list'),  # 教師一覧ページ
     path('time_table/', views.time_table, name='time_table'), #時間割登録機能にとぶ
 
-    path('course_registration/', views.course_registration, name='course_registration'), #科目登録機能にとぶ
+    path('subject_registration/', views.subject_registration, name='course_registration'), #科目登録機能にとぶ
 
 ]
