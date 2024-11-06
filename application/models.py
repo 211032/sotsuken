@@ -12,13 +12,13 @@ class Teacher(models.Model):
     teacher_id = models.AutoField(primary_key=True)  # 講師ID（自動で増加する）
     name = models.CharField(max_length=100)  # 講師の名前
     password = models.CharField(max_length=128)  # ハッシュ化されたパスワードを保存
-    romanized_last_name = models.CharField(max_length=100)  # 講師のローマ字の姓
+    alphabet_last_name = models.CharField(max_length=100)  # 講師のローマ字の姓
     roll = models.IntegerField()  # 役割
 
 
 
 class Subject(models.Model):
-    subject_id = models.IntegerField(primary_key=True)  # 科目ID
+    subject_id = models.AutoField(primary_key=True)  # 科目ID
     subject_name = models.CharField(max_length=100)  # 科目名
 
 
@@ -65,7 +65,7 @@ class Timetable(models.Model):
 
 
 class Equipment(models.Model):
-    device_id = models.CharField(max_length=10,primary_key=True)  # 機器IDを主キーに設定
+    device_id = models.AutoField(primary_key=True)  # 機器IDを主キーに設定
     location = models.ForeignKey('Classroom',on_delete=models.CASCADE)  # 場所
     minor = models.IntegerField()
 
