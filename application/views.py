@@ -222,6 +222,13 @@ def attendance_confirmation(request):
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
+#時間割登録機能に遷移する
+def time_table(request):
+    return render(request, 'time_table.html')
+
+def course_registration(request):
+    return render(request, 'course_registration.html')
+
 
 
 
