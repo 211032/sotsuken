@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
 from .ble_utils import scan_beacons
-from .models import Attendance,Student,Teacher #modelsはDB
+from .models import Attendance, Student, Teacher, Classroom, Equipment  # modelsはDB
 import asyncio
 from . import ble_utils
 
@@ -228,6 +228,34 @@ def time_table(request):
 
 def subject_registration(request):
     return render(request, 'subject_registration.html')
+
+# beacon登録
+def register_beacon(request):
+    # POSTリクエストでビーコンデータを登録
+    if request.method == 'POST':
+        location_id = request.POST.get('location')
+        minor = request.POST.get('minor')
+
+        # 教室の確認
+        try:
+            classroom = Classroom.objects.get(classroom_id=location_id)
+        except Classroom.DoesNotExist:
+            messages.error(request, "指定された教室が見つかりませんでした。")
+            return redirect('register_beacon')
+
+        # ビーコンデータを保存
+        Equipment.objects.create(
+            location=classroom,
+            minor=minor
+        )
+
+        messages.success(request, "ビーコンが正常に登録されました！")
+        return redirect('adomin_teacher_home')
+
+    # GETリクエスト時は教室一覧を表示する
+    classrooms = Classroom.objects.all()
+    return render(request, 'register_beacon.html', {'classrooms': classrooms})
+
 
 
 

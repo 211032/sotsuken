@@ -19,7 +19,7 @@ urlpatterns = [
     path('teacher-registration-success/', views.registration_success, name='teacher_registration_success'),
     path('teacher_list/', views.teacher_list, name='teacher_list'),  # 教師一覧ページ
     path('time_table/', views.time_table, name='time_table'), #時間割登録機能にとぶ
-
     path('subject_registration/', views.subject_registration, name='course_registration'), #科目登録機能にとぶ
+    path('register_beacon/', views.register_beacon, name='register_beacon'),  # ビーコン登録ページへのパス
 
 ]

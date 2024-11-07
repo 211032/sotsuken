@@ -1,0 +1,27 @@
+<!-- beacon_app/templates/register_beacon.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ビーコン登録</title>
+</head>
+<body>
+    <h1>ビーコンの登録</h1>
+
+    <form method="post" action="{% url 'register_beacon' %}">
+        {% csrf_token %}
+        <label for="location">教室の選択:</label>
+        <select name="location" required>
+            {% for classroom in classrooms %}
+                <option value="{{ classroom.classroom_id }}">{{ classroom.classroom_name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="minor">マイナー番号:</label>
+        <input type="number" name="minor" required><br>
+
+        <button type="submit">登録する</button>
+    </form>
+</body>
+</html>
+
