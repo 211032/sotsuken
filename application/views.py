@@ -257,7 +257,5 @@ def register_beacon(request):
     return render(request, 'register_beacon.html', {'classrooms': classrooms})
 
 
-
-
-
-
+def student_course_registration(request):
+    return render(request, 'student_course_registration.html')
