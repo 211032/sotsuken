@@ -52,7 +52,7 @@
     {% csrf_token %}
     <h1>生徒の履修登録</h1>
     <label for="student-class">
-        <input type="radio" id="student-class" name="student_select" value="checkbox" onclick="toggleInput()">
+        <input type="radio" id="student-class" name="student_select" value="checkbox" onclick="toggleInput(), filterByClass()">
         クラスで検索
     </label>
     <label for="student-name">
@@ -66,9 +66,11 @@
     
     <!-- チェックボックス -->
     <div id="checkboxes" style="display: none;">
-        <label><input type="checkbox" name="option" value="option1"> クラスA</label>
-        <label><input type="checkbox" name="option" value="option2"> クラスB</label>
-        <label><input type="checkbox" name="option" value="option3"> クラスC</label>
+        {% for student_class in student_classes %}
+            <label>
+                <input type="checkbox" name="option" value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
+            </label>
+        {% endfor %}
     </div>
 
     <!-- テキスト入力 -->
@@ -80,7 +82,7 @@
     <table id="studentTable">
         <thead>
             <tr>
-                <th>学籍番号</th>
+                <th>メール</th>
                 <th>名前</th>
                 <th>クラス</th>
             </tr>
@@ -88,13 +90,14 @@
         <tbody>
             {% for student in students %}
                 <tr>
-                    <td class="student-id">{{ student.student_id }}</td>
+                    <td class="student-id">{{ student.email }}</td>
                     <td class="student-name">{{ student.name }}</td>
-                    <td>{{ student.class }}</td>
+                    <td class="student-class">{{ student.class_name }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+<a href="{% url 'teacher_home' %}">ホームへ戻る</a>
 </form>
 
 <script>
@@ -123,15 +126,28 @@
         for (let i = 0; i < rows.length; i++) {
             let cell;
             if (method === "text1") {
-                // 名前で検索
                 cell = rows[i].getElementsByClassName("student-name")[0];
             } else if (method === "text2") {
-                // 学籍番号で検索
                 cell = rows[i].getElementsByClassName("student-id")[0];
             }
             if (cell) {
                 const content = cell.textContent || cell.innerText;
                 rows[i].style.display = content.toLowerCase().indexOf(input) > -1 ? "" : "none";
+            }
+        }
+    }
+
+    // クラスでフィルタリング
+    function filterByClass() {
+        const checkboxes = document.querySelectorAll('input[name="option"]:checked');
+        const selectedClasses = Array.from(checkboxes).map(cb => cb.value);
+        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            const classNameCell = rows[i].getElementsByClassName("student-class")[0];
+            if (classNameCell) {
+                const className = classNameCell.textContent || classNameCell.innerText;
+                rows[i].style.display = selectedClasses.includes(className) ? "" : "none";
             }
         }
     }
