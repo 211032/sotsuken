@@ -23,6 +23,6 @@ urlpatterns = [
     path('student_course_registration/', views.student_course_registration, name='student_course_registration'),
     path('register_beacon/', views.register_beacon, name='register_beacon'),  # ビーコン登録ページへのパス
 
-    path('course_registration_comp/', views.course_registration_comp, name='course_registration_comp'),
+    path('course_registration_comp/', views.subject_registration_comp, name='course_registration_comp'),
 
 ]
