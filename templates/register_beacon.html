@@ -1,0 +1,37 @@
+<!-- beacon_app/templates/register_beacon.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ビーコン登録</title>
+    <link rel="stylesheet" href="/static/CSS/css.css">
+</head>
+<style>
+    .size {
+         width: 270px; /* 横幅を設定 */
+        height: 40px; /* 高さを設定 */
+        font-size: 16px; /* 文字サイズを設定 */
+        text-align: center; /* 文字を中央に配置 */
+        padding: 5px; /* 内側に余白を設定 */
+    }
+</style>
+<body>
+
+    <form method="post" action="{% url 'register_beacon' %}">
+    <h1>ビーコンの登録</h1>
+        {% csrf_token %}
+        <label for="location">教室の選択:</label>
+        <select class="size"  name="location" required>
+            {% for classroom in classrooms %}
+                <option value="{{ classroom.classroom_id }}">{{ classroom.classroom_name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="minor">マイナー番号:</label>
+        <input type="number" name="minor" required><br>
+
+        <button type="submit">登録する</button>
+    </form>
+</body>
+</html>
+

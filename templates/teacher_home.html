@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>教師用ホーム画面</title>
-    <link rel="stylesheet" >
+    <link rel="stylesheet" href="/static/CSS/css.css">
     <style>
         .home-container {
             text-align: center;
@@ -55,6 +55,7 @@
     </style>
 </head>
 <body>
+<form>
     <div class="home-container">
         <h2>ようこそ、{{ teacher.name }}さん</h2>
         <p>ユーザーID: {{ teacher.teacher_id }}</p>
@@ -69,5 +70,6 @@
         <!-- ログアウトボタン -->
         <a href="{% url 'logout' %}" class="button logout-button">ログアウト</a>
     </div>
+</form>
 </body>
 </html>
