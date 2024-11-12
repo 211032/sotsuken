@@ -3,11 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <title>生徒の履修登録</title>
-    <link rel="stylesheet" href="/static/CSS/css.css">
+    <link rel="stylesheet">
 </head>
+<style>
+    body {
+        background-color: #87CEEB; /* 水色の背景 */
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center; /* ページ中央に配置 */
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        }
+    form {
+        width: 400px; /* フォームの幅を100%に設定 */
+        background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
+        padding: 20px;
+        border-radius: 10px; /* 角を丸める */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ボックスシャドウ */
+        animation: slideIn 0.5s; /* スライドインアニメーション */
+        display: flex;
+        flex-direction: column;
+    }
+    label {
+        display: block;
+        margin: 10px 0;
+        font-weight: bold;
+    }
+    #checkboxes, #textInput {
+        margin-left: 20px; /* 内側に余白を設定 */
+    }
+    #studentTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    #studentTable th, #studentTable td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    #studentTable th {
+        background-color: #f2f2f2;
+    }
+</style>
 <body>
 <form action="/student_course_registration/" method="post">
     {% csrf_token %}
+    <h1>生徒の履修登録</h1>
     <label for="student-class">
         <input type="radio" id="student-class" name="student_select" value="checkbox" onclick="toggleInput()">
         クラスで検索
