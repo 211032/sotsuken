@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
 from .ble_utils import scan_beacons
-from .models import Attendance,Student,Teacher #modelsはDB
+from .models import Attendance, Student, Teacher, Subject  # modelsはDB
 import asyncio
 from . import ble_utils
 
@@ -228,6 +228,17 @@ def time_table(request):
 
 def course_registration(request):
     return render(request, 'course_registration.html')
+
+def course_registration_comp(request):
+    if request.method == 'POST':
+        subjectName = request.POST.get('subjectName')
+
+        subject = Subject(subject_name=subjectName)
+        subject.save()
+
+        return render(request, 'course_registration.html', {'message': '登録が完了しました!'})
+
+
 
 
 

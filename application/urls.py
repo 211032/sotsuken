@@ -22,4 +22,6 @@ urlpatterns = [
 
     path('course_registration/', views.course_registration, name='course_registration'), #科目登録機能にとぶ
 
+    path('course_registration_comp/', views.course_registration_comp, name='course_registration_comp'),
+
 ]

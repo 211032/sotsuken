@@ -5,6 +5,28 @@
     <title>科目登録</title>
 </head>
 <body>
+<h1>新しい科目を登録</h1>
+    <form action = "{% url 'course_registration_comp' %}" method="POST">
+        {% csrf_token %}
+        
+        
+        <!-- 科目名入力 -->
+        <div>
+            <label for="name">科目名</label>
+            <input type="text" name="subjectName" id="subjectName" required>
+        </div>
 
+        
+        
+        
+        
+        <button type="submit">登録</button>
+    </form>
+
+    {% if message %}
+        <p style="color: green;">{{ message }}</p>
+    {% endif %}
+
+    <a href="{% url 'teacher_home' %}">ホームへ戻る</a>
 </body>
 </html>
