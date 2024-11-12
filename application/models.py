@@ -4,7 +4,7 @@ from django.db import models
 
 class Student(models.Model):
     email = models.EmailField(primary_key=True)  # メールアドレス
-    class_name = models.CharField(max_length=100)  # クラス名
+    class_name = models.ForeignKey('StudentClass',on_delete=models.CASCADE)  # クラス名
     name = models.CharField(max_length=100)  # 学生の名前
     password = models.CharField(max_length=128)  # パスワード
 
@@ -15,7 +15,9 @@ class Teacher(models.Model):
     alphabet_last_name = models.CharField(max_length=100)  # 講師のローマ字の姓
     roll = models.IntegerField()  # 役割
 
-
+class StudentClass(models.Model):
+    class_id = models.AutoField(primary_key=True)
+    class_name = models.CharField(max_length=10, unique=True)
 
 class Subject(models.Model):
     subject_id = models.AutoField(primary_key=True)  # 科目ID
@@ -26,7 +28,7 @@ class Enrollment(models.Model):
     enrollment_id = models.AutoField(primary_key=True)  # 履修ID
     instructor_id = models.ForeignKey('Teacher',on_delete=models.CASCADE)  # 講師ID（外部キーとして講師モデルを追加するのが望ましい）
     subject = models.ForeignKey('Subject', on_delete=models.CASCADE)  # 科目ID（外部キー）
-    class_identifier = models.CharField(max_length=50)  # クラス識別
+    class_identifier = models.ForeignKey('StudentClass',on_delete=models.CASCADE)  # クラス識別
 
 class Classroom(models.Model):
     classroom_id = models.CharField(max_length=50,primary_key=True)
