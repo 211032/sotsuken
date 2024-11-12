@@ -8,30 +8,53 @@
 </head>
 <style>
     .size {
-         width: 270px; /* 横幅を設定 */
-        height: 40px; /* 高さを設定 */
-        font-size: 16px; /* 文字サイズを設定 */
-        text-align: center; /* 文字を中央に配置 */
-        padding: 5px; /* 内側に余白を設定 */
+         width: 270px;
+         height: 40px;
+         font-size: 16px;
+         text-align: center;
+         padding: 5px;
+    }
+    .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        width: 270px;
+    }
+    .alert-success {
+        color: #3c763d;
+        background-color: #dff0d8;
+        border-color: #d6e9c6;
+    }
+    .alert-error {
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
     }
 </style>
 <body>
-
+    <!-- フォーム -->
     <form method="post" action="{% url 'register_beacon' %}">
-    <h1>ビーコンの登録</h1>
         {% csrf_token %}
+        <h1>ビーコンの登録</h1>
+
+    <!-- メッセージ表示部分 -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
         <label for="location">教室の選択:</label>
-        <select class="size"  name="location" required>
+        <select class="size" name="location" required>
             {% for classroom in classrooms %}
                 <option value="{{ classroom.classroom_id }}">{{ classroom.classroom_name }}</option>
             {% endfor %}
         </select>
 
         <label for="minor">マイナー番号:</label>
-        <input type="number" name="minor" required><br>
+        <input class="size" type="number" name="minor" required><br>
 
-        <button type="submit">登録する</button>
+        <button class="size" type="submit">登録する</button>
     </form>
 </body>
 </html>
-
