@@ -30,6 +30,7 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
+        margin-bottom: 20px;
     }
     #studentTable th, #studentTable td {
         border: 1px solid #ddd;
@@ -39,6 +40,15 @@
     #studentTable th {
         background-color: #f2f2f2;
     }
+
+a.registration-button{
+    width: 230px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+}
     /* ログアウトボタンを赤くする */
 a.logout-button {
     width: 230px;

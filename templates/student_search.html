@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>生徒の時間割登録</title>
-    <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+    <title>生徒検索</title>
+<link rel="stylesheet" href="/static/CSS/student_course_registration.css">
 
 </head>
 
 <body>
-<form action="/student_course_registration/" method="post">
+<form action="/student_search/" method="post">
     {% csrf_token %}
-    <h1>生徒の履修登録</h1>
+    <h1>生徒検索</h1>
     <label for="student-class">
         <input type="radio" id="student-class" name="student_select" value="search_class" onclick="toggleInput()">
         クラスで検索
@@ -41,8 +41,7 @@
     <!-- 学生一覧テーブル -->
     <table id="studentTable" style="display: none;">
         <thead>
-            <tr>
-                <th></th>
+            <tr><!--ここに欠課数を追加-->
                 <th>メール</th>
                 <th>名前</th>
                 <th>クラス</th>
@@ -51,7 +50,6 @@
         <tbody>
             {% for student in students %}
                 <tr>
-                    <td class="student-checked"><input type="checkbox" name="select_student"></td>
                     <td class="student-id">{{ student.email }}</td>
                     <td class="student-name">{{ student.name }}</td>
                     <td class="student-class">{{ student.class_name }}</td>
@@ -59,7 +57,6 @@
             {% endfor %}
         </tbody>
     </table>
-<a href="{% url 'student_course_registration' %}" class="button registration-button">時間割登録</a>
 <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
 

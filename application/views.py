@@ -293,3 +293,18 @@ def student_course_registration(request):
             }
             students.append(show_student)
     return render(request, 'student_course_registration.html', {'students': students, 'student_classes': student_classes})
+
+def student_search(request):
+    students = []
+    student_classes = StudentClass.objects.all()
+    if request.method == 'GET':
+        student_all = Student.objects.all()
+        for student in student_all:
+            show_student = {
+                'email': student.email,
+                'name': student.name,
+                'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
+            }
+            students.append(show_student)
+    return render(request, 'student_search.html',
+                  {'students': students, 'student_classes': student_classes})
