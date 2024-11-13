@@ -6,8 +6,8 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, Subject  # modelsはDB
-from .models import Attendance, Student, Teacher, Classroom, Equipment  # modelsはDB
+from .models import Attendance, Student, Teacher, Subject # modelsはDB
+from .models import Attendance, Student, Teacher, Classroom, Equipment ,StudentClass  # modelsはDB
 import asyncio
 from . import ble_utils
 
@@ -181,11 +181,14 @@ def register_student(request):
             messages.error(request, "このメールアドレスはすでに使用されています。")
             return render(request, 'register_student.html', {'messages': messages.get_messages(request)})
 
+        studentClass = StudentClass.objects.get(class_name=class_name)
+
+
         # 学生データの作成
         student = Student(
             email=email,
             name=name,
-            class_name=class_name,
+            class_name=studentClass,
             password=password  # パスワードをハッシュ化
         )
         student.save()  # データベースに保存
