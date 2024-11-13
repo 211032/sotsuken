@@ -251,12 +251,20 @@ def register_beacon(request):
         location_id = request.POST.get('location')
         minor = request.POST.get('minor')
 
+        # `minor` の重複チェック
+        if Equipment.objects.filter(minor=minor).exists():
+            messages.error(request, "このビーコンのminorはすでに登録されています。")
+            # `redirect` ではなく `render` でエラーメッセージを表示
+            classrooms = Classroom.objects.all()
+            return render(request, 'register_beacon.html', {'classrooms': classrooms})
+
         # 教室の確認
         try:
             classroom = Classroom.objects.get(classroom_id=location_id)
         except Classroom.DoesNotExist:
             messages.error(request, "指定された教室が見つかりませんでした。")
-            return redirect('register_beacon')
+            classrooms = Classroom.objects.all()
+            return render(request, 'register_beacon.html', {'classrooms': classrooms})
 
         # ビーコンデータを保存
         Equipment.objects.create(
@@ -273,4 +281,15 @@ def register_beacon(request):
 
 
 def student_course_registration(request):
-    return render(request, 'student_course_registration.html')
+    students = []
+    student_classes = StudentClass.objects.all()
+    if request.method == 'GET':
+        student_all = Student.objects.all()
+        for student in student_all:
+            show_student = {
+                'email': student.email,
+                'name': student.name,
+                'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
+            }
+            students.append(show_student)
+    return render(request, 'student_course_registration.html', {'students': students, 'student_classes': student_classes})

@@ -69,5 +69,5 @@ class Timetable(models.Model):
 class Equipment(models.Model):
     device_id = models.AutoField(primary_key=True)  # 機器IDを主キーに設定
     location = models.ForeignKey('Classroom',on_delete=models.CASCADE)  # 場所
-    minor = models.IntegerField()
+    minor = models.IntegerField(unique=True)  # minorを一意にする
 

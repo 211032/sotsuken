@@ -3,30 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>科目登録</title>
+    <link rel="stylesheet" href="/static/CSS/css.css">
+    <style>
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-<h1>新しい科目を登録</h1>
-    <form action = "{% url 'course_registration_comp' %}" method="POST">
+    
+<form action = "{% url 'course_registration_comp' %}" method="POST">
         {% csrf_token %}
-        
-        
+        <h1>新しい科目を登録</h1>
+        {% if message %}
+        <p style="color: green;">{{ message }}</p>
+    {% endif %}
+    
         <!-- 科目名入力 -->
-        <div>
+        <div class="form-group">
             <label for="name">科目名</label>
             <input type="text" name="subjectName" id="subjectName" required>
         </div>
-
-        
-        
-        
-        
         <button type="submit">登録</button>
+        <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
     </form>
-
-    {% if message %}
-        <p style="color: green;">{{ message }}</p>
-    {% endif %}
-
-    <a href="{% url 'teacher_home' %}">ホームへ戻る</a>
 </body>
 </html>
