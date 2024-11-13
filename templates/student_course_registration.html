@@ -27,7 +27,7 @@
     <!-- チェックボックス -->
     <div id="checkboxes" style="display: none;">
         {% for student_class in student_classes %}
-            <label>
+            <label class="checkbox-label">
                 <input type="checkbox" name="option" 
                        value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
             </label>
@@ -63,7 +63,8 @@
                 </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table><br>
+<br>
 <input type="submit" class="button registration-button" value="時間割登録">
 <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>

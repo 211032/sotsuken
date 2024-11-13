@@ -9,19 +9,14 @@
         margin: 0;
         }
     form {
-        width: 400px; /* フォームの幅を100%に設定 */
+        width: 500px; /* フォームの幅を100%に設定 */
         background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
         padding: 20px;
         border-radius: 10px; /* 角を丸める */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ボックスシャドウ */
         animation: slideIn 0.5s; /* スライドインアニメーション */
-        display: flex;
+
         flex-direction: column;
-    }
-    label {
-        display: block;
-        margin: 10px 0;
-        font-weight: bold;
     }
     #checkboxes, #textInput {
         margin-left: 20px; /* 内側に余白を設定 */
@@ -42,19 +37,33 @@
     }
 
 .registration-button{
-    width: 230px;
+     width: 200px;
     background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     text-decoration: none;
     border-radius: 5px;
+    border: none; /* 枠線を削除 */
+    box-shadow: none; /* ボックスシャドウを削除 */
 }
     /* ログアウトボタンを赤くする */
 a.logout-button {
-    width: 230px;
+    width: 210px;
     background-color: red;
     color: white;
-    padding: 10px 20px;
+    padding: 11.4px 49.5px;
     text-decoration: none;
     border-radius: 5px;
 }
+
+#checkboxes {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2列 */
+        gap: 10px; /* 各チェックボックス間の隙間 */
+        margin-left: 20px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+    }

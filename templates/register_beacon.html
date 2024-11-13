@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="/static/CSS/css.css">
 </head>
 <style>
+    input {
+    width: 25px; /* 入力フィールドの幅を固定 */
+}
+    
     .size {
          width: 270px;
          height: 40px;
@@ -31,6 +35,25 @@
         background-color: #f2dede;
         border-color: #ebccd1;
     }
+    
+             /* ラジオボタンと教室名を横並びにする */
+        .radio-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 200px; /* 必要に応じて高さを調整 */
+    overflow-y: auto; /* リストが長くなるとスクロール */
+}
+
+.radio-container label {
+    display: flex;  /* ラジオボタンと教室名を横並びに */
+    margin-bottom: 3px;     /* ラベル間の間隔を小さく */
+    padding: 0;             /* 不要な余白を削除 */
+    justify-content: flex-start;  /* ラジオボタンを左寄せ */
+}
+
+.radio-container input[type="radio"] {
+    margin-right: 5px;  /* ラジオボタンと教室名の間隔を小さく */
+}
 </style>
 <body>
     <!-- フォーム -->
@@ -44,12 +67,17 @@
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
-        <label for="location">教室の選択:</label>
-        <select class="size" name="location" required>
+    
+         <label for="location">教室の選択:</label>
+        <div class="radio-container">
             {% for classroom in classrooms %}
-                <option value="{{ classroom.classroom_id }}">{{ classroom.classroom_name }}</option>
+                <label>
+                    <input type="radio" name="location" value="{{ classroom.classroom_id }}" required>
+                    {{ classroom.classroom_name }}
+                </label>
             {% endfor %}
-        </select>
+        </div>
+
 
         <label for="minor">マイナー番号:</label>
         <input class="size" type="number" name="minor" required><br>
