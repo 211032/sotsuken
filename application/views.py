@@ -1,3 +1,5 @@
+from lib2to3.fixes.fix_input import context
+
 from django.shortcuts import render, redirect
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -208,7 +210,6 @@ def teacher_list(request):
     teachers = Teacher.objects.all()
     return render(request, 'teacher_list.html', {'teachers': teachers})
 
-
 def scan_beacon(request):
     # 非同期でBLEビーコンをスキャン
     loop = asyncio.new_event_loop()
@@ -272,8 +273,14 @@ def register_beacon(request):
             minor=minor
         )
 
-        messages.success(request, "ビーコンが正常に登録されました！")
-        return redirect('adomin_teacher_home')
+        classrooms = Classroom.objects.all()
+
+        context = {
+            'classrooms' : classrooms,
+            'success_message' : 'beacon登録成功！'
+        }
+
+        return render(request, 'register_beacon.html', context)
 
     # GETリクエスト時は教室一覧を表示する
     classrooms = Classroom.objects.all()

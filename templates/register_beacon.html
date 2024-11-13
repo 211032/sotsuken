@@ -44,6 +44,11 @@
             <div class="alert alert-{{ message.tags }}">{{ message }}</div>
         {% endfor %}
     {% endif %}
+    
+    {% if success_message %}
+        <p style="color: red;">{{ success_message }}</p>
+    {% endif %}
+    
         <label for="location">教室の選択:</label>
         <select class="size" name="location" required>
             {% for classroom in classrooms %}
@@ -56,5 +61,6 @@
 
         <button class="size" type="submit">登録する</button>
     </form>
+    
 </body>
 </html>
