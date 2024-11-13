@@ -292,7 +292,12 @@ def student_course_registration(request):
                 'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
             }
             students.append(show_student)
-    return render(request, 'student_course_registration.html', {'students': students, 'student_classes': student_classes})
+        return render(request, 'student_course_registration.html',
+                  {'students': students, 'student_classes': student_classes})
+    if request.method== 'POST':
+        student_email = request.POST.get('studentEmail')
+        student_name = request.POST.get('studentName')
+        student_class = request.POST.get('studentClass')
 
 def student_search(request):
     students = []

@@ -28,7 +28,8 @@
     <div id="checkboxes" style="display: none;">
         {% for student_class in student_classes %}
             <label>
-                <input type="checkbox" name="option" value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
+                <input type="checkbox" name="option" 
+                       value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
             </label>
         {% endfor %}
     </div>
@@ -51,7 +52,11 @@
         <tbody>
             {% for student in students %}
                 <tr>
-                    <td class="student-checked"><input type="checkbox" name="select_student"></td>
+                    <td class="student-checked">
+                        <label for="student-checked">
+                            <input type="checkbox" name="select_student" id="student-checked" value="{{ student }}">
+                        </label>
+                    </td>
                     <td class="student-id">{{ student.email }}</td>
                     <td class="student-name">{{ student.name }}</td>
                     <td class="student-class">{{ student.class_name }}</td>
@@ -59,7 +64,7 @@
             {% endfor %}
         </tbody>
     </table>
-<a href="{% url 'student_course_registration' %}" class="button registration-button">時間割登録</a>
+<input type="submit" class="button registration-button" value="時間割登録">
 <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
 
