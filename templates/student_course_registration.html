@@ -28,7 +28,7 @@
     <div id="checkboxes" style="display: none;">
         {% for student_class in student_classes %}
             <label class="checkbox-label">
-                <input type="checkbox" name="option" 
+                <input type="checkbox" name="option"
                        value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
             </label>
         {% endfor %}
@@ -78,7 +78,7 @@
         const studentTable = document.getElementById("studentTable");
 
         if (method === "search_class") {
-            checkboxes.style.display = "block";
+            checkboxes.style.display = "grid";
             textInput.style.display = "none";
             studentTable.style.display = "none"; // 初期は非表示
         } else if (method === "search_name" || method === "search_id") {

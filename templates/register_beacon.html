@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="/static/CSS/css.css">
 </head>
 <style>
+    label{
+        margin: 0 0 0;
+    }
     input{
         width: 25px;
     }
@@ -19,7 +22,7 @@
     }
     .alert {
         padding: 10px;
-        margin-bottom: 15px;
+        margin-bottom: 5px;
         border: 1px solid transparent;
         border-radius: 4px;
         width: 270px;
@@ -34,20 +37,21 @@
         background-color: #f2dede;
         border-color: #ebccd1;
     }
-    /* ラジオボタンと教室名を横並びにする */
-    .radio-container {
+   /* ラジオボタンと教室名を縦並びにする */
+.radio-container {
     display: flex;
-    flex-direction: row;  /* 横並びに設定 */
-    margin-bottom: 10px;  /* 各ラベルの間隔 */
+    flex-direction: column;
+    max-height: 200px; /* 必要に応じて高さを調整 */
+    overflow-y: auto; /* リストが長くなるとスクロール */
 }
 
-    .radio-container label {
-    display: flex;
-    align-items: center;   /* ボタンと教室名を垂直に揃える */
-    margin-right: 10px;     /* ラジオボタンと教室名の間隔 */
+.radio-container label {
+    display: flex;  /* ラジオボタンと教室名を横並びに */
+    justify-content: flex-start;  /* ラジオボタンを左寄せ */
+    width: 100px;
 }
 
-    .radio-container input[type="radio"] {
+.radio-container input[type="radio"] {
     margin-right: 5px;  /* ラジオボタンと教室名の間隔を小さく */
 }
 </style>
@@ -72,7 +76,6 @@
                 </label>
             {% endfor %}
         </div>
-
         <label for="minor">マイナー番号:</label>
         <input class="size" type="number" name="minor" required><br>
 
