@@ -1,4 +1,3 @@
-from lib2to3.fixes.fix_input import context
 
 from django.shortcuts import render, redirect
 from django.shortcuts import render
@@ -306,6 +305,9 @@ def student_course_registration(request):
         student_name = request.POST.get('studentName')
         student_class = request.POST.get('studentClass')
 
+def student_course_subject_registration(request):
+    return render(request, 'student_course_subject_registration.html')
+
 def student_search(request):
     students = []
     student_classes = StudentClass.objects.all()
@@ -320,3 +322,5 @@ def student_search(request):
             students.append(show_student)
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
+
+
