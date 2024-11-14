@@ -151,7 +151,7 @@ def register_teacher(request):
         Teacher.objects.create(
             teacher_id=teacher_id,
             name=name,
-            romanized_last_name=romanized_last_name,
+            alphabet_last_name=romanized_last_name,
             roll=int(roll),
             password=make_password(password)
         )
