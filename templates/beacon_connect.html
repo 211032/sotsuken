@@ -53,6 +53,20 @@
     // 特定UUIDのビーコンを接続して表示する
     async function fetchBeacons() {
         try {
+            const options = { acceptAllDevices: true, keepRepeatedDevices: false };
+
+            const scan = await navigator.bluetooth.requestLEScan(options);
+            console.log("Scanning for BLE devices...");
+
+            navigator.bluetooth.addEventListener('advertisementreceived', event => {
+                const deviceData = {
+                    name: event.device.name,
+                    uuid: event.uuid,
+                    rssi: event.rssi
+                };
+
+                console.log("Beacon detected:", deviceData);
+            });
             const response = await fetch('/beacon_scan/');
             const data = await response.json();
             console.log(data)
