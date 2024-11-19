@@ -52,9 +52,10 @@
         <tbody>
             {% for student in students %}
                 <tr>
-                    <td class="student-checked">
-                        <label for="student-checked">
-                            <input type="checkbox" name="select_student" id="student-checked" value="{{ student }}">
+                    <td class="student-checked{{ student.number }}">
+                        <label for="student-checked{{ student.number }}">
+                            <input type="checkbox" name="select_student" id="student-checked{{ student.number }}" 
+                                   value="{{ student }}">
                         </label>
                     </td>
                     <td class="student-id">{{ student.email }}</td>

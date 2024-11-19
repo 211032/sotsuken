@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
 </head>
 <body>
-やっべえぞ
+{% for student in students %}
+    <p>{{ student.name }}</p>
+{% empty %}
+    <p>何も入っていません。</p>
+{% endfor %}
+
 </body>
 </html>

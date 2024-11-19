@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluetoothデバイスのリスト表示</title>
+</head>
+<body>
+    <h1>周辺のBluetoothデバイス一覧</h1>
+    <button id="scanButton">Bluetoothデバイスをスキャンする</button>
+    <ul id="deviceList"></ul>
+
+    <script>
+// Bluetoothデバイスをスキャンする関数
+        document.getElementById('scanButton').addEventListener('click', async () => {
+  try {
+    console.log("Requesting Bluetooth device...");
+    const device = await navigator.bluetooth.requestDevice({
+      optionalServices: [],
+      filters: [{name:'ProxBeacon'}]
+    });
+
+    console.log("Device found:", device.name);
+    console.log("Minor:",device.id)
+
+    device.addEventListener("gattserverdisconnected", () => {
+      console.log("Device disconnected: ", device.name);
+    });
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+});
+    </script>
+</body>
+</html>

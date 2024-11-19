@@ -7,8 +7,7 @@ from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, Subject # modelsはDB
-from .models import Attendance, Student, Teacher, Classroom, Equipment ,StudentClass  # modelsはDB
+from .models import Attendance, Student, Teacher, Classroom, Equipment, StudentClass, Subject  # modelsはDB
 import asyncio
 from . import ble_utils
 
@@ -290,9 +289,12 @@ def student_course_registration(request):
     students = []
     student_classes = StudentClass.objects.all()
     if request.method == 'GET':
+        number = 0
         student_all = Student.objects.all()
         for student in student_all:
+            number += 1
             show_student = {
+                'number': number,
                 'email': student.email,
                 'name': student.name,
                 'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
@@ -301,9 +303,17 @@ def student_course_registration(request):
         return render(request, 'student_course_registration.html',
                   {'students': students, 'student_classes': student_classes})
     if request.method== 'POST':
-        student_email = request.POST.get('studentEmail')
-        student_name = request.POST.get('studentName')
-        student_class = request.POST.get('studentClass')
+        students = request.POST.getlist('select_student')
+        for student in students:
+            show_student = {
+                'email': student.email,
+                'name': student.name,
+                'class_name': student.class_name
+            }
+            students.append(show_student)
+        subjects = Subject.objects.all()
+        print(subjects)
+        return render(request, 'student_course_subject_registration.html',{'students': students, 'subjects': subjects})
 
 def student_course_subject_registration(request):
     return render(request, 'student_course_subject_registration.html')
