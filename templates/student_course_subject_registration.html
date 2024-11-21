@@ -6,11 +6,82 @@
     <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
 </head>
 <body>
-{% for student in students %}
-    <p>{{ student.name }}</p>
-{% empty %}
-    <p>何も入っていません。</p>
-{% endfor %}
+<form action="/student_course_registration/" method="post">
+    {% csrf_token %}
+    <h1>生徒に教科を登録</h1>
+    {% if students|length == 1 %}
+        <p>{{ students.pop.name }}を選択中</p>
+    {% else %}
+        <p>{{ students|length }}名を選択中</p>
+    {% endif %}
+    <label for="subject-name">
+        <input type="text" id="subject-name" name="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()">
+        教科名で検索
+    </label>
+    <table id="subjectTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>教科名</th>
+                <th>教室</th>
+                <th>日にち</th>
+                <th>何限</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+                <tr>
+                    <td class="student-checked{{ student.number }}">
+                        <label for="student-checked{{ student.number }}">
+                            <input type="checkbox" name="select_student" id="student-checked{{ student.number }}" 
+                                   value="{{ student.email }}">
+                        </label>
+                    </td>
+                    <td class="student-id">{{ student.email }}</td>
+                    <td class="student-name">{{ student.name }}</td>
+                    <td class="student-class">{{ student.class_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table><br>
+<br>
+<input type="submit" class="button registration-button" value="時間割登録">
+<a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</form>
+
+<script>
+    function filterStudents() {
+        const input = document.getElementById("searchBox").value.toLowerCase().trim();
+        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const method = document.querySelector('input[name="student_select"]:checked').value;
+        const studentTable = document.getElementById("studentTable");
+        let hasResults = false;
+
+        // 入力が空ならすべて非表示
+        if (input === "") {
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = "none";
+            }
+            studentTable.style.display = "none";
+            return;
+        }
+
+        for (let i = 0; i < rows.length; i++) {
+            let cell;
+            if (method === "search_name") {
+                cell = rows[i].getElementsByClassName("student-name")[0];
+            } else if (method === "search_id") {
+                cell = rows[i].getElementsByClassName("student-id")[0];
+            }
+            if (cell) {
+                const content = cell.textContent || cell.innerText;
+                const isMatch = content.toLowerCase().indexOf(input) > -1;
+                rows[i].style.display = isMatch ? "" : "none";
+                if (isMatch) hasResults = true;
+            }
+        }
+        studentTable.style.display = hasResults ? "table" : "none";
+    }
+</script>
 
 </body>
 </html>

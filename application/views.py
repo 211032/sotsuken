@@ -1,7 +1,7 @@
 
 from django.shortcuts import render, redirect
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
@@ -303,14 +303,10 @@ def student_course_registration(request):
         return render(request, 'student_course_registration.html',
                   {'students': students, 'student_classes': student_classes})
     if request.method== 'POST':
-        students = request.POST.getlist('select_student')
-        for student in students:
-            show_student = {
-                'email': student.email,
-                'name': student.name,
-                'class_name': student.class_name
-            }
-            students.append(show_student)
+        students = []
+        student_email = request.POST.getlist('select_student')
+        for student in student_email:
+            students.append(Student.objects.get(email=student))
         subjects = Subject.objects.all()
         print(subjects)
         return render(request, 'student_course_subject_registration.html',{'students': students, 'subjects': subjects})
