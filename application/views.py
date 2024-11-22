@@ -308,8 +308,10 @@ def student_course_registration(request):
         for student in student_email:
             students.append(Student.objects.get(email=student))
         subjects = Subject.objects.all()
+        classrooms = Classroom.objects.all()
         print(subjects)
-        return render(request, 'student_course_subject_registration.html',{'students': students, 'subjects': subjects})
+        return render(request, 'student_course_subject_registration.html',
+                      {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
 def student_course_subject_registration(request):
     return render(request, 'student_course_subject_registration.html')

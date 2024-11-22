@@ -9,16 +9,16 @@
 <form action="/student_course_registration/" method="post">
     {% csrf_token %}
     <h1>生徒に教科を登録</h1>
-    {% if students|length == 1 %}
-        <p>{{ students.pop.name }}を選択中</p>
+    {% if subjects|length == 1 %}
+        <p>{{ subjects.pop.name }}を選択中</p>
     {% else %}
-        <p>{{ students|length }}名を選択中</p>
+        <p>{{ subjects|length }}名を選択中</p>
     {% endif %}
     <label for="subject-name">
-        <input type="text" id="subject-name" name="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()">
+        <input type="text" id="subject-name" name="searchBox" placeholder="キーワードで検索" onkeyup="filterSubjects()">
         教科名で検索
     </label>
-    <table id="subjectTable" style="display: none;">
+    <table id="subjectTable" style="display: block;">
         <thead>
             <tr>
                 <th>教科名</th>
@@ -28,58 +28,73 @@
             </tr>
         </thead>
         <tbody>
-            {% for student in students %}
+            {% for subject in subjects %}
                 <tr>
-                    <td class="student-checked{{ student.number }}">
-                        <label for="student-checked{{ student.number }}">
-                            <input type="checkbox" name="select_student" id="student-checked{{ student.number }}" 
-                                   value="{{ student.email }}">
+                    <td class="subject-name">{{ subject.subject_name }}</td>
+                    <td class="subject-classroom radio-container">
+                        <label for="subject-classroom">
+                        <select id="subject-classroom" name="subject_classroom">
+                            {% for classroom in classrooms %}
+                                <option type="radio" name="subject_classroom" id="subject-classroom"
+                                       value="{{ classroom.classroom_id }}" >
+                                {{ classroom.classroom_name }}
+                            {% endfor %}
+                        </select>
                         </label>
                     </td>
-                    <td class="student-id">{{ student.email }}</td>
-                    <td class="student-name">{{ student.name }}</td>
-                    <td class="student-class">{{ student.class_name }}</td>
+                    <td class="subject-date">
+                        <label>
+                            <input type="date" name="subject_date" id="subject-date">
+                        </label>
+                    </td>
+                    <td class="subject-unit">
+                        <label for="subject-unit">
+                            <select id="subject-unit" name="subject_unit">
+                                <option value="1">1限目</option>
+                                <option value="2">2限目</option>
+                                <option value="3">3限目</option>
+                                <option value="4">4限目</option>
+                            </select>
+                        </label>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table><br>
-<br>
-<input type="submit" class="button registration-button" value="時間割登録">
-<a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+    <br>
+    <input type="submit" class="button registration-button" value="時間割登録">
+    <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
 
 <script>
-    function filterStudents() {
-        const input = document.getElementById("searchBox").value.toLowerCase().trim();
-        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        const method = document.querySelector('input[name="student_select"]:checked').value;
-        const studentTable = document.getElementById("studentTable");
+    // 教科のフィルタリング
+    function filterSubjects() {
+        const input = document.getElementById("subject-name").value.toLowerCase().trim();
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const subjectTable = document.getElementById("subjectTable");
         let hasResults = false;
 
         // 入力が空ならすべて非表示
         if (input === "") {
             for (let i = 0; i < rows.length; i++) {
-                rows[i].style.display = "none";
+                rows[i].style.display = "table-row"; // すべて表示
             }
-            studentTable.style.display = "none";
+            subjectTable.style.display = "block"; // テーブルを表示
             return;
         }
 
+        // 検索結果がない場合は非表示
         for (let i = 0; i < rows.length; i++) {
-            let cell;
-            if (method === "search_name") {
-                cell = rows[i].getElementsByClassName("student-name")[0];
-            } else if (method === "search_id") {
-                cell = rows[i].getElementsByClassName("student-id")[0];
-            }
-            if (cell) {
-                const content = cell.textContent || cell.innerText;
+            const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
+            if (subjectNameCell) {
+                const content = subjectNameCell.textContent || subjectNameCell.innerText;
                 const isMatch = content.toLowerCase().indexOf(input) > -1;
-                rows[i].style.display = isMatch ? "" : "none";
+                rows[i].style.display = isMatch ? "table-row" : "none";
                 if (isMatch) hasResults = true;
             }
         }
-        studentTable.style.display = hasResults ? "table" : "none";
+        
+        subjectTable.style.display = hasResults ? "table" : "none"; // 結果があればテーブルを表示、なければ非表示
     }
 </script>
 
