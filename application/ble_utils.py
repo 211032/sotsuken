@@ -10,6 +10,16 @@ DEVICE_ID_CHAR_UUID = "12300201-39fa-4005-860c-09362f6169da"  # デバイスID�
 
 async def scan_beacons():
     devices = []
+    # 周辺デバイスのスキャン
+    # scanned_devices = await BleakScanner.discover()
+    # for device in scanned_devices:
+    #     # 名前とアドレスを取得
+    #     devices.append({
+    #         "name": device.name or "Unknown",
+    #         "address": device.address,
+    #         "rssi": device.rssi
+    #     })
+    # return devices
 
     async def detection_callback(device: BLEDevice, advertisement_data: AdvertisementData):
         try:

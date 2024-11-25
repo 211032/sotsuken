@@ -3,9 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <title>生徒に教科を登録</title>
-    <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+    <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
 </head>
 <body>
-やっべえぞ
+<form action="/student_course_registration/" method="post">
+    {% csrf_token %}
+    <h1>生徒に教科を登録</h1>
+    {% if subjects|length == 1 %}
+        <p>{{ subjects.pop.name }}を選択中</p>
+    {% else %}
+        <p>{{ subjects|length }}名を選択中</p>
+    {% endif %}
+    <label for="subject-name">
+        <input type="text" id="subject-name" name="searchBox" placeholder="キーワードで検索" onkeyup="filterSubjects()">
+        教科名で検索
+    </label>
+   <div id="subjectTable-wrapper">
+    <table id="subjectTable" style="display: block;">
+        <thead>
+            <tr>
+                <th>教科名</th>
+                <th>教室</th>
+                <th>日にち</th>
+                <th>何限</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+                <tr>
+                    <td class="subject-name">{{ subject.subject_name }}</td>
+                    <td class="subject-classroom radio-container">
+                        <label for="subject-classroom">
+                        <select id="subject-classroom" name="subject_classroom">
+                            {% for classroom in classrooms %}
+                                <option type="radio" name="subject_classroom" id="subject-classroom"
+                                       value="{{ classroom.classroom_id }}" >
+                                {{ classroom.classroom_name }}
+                            {% endfor %}
+                        </select>
+                        </label>
+                    </td>
+                    <td class="subject-date">
+                        <label>
+                            <input type="date" name="subject_date" id="subject-date">
+                        </label>
+                    </td>
+                    <td class="subject-unit">
+                        <label for="subject-unit">
+                            <select id="subject-unit" name="subject_unit">
+                                <option value="1">1限目</option>
+                                <option value="2">2限目</option>
+                                <option value="3">3限目</option>
+                                <option value="4">4限目</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table></div><br>
+    <br>
+    <input type="submit" class="button registration-button" value="時間割登録">
+    <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</form>
+
+<script>
+    // 教科のフィルタリング
+    function filterSubjects() {
+        const input = document.getElementById("subject-name").value.toLowerCase().trim();
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const subjectTable = document.getElementById("subjectTable");
+        let hasResults = false;
+
+        // 入力が空ならすべて非表示
+        if (input === "") {
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = "table-row"; // すべて表示
+            }
+            subjectTable.style.display = "block"; // テーブルを表示
+            return;
+        }
+
+        // 検索結果がない場合は非表示
+        for (let i = 0; i < rows.length; i++) {
+            const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
+            if (subjectNameCell) {
+                const content = subjectNameCell.textContent || subjectNameCell.innerText;
+                const isMatch = content.toLowerCase().indexOf(input) > -1;
+                rows[i].style.display = isMatch ? "table-row" : "none";
+                if (isMatch) hasResults = true;
+            }
+        }
+        
+        subjectTable.style.display = hasResults ? "table" : "none"; // 結果があればテーブルを表示、なければ非表示
+    }
+</script>
+
 </body>
 </html>

@@ -3,14 +3,13 @@ import json
 from asgiref.sync import sync_to_async
 from django.shortcuts import render, redirect
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.views.decorators.csrf import csrf_exempt
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, Subject # modelsはDB
-from .models import Attendance, Student, Teacher, Classroom, Equipment ,StudentClass  # modelsはDB
+from .models import Attendance, Student, Teacher, Classroom, Equipment, StudentClass, Subject  # modelsはDB
 import asyncio
 from . import ble_utils
 
@@ -292,9 +291,12 @@ def student_course_registration(request):
     students = []
     student_classes = StudentClass.objects.all()
     if request.method == 'GET':
+        number = 0
         student_all = Student.objects.all()
         for student in student_all:
+            number += 1
             show_student = {
+                'number': number,
                 'email': student.email,
                 'name': student.name,
                 'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
@@ -303,9 +305,15 @@ def student_course_registration(request):
         return render(request, 'student_course_registration.html',
                   {'students': students, 'student_classes': student_classes})
     if request.method== 'POST':
-        student_email = request.POST.get('studentEmail')
-        student_name = request.POST.get('studentName')
-        student_class = request.POST.get('studentClass')
+        students = []
+        student_email = request.POST.getlist('select_student')
+        for student in student_email:
+            students.append(Student.objects.get(email=student))
+        subjects = Subject.objects.all()
+        classrooms = Classroom.objects.all()
+        print(subjects)
+        return render(request, 'student_course_subject_registration.html',
+                      {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
 def student_course_subject_registration(request):
     return render(request, 'student_course_subject_registration.html')

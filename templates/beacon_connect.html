@@ -45,59 +45,107 @@
 <body>
     <div class="bluetooth-container">
         <h2>Bluetooth自動接続</h2>
+         <button onclick="startScan()">Scan for Bluetooth Devices</button>
+        <button id="scanButton">Bluetoothデバイスをスキャンする</button>
         <div id="status" class="status">接続中...</div>
         <ul id="beacon-list"></ul>
     </div>
 
 <script>
-    // 特定UUIDのビーコンを接続して表示する
-    async function fetchBeacons() {
-        try {
-            const options = { acceptAllDevices: true, keepRepeatedDevices: false };
-
-            const scan = await navigator.bluetooth.requestLEScan(options);
-            console.log("Scanning for BLE devices...");
-
-            navigator.bluetooth.addEventListener('advertisementreceived', event => {
-                const deviceData = {
-                    name: event.device.name,
-                    uuid: event.uuid,
-                    rssi: event.rssi
-                };
-
-                console.log("Beacon detected:", deviceData);
-            });
-            const response = await fetch('/beacon_scan/');
-            const data = await response.json();
-            console.log(data)
-            
-            const list = document.getElementById('beacon-list');
-            list.innerHTML = '';  // リストを初期化
-            console.log(data.devices)
-
-            if (data.devices.length > 0) {
-                const device = data.devices[0];  // 接続したデバイスを取得
-                if (device.is_connected) {
-                    document.getElementById('status').innerText = `接続成功しました。`;
-                    const li = document.createElement('li');
-                    li.textContent = `クラス名:${device.classname}`;
-                    list.appendChild(li);
-                } else {
-                    document.getElementById('status').innerText = "接続に失敗しました。";
-                }
-            } else {
-                document.getElementById('status').innerText = "ビーコンが見つかりません。";
-            }
-        } catch (error) {
-            document.getElementById('status').innerText = "エラーが発生しました。";
-        }
-    }
-
+    {#// 特定UUIDのビーコンを接続して表示する#}
+    {#async function fetchBeacons() {#}
+    {#    try {#}
+    {#        const response = await fetch('/beacon_scan/');#}
+    {#        const data = await response.json();#}
+    {#        console.log(data)#}
+    {#        #}
+    {#        const list = document.getElementById('beacon-list');#}
+    {#        list.innerHTML = '';  // リストを初期化#}
+    {#        console.log(data.devices)#}
+    {##}
+    {#        if (data.devices.length > 0) {#}
+    {#            const device = data.devices[0];  // 接続したデバイスを取得#}
+    {#            if (device.is_connected) {#}
+    {#                document.getElementById('status').innerText = `接続成功しました。`;#}
+    {#                const li = document.createElement('li');#}
+    {#                li.textContent = `クラス名:${device.classname}`;#}
+    {#                list.appendChild(li);#}
+    {#            } else {#}
+    {#                document.getElementById('status').innerText = "接続に失敗しました。";#}
+    {#            }#}
+    {#        } else {#}
+    {#            document.getElementById('status').innerText = "ビーコンが見つかりません。";#}
+    {#        }#}
+    {#    } catch (error) {#}
+    {#        document.getElementById('status').innerText = "エラーが発生しました。";#}
+    {#    }#}
+    {# }#}
+    
+    
     // ページがロードされたときにビーコンデータをフェッチし、一定間隔で更新
-    window.onload = async function() {
-        await fetchBeacons()
-        setInterval(fetchBeacons, 10000);  // 5秒ごとにスキャンを実行
-    };
+{#    window.onload = async function() {#}
+{#        await fetchBeacons()#}
+{#        setInterval(fetchBeacons, 10000);  // 5秒ごとにスキャンを実行#}
+{#    };#}
+{#    #}
+{#    document.getElementById('scanButton').addEventListener('click', async () => {#}
+{#  try {#}
+{#    console.log("Requesting Bluetooth device...");#}
+{#    const device = await navigator.bluetooth.requestDevice({#}
+{#      optionalServices: [],#}
+{#      filters: [{name:'ProxBeacon'}]#}
+{#    });#}
+{##}
+{#    console.log("Device found:", device.name);#}
+{#    console.log("Minor:",device)#}
+{##}
+{#    device.addEventListener("gattserverdisconnected", () => {#}
+{#      console.log("Device disconnected: ", device.name);#}
+{#    });#}
+{#  } catch (error) {#}
+{#    console.error("Error: ", error);#}
+{#  }#}
+{# });#}
+    async function startScan() {
+            try {
+                // BLEデバイスのスキャンを開始
+                const options = {
+                    acceptAllDevices: true,
+                    keepRepeatedDevices: false
+                };
+                const scan = await navigator.bluetooth.requestLEScan(options);
+                console.log("Scanning for BLE devices...");
+
+                document.getElementById('status').innerText = "スキャン中...";
+
+                // BLEデバイスが検出されるたびに呼び出されるイベント
+                navigator.bluetooth.addEventListener('advertisementreceived', event => {
+                    const deviceData = {
+                        name: event.device.name || 'Unknown',
+                        uuid: event.device.id || 'No UUID',
+                        rssi: event.rssi
+                    };
+
+                    console.log("Beacon detected:", deviceData);
+
+                    // デバイス情報を表示
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Name: ${deviceData.name}, UUID: ${deviceData.uuid}, RSSI: ${deviceData.rssi}`;
+                    document.getElementById('device-list').appendChild(listItem);
+                });
+
+                // 一定時間後にスキャンを停止
+                setTimeout(() => {
+                    scan.stop();
+                    document.getElementById('status').innerText = "スキャン完了";
+                    console.log("Scan stopped.");
+                }, 10000);  // 10秒間スキャンを実行
+
+            } catch (error) {
+                console.error("スキャンエラー:", error);
+                document.getElementById('status').innerText = "スキャンエラーが発生しました。";
+            }
+        }
 </script>
 
 </body>
