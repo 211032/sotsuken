@@ -23,8 +23,7 @@
         <input type="radio" id="student-id" name="student_select" value="search_id" onclick="toggleInput()">
         学籍番号で検索
     </label>
-    
-    <!-- チェックボックス -->
+
     <div id="checkboxes" style="display: none;">
         {% for student_class in student_classes %}
             <label class="checkbox-label">
@@ -36,7 +35,10 @@
 
     <!-- テキスト入力 -->
     <div id="textInput" style="display: none;">
-        <input type="text" id="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()">
+        <label for="searchBox">
+            <textarea rows="1" cols="25" id="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()" onkeydown="preventNewLine(event)"
+            style="resize : none; overflow: hidden;"></textarea>
+        </label>
     </div>
     
     <!-- 学生一覧テーブル -->
@@ -66,7 +68,7 @@
         </tbody>
     </table><br>
 <br>
-<input type="submit" class="button registration-button" value="時間割登録">
+<input type="submit" class="button registration-button" value="教科の登録へ">
 <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
 
@@ -142,6 +144,12 @@
             }
         }
         studentTable.style.display = hasResults ? "table" : "none";
+    }
+    function preventNewLine(event) {
+        // Enterキーを押されたときに改行を防止
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
     }
 </script>
 </body>

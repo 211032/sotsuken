@@ -303,18 +303,24 @@ def student_course_registration(request):
         return render(request, 'student_course_registration.html',
                   {'students': students, 'student_classes': student_classes})
     if request.method== 'POST':
-        students = []
         student_email = request.POST.getlist('select_student')
-        for student in student_email:
-            students.append(Student.objects.get(email=student))
+
+        students = Student.objects.only('email','name').filter(email__in=student_email)
         subjects = Subject.objects.all()
         classrooms = Classroom.objects.all()
-        print(subjects)
+
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
 def student_course_subject_registration(request):
-    return render(request, 'student_course_subject_registration.html')
+    if request.method == 'GET':
+        return render(request, 'student_course_subject_registration.html')
+    if request.method== 'POST':
+        students = request.POST.getlist('students')
+        subject = request.POST.getlist('subjects')
+        subject_classroom = request.POST.getlist('subject_classroom')
+
+        return  render(request, 'student_course_subject_registration.html')
 
 def student_search(request):
     students = []

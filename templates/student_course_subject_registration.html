@@ -6,19 +6,20 @@
     <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
 </head>
 <body>
-<form action="/student_course_registration/" method="post">
+<form action="/student_course_subject_registration/" method="post">
     {% csrf_token %}
     <h1>生徒に教科を登録</h1>
-    {% if subjects|length == 1 %}
-        <p>{{ subjects.pop.name }}を選択中</p>
+    {% if students|length == 1 %}
+        <p>{{ students.first.name }}を選択中</p>
     {% else %}
-        <p>{{ subjects|length }}名を選択中</p>
+        <p>{{ students|length }}名を選択中</p>
     {% endif %}
+    <input type="hidden" name="students" id="students" value="{{ students }}">
     <label for="subject-name">
-        <input type="text" id="subject-name" name="searchBox" placeholder="キーワードで検索" onkeyup="filterSubjects()">
-        教科名で検索
+        <textarea rows="1" cols="25" id="subject-name" name="searchBox" placeholder="教科名で検索" onkeyup="filterSubjects()" onkeydown="preventNewLine(event)" 
+                  style="resize : none; overflow: hidden;"></textarea>
     </label>
-    <table id="subjectTable" style="display: block;">
+    <table id="subjectTable" style="display: flex;">
         <thead>
             <tr>
                 <th>教科名</th>
@@ -44,7 +45,8 @@
                     </td>
                     <td class="subject-date">
                         <label>
-                            <input type="date" name="subject_date" id="subject-date">
+                            <input type="date" name="subject_date" id="subject-date">～
+                            <input type="date" name="subject_date" id="subject-date">まで
                         </label>
                     </td>
                     <td class="subject-unit">
@@ -79,7 +81,7 @@
             for (let i = 0; i < rows.length; i++) {
                 rows[i].style.display = "table-row"; // すべて表示
             }
-            subjectTable.style.display = "block"; // テーブルを表示
+            subjectTable.style.display = "flex"; // テーブルを表示
             return;
         }
 
@@ -93,8 +95,14 @@
                 if (isMatch) hasResults = true;
             }
         }
-        
+
         subjectTable.style.display = hasResults ? "table" : "none"; // 結果があればテーブルを表示、なければ非表示
+    }
+    function preventNewLine(event) {
+        // Enterキーを押されたときに改行を防止
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
     }
 </script>
 
