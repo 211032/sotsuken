@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>生徒に教科を登録</title>
-    <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+    <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
 </head>
 <body>
 <form action="/student_course_subject_registration/" method="post">
@@ -16,10 +16,11 @@
     {% endif %}
     <input type="hidden" name="students" id="students" value="{{ students }}">
     <label for="subject-name">
-        <textarea rows="1" cols="25" id="subject-name" name="searchBox" placeholder="教科名で検索" onkeyup="filterSubjects()" onkeydown="preventNewLine(event)" 
+        <textarea rows="1" cols="25" id="subject-name" name="searchBox" placeholder="教科名で検索" onkeyup="filterSubjects()" onkeydown="preventNewLine(event)"
                   style="resize : none; overflow: hidden;"></textarea>
     </label>
-    <table id="subjectTable" style="display: flex;">
+   <div id="subjectTable-wrapper">
+    <table id="subjectTable" style="display: block;">
         <thead>
             <tr>
                 <th>教科名</th>
@@ -62,7 +63,7 @@
                 </tr>
             {% endfor %}
         </tbody>
-    </table><br>
+    </table></div><br>
     <br>
     <input type="submit" class="button registration-button" value="時間割登録">
     <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
@@ -81,7 +82,7 @@
             for (let i = 0; i < rows.length; i++) {
                 rows[i].style.display = "table-row"; // すべて表示
             }
-            subjectTable.style.display = "flex"; // テーブルを表示
+            subjectTable.style.display = "block"; // テーブルを表示
             return;
         }
 
