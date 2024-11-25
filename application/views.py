@@ -1,4 +1,6 @@
+import json
 
+from asgiref.sync import sync_to_async
 from django.shortcuts import render, redirect
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -324,3 +326,35 @@ def student_search(request):
                   {'students': students, 'student_classes': student_classes})
 
 
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Equipment, Classroom
+import json
+
+@csrf_exempt
+def api(request):
+    if request.method == "POST":
+        try:
+            # クライアントから送信されたデータを取得
+            body = json.loads(request.body)
+            minor = body.get("minor")
+
+            # デバイス情報を取得
+            equipment = Equipment.objects.get(minor=minor)
+            classroom = Classroom.objects.get(classroom_id=equipment.location_id)
+
+            # レスポンスを作成
+            return JsonResponse({
+                "message": "Data processed successfully",
+                "classroom_name": classroom.classroom_name,
+                "equipment_location": equipment.location_id,
+            })
+        except Equipment.DoesNotExist:
+            return JsonResponse({"error": "Equipment not found"}, status=404)
+        except Classroom.DoesNotExist:
+            return JsonResponse({"error": "Classroom not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
