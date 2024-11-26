@@ -48,7 +48,8 @@ def home(request):
     if student_email:
         try:
             student = Student.objects.get(email=student_email)
-            return render(request, 'home.html', {'student': student})
+            student_class = StudentClass.objects.get(class_id=student.class_name_id)
+            return render(request, 'home.html', {'student': student, 'student_class': student_class})
         except Student.DoesNotExist:
             return redirect('login')  # 学生が存在しない場合はログイン画面にリダイレクト
     else:
