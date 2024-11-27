@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
+</head>
+<body>
+<form>
+    {% csrf_token %}
+    <h1>入力内容の確認</h1>
+    
+    学生：
+    {% if students|length == 1 %}
+        {{ students.first.name }}
+    {% else %}
+        {{ students|length }}名
+    {% endif %}
+    <input type="hidden" name="students" id="students" value="{{ students }}">
+    
+    <table>
+        <tr>
+            <th>教科名</th>
+            <th>教室</th>
+            <th>日にち</th>
+            <th>何限</th>
+        </tr>
+        <tr>
+            {% for subject in selected_subjects %}
+            	<td>
+                    {{ subject.id }}
+                </td>
+            {% endfor %}
+        </tr>
+    </table>
+</form>
+
+</body>
+</html>

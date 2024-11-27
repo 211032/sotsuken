@@ -92,3 +92,8 @@
         display: flex;
         align-items: center;
     }
+
+ /* 非表示にする行 */
+.hidden-row {
+    display: none;
+}

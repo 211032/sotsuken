@@ -319,11 +319,20 @@ def student_course_subject_registration(request):
     if request.method == 'GET':
         return render(request, 'student_course_subject_registration.html')
     if request.method== 'POST':
-        students = request.POST.getlist('students')
-        subject = request.POST.getlist('subjects')
-        subject_classroom = request.POST.getlist('subject_classroom')
+        student_email = []
+        student_email_bfo = request.POST.getlist('students')
+        for student_email_aft in student_email_bfo:
+            student_email.append(student_email_aft.email)
+        print(student_email)
+        students = Student.objects.only('email','name').filter(email__in=student_email)
+        print(students)
+        selected_subjects = request.POST.get("selected_subjects")
 
-        return  render(request, 'student_course_subject_registration.html')
+        return  render(request, 'student_course_comp_registration.html',
+                       {'students': students, 'selected_subjects': selected_subjects})
+
+def student_course_comp_registration(request):
+    return render(request, 'student_course_comp_registration.html')
 
 def student_search(request):
     students = []
