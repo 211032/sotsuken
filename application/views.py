@@ -73,6 +73,8 @@ def login_teacher(request):
                 # teacher_idをセッションに保持
                 request.session['teacher_id'] = teacher.teacher_id
 
+                request.session['roll'] = teacher.roll
+
                 # ロールに応じてリダイレクト
                 if teacher.roll == 0:  # 管理者ロールの場合
                     return redirect('adomin_teacher_home')
@@ -167,6 +169,8 @@ def registration_success(request):
     return render(request, 'registration_success.html')
 
 def register_student(request):
+    teacherroll = request.session.get('roll')
+    print(f"Roll value: {teacherroll}")
     if request.method == 'POST':
         name = request.POST.get('student_name')
         email = request.POST.get('student_mail')

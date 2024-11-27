@@ -36,7 +36,7 @@
         <label for="confirm_password">パスワード確認:</label>
         <input type="password" id="confirm_password" name="confirm_password" required>
         <button type="submit">登録</button>
-        {% if teacher.roll == 0 %}
+        {% if request.session.roll == 0 %}
             <a href="{% url 'adomin_teacher_home' %}" class="button logout-button">ホームへ戻る</a>
         {% else %}
             <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
