@@ -6,34 +6,58 @@
     <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
 </head>
 <body>
-<form>
-    {% csrf_token %}
-    <h1>入力内容の確認</h1>
-    
-    学生：
-    {% if students|length == 1 %}
-        {{ students.first.name }}
-    {% else %}
-        {{ students|length }}名
-    {% endif %}
-    <input type="hidden" name="students" id="students" value="{{ students }}">
-    
-    <table>
-        <tr>
-            <th>教科名</th>
-            <th>教室</th>
-            <th>日にち</th>
-            <th>何限</th>
-        </tr>
-        <tr>
-            {% for subject in selected_subjects %}
-            	<td>
-                    {{ subject.id }}
-                </td>
+    <form action="/student_course_comp_registration/" method="post">
+        {% csrf_token %}
+        <h1>入力内容の確認</h1>
+        
+        学生：
+        {% if students|length == 1 %}
+            {{ students.first.name }}
+        {% else %}
+            <a href="#" onclick="alertName()">{{ students|length }}名</a>
+        {% endif %}
+        
+        <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+        <div id="students-container" style="display: none;">
+            {% for student in students %}
+                <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
             {% endfor %}
-        </tr>
-    </table>
-</form>
+        </div>
+        
+        <table>
+            <tr>
+                <th>教科名</th>
+                <th>教室</th>
+                <th>日にち</th>
+                <th>何限</th>
+                <th>削除</th>
+            </tr>
+            {% for subject in subjects %}
+                <tr>
+                    <td>{{ subject.subject_name }}</td>
+                    <td>{{ subject.classroom_name }}</td>
+                    <td>{{ subject.date_first }} ～ {{ subject.date_last }}</td>
+                    <td>{{ subject.unit }}限目</td>
+                    <td><button onclick="">削除</button></td>
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" class="button registration-button" value="時間割を登録">
+        <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+    </form>
 
+    <script>
+        // 学生情報をポップアップで表示
+        function alertName() {
+            const studentElements = document.querySelectorAll('#students-container .student');
+            let message = "学生一覧:\n";
+            studentElements.forEach(student => {
+                const name = student.dataset.name;
+                const email = student.dataset.email;
+                message += `名前: ${name}, メール: ${email}\n`;
+            });
+            alert(message);
+        }
+    </script>
 </body>
 </html>

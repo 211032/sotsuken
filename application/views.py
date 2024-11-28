@@ -1,17 +1,12 @@
-import json
+import asyncio
+import re
 
-from asgiref.sync import sync_to_async
-from django.shortcuts import render, redirect
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
-from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, redirect
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, Classroom, Equipment, StudentClass, Subject  # modelsはDB
-import asyncio
-from . import ble_utils
+from .models import Attendance, Student, Teacher, StudentClass, Subject  # modelsはDB
 
 
 # Create your views here.
@@ -322,21 +317,56 @@ def student_course_registration(request):
 def student_course_subject_registration(request):
     if request.method == 'GET':
         return render(request, 'student_course_subject_registration.html')
-    if request.method== 'POST':
-        student_email = []
-        student_email_bfo = request.POST.getlist('students')
-        for student_email_aft in student_email_bfo:
-            student_email.append(student_email_aft.email)
-        print(student_email)
-        students = Student.objects.only('email','name').filter(email__in=student_email)
-        print(students)
-        selected_subjects = request.POST.get("selected_subjects")
+    if request.method == 'POST':
+        # POSTデータから生徒情報を取得
+        student_data = request.POST.get('students')
+        # emailのリストを抽出
+        student_emails = []
+        if student_data:
+            # 正規表現でStudent objectのメール部分を抽出
+            student_emails = re.findall(r'\(([\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\)', student_data)
 
-        return  render(request, 'student_course_comp_registration.html',
-                       {'students': students, 'selected_subjects': selected_subjects})
+        # デバッグ用に抽出したemailを表示
+        print("emails:", student_emails)
+
+        # Studentテーブルからフィルタリング
+        students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
+
+        # POSTデータから選択された科目を取得
+        selected_subjects_data = request.POST.get("selected_subjects")
+
+        # JSON文字列をPythonのリストに変換
+        try:
+            selected_subjects = json.loads(selected_subjects_data)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+            return render(request, 'error.html', {'message': 'Invalid subject data.'})
+
+        subjects = []
+        for subject in selected_subjects:
+            print("Processing subject:", subject)
+            subject_custom = {
+                'subject_name': Subject.objects.get(subject_id=subject['subject_id']).subject_name,
+                'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
+                'date_first': subject['date_first'],
+                'date_last': subject['date_last'],
+                'unit': subject['unit'],
+            }
+            subjects.append(subject_custom)
+
+        # レンダリングするテンプレートにデータを渡す
+        return render(request, 'student_course_comp_registration.html', {
+            'students': students,
+            'subjects': subjects
+        })
 
 def student_course_comp_registration(request):
     return render(request, 'student_course_comp_registration.html')
+
+def student_course_ok(request):
+    if request.method == 'POST':
+
+        return  render(request, 'student_course_ok.html')
 
 def student_search(request):
     students = []
