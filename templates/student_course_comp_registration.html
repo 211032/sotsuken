@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
 </head>
 <body>
-    <form action="/student_course_comp_registration/" method="post">
+    <form action="/student_course_comp_registration/" method="post" id="registration-form">
         {% csrf_token %}
         <h1>入力内容の確認</h1>
         
@@ -24,29 +24,89 @@
             {% endfor %}
         </div>
         
-        <table>
-            <tr>
-                <th>教科名</th>
-                <th>教室</th>
-                <th>日にち</th>
-                <th>何限</th>
-                <th>削除</th>
-            </tr>
-            {% for subject in subjects %}
+        <table id="subjects-table">
+            <thead>
                 <tr>
-                    <td>{{ subject.subject_name }}</td>
-                    <td>{{ subject.classroom_name }}</td>
-                    <td>{{ subject.date_first }} ～ {{ subject.date_last }}</td>
-                    <td>{{ subject.unit }}限目</td>
-                    <td><button onclick="">削除</button></td>
+                    <th>教科名</th>
+                    <th>教室</th>
+                    <th>日にち</th>
+                    <th>何限</th>
+                    <th>削除</th>
                 </tr>
-            {% endfor %}
+            </thead>
+            <tbody>
+                {% for subject in subjects %}
+                    <tr id="select_subject" data-subject-id="{{ subject.subject_id }}" data-classroom-id="{{ subject.classroom_id }}" data-date-first="{{ subject.date_first }}" data-date-last="{{ subject.date_last }}" data-unit="{{ subject.unit }}">
+                        <td>
+                            <input type="hidden" name="subject_id" value="{{ subject.subject_id }}">
+                            {{ subject.subject_name }}
+                        </td>
+                        <td>
+                            <input type="hidden" name="classroom_id" value="{{ subject.classroom_id }}">
+                            {{ subject.classroom_name }}
+                        </td>
+                        <td>
+                            {{ subject.date_first }} ～ {{ subject.date_last }}
+                        </td>
+                        <td>
+                            {{ subject.unit }}限目
+                        </td>
+                        <td>
+                            <button type="button" class="delete-button">削除</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
+        
         <input type="submit" class="button registration-button" value="時間割を登録">
         <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
     </form>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = document.getElementById("subjects-table");
+            const form = document.getElementById("registration-form");
+        
+            // 削除ボタンのクリックイベントを設定
+            table.addEventListener("click", function (event) {
+                if (event.target.classList.contains("delete-button")) {
+                    const row = event.target.closest("tr");
+                    row.remove(); // 行を削除
+                }
+            });
+        
+            // フォーム送信時にデータを収集
+            form.addEventListener("submit", function (event) {
+                const rows = table.querySelectorAll("tbody tr");
+                const selectedData = []; // 収集したデータを格納するリスト
+        
+                rows.forEach(row => {
+                    const subjectId = row.dataset.subjectId;
+                    const classroomId = row.dataset.classroomId;
+                    const dateFirst = row.dataset.dateFirst;
+                    const dateLast = row.dataset.dateLast;
+                    const unit = row.dataset.unit;
+        
+                    // 各行のデータをオブジェクトとして追加
+                    selectedData.push({
+                        subject_id: subjectId,
+                        classroom_id: classroomId,
+                        date_first: dateFirst,
+                        date_last: dateLast,
+                        unit: unit
+                    });
+                });
+        
+                // 収集したデータを隠しフィールドとして追加
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "selected_subjects";
+                hiddenInput.value = JSON.stringify(selectedData);
+                form.appendChild(hiddenInput);
+            });
+        });
+        
         // 学生情報をポップアップで表示
         function alertName() {
             const studentElements = document.querySelectorAll('#students-container .student');

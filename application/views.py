@@ -329,7 +329,6 @@ def student_course_subject_registration(request):
         # デバッグ用に抽出したemailを表示
         print("emails:", student_emails)
 
-        # Studentテーブルからフィルタリング
         students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
         # POSTデータから選択された科目を取得
@@ -346,7 +345,9 @@ def student_course_subject_registration(request):
         for subject in selected_subjects:
             print("Processing subject:", subject)
             subject_custom = {
+                'subject_id': subject['subject_id'],
                 'subject_name': Subject.objects.get(subject_id=subject['subject_id']).subject_name,
+                'classroom_id': subject['classroom_id'],
                 'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
                 'date_first': subject['date_first'],
                 'date_last': subject['date_last'],
@@ -361,7 +362,30 @@ def student_course_subject_registration(request):
         })
 
 def student_course_comp_registration(request):
-    return render(request, 'student_course_comp_registration.html')
+    if request.method == 'GET':
+        return render(request, 'student_course_comp_registration.html')
+    if request.method == "POST":
+        selected_subjects_data = request.POST.get("selected_subjects")
+
+        # JSON文字列をPythonのリストに変換
+        try:
+            selected_subjects = json.loads(selected_subjects_data)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+            return render(request, 'error.html', {'message': 'Invalid subject data.'})
+
+        subjects = []
+        for subject in selected_subjects:
+            print("Processing subject:", subject)
+            subject_custom = {
+                'subject_id': subject['subject_id'],
+                'classroom_id': subject['classroom_id'],
+                'date_first': subject['date_first'],
+                'date_last': subject['date_last'],
+                'unit': subject['unit'],
+            }
+            subjects.append(subject_custom)
+        return render(request, 'student_course_ok.html', {'subjects': subjects})
 
 def student_course_ok(request):
     if request.method == 'POST':
