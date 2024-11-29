@@ -13,10 +13,10 @@
         <!-- 学生数の表示部分 -->
         <div class="student-info">
             {% if students|length == 1 %}
-                <span class="student-name">{{ students.0.name }}</span>
+                <span class="student-name">{{ students.0.name }}</span>を選択中
             {% else %}
                 <a href="#" onclick="alertName()" class="student-count">
-                     <span class="count-badge">{{ students|length }}</span> 名の学生
+                     <span class="count-badge">{{ students|length }}</span> 名の学生を選択中
                 </a>
             {% endif %}
         </div>

@@ -35,6 +35,9 @@
 <body>
 <div class="container">
     <p>正常に処理を終了しました。</p>
+    {% for subject in subjects %}
+    	{{ subject.subject_id }}
+    {% endfor %}
     <a class="button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
 </div>
 </body>
