@@ -97,3 +97,48 @@
 .hidden-row {
     display: none;
 }
+
+.student-info {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 名前のスタイル */
+.student-name {
+    font-weight: bold;
+    color: #333;
+    padding: 20px 50px;
+    border: 2px solid #4caf50;
+    border-radius: 5px;
+    background-color: #f0f9f4;
+}
+
+/* 学生数リンク */
+.student-count {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+/* 数字のバッジスタイル */
+.count-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border-radius: 12px;
+    margin-right: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.student-count:hover .count-badge {
+    background-color: #0056b3;
+}

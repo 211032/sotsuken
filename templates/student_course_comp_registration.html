@@ -10,12 +10,16 @@
         {% csrf_token %}
         <h1>入力内容の確認</h1>
         
-        学生：
-        {% if students|length == 1 %}
-            {{ students.first.name }}
-        {% else %}
-            <a href="#" onclick="alertName()">{{ students|length }}名</a>
-        {% endif %}
+        <!-- 学生数の表示部分 -->
+        <div class="student-info">
+            {% if students|length == 1 %}
+                <span class="student-name">{{ students.first.name }}</span>
+            {% else %}
+                <a href="#" onclick="alertName()" class="student-count">
+                     <span class="count-badge">{{ students|length }}</span> 名の学生
+                </a>
+            {% endif %}
+        </div>
         
         <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
         <div id="students-container" style="display: none;">

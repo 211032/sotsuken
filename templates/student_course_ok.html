@@ -3,9 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>時間割登録完了</title>
+    <link rel="stylesheet" href="/static/CSS/css.css">
+    <style>
+        .container {
+            border: 1px solid #ccc; /* 枠線の色 */
+            background-color: #fff; /* 背景色を白に設定 */
+            padding: 20px; /* 内側の余白 */
+            border-radius: 8px; /* 角を丸くする */
+            max-width: 400px; /* コンテナの最大幅 */
+            margin: 50px auto; /* 上下中央揃え */
+            text-align: center; /* テキストを中央揃え */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を追加 */
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #007BFF;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-正常に処理を終了しました。
-{{ students }}
+<div class="container">
+    <p>正常に処理を終了しました。</p>
+    <a class="button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+</div>
 </body>
 </html>
