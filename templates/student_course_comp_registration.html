@@ -71,7 +71,7 @@
                 <span class="student-name">{{ students.0.name }}</span>を選択中
             {% else %}
                 <a href="#" onclick="alertName()" class="student-count">
-                     <span class="count-badge">{{ students|length }}</span> 名の学生を選択中
+                     <span class="count-badge">{{ students|length }}</span> 名を選択中
                 </a>
             {% endif %}
         </div>
@@ -91,6 +91,7 @@
         <div id="students-container" style="display: none;">
             {% for student in students %}
                 <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+                <input type="hidden" name="student" id="student" value="{{ student }}">
             {% endfor %}
         </div>
         

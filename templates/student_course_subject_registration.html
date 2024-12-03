@@ -10,11 +10,21 @@
     {% csrf_token %}
     <h1>生徒に教科を登録</h1>
     {% if students|length == 1 %}
-        <p>{{ students.first.name }}を選択中</p>
+        <span class="student-name">{{ students.0.name }}</span>を選択中
     {% else %}
-        <p>{{ students|length }}名を選択中</p>
+        <a href="#" onclick="alertName()" class="student-count">
+             <span class="count-badge">{{ students|length }}</span> 名を選択中
+        </a>
     {% endif %}
-    <a href="#" onclick="allSubjects()">教科を全表示</a><br>
+
+    <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+    <div id="students-container" style="display: none;">
+        {% for student in students %}
+            <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+        {% endfor %}
+    </div>
+
+    <br><a href="#" onclick="allSubjects()">教科を全表示</a><br>
     <input type="hidden" name="students" id="students" value="{{ students }}">
     <label for="subject-name">
         <textarea rows="1" cols="25" id="subject-name" name="searchBox" placeholder="教科名で検索" onkeyup="filterSubjects()" onkeydown="preventNewLine(event)"
@@ -33,10 +43,10 @@
         </thead>
         <tbody>
             {% for subject in subjects %}
-                <tr>
+                <tr onclick="toggleCheckbox(this)">
                     <td>
                         <label for="select-subject">
-                            <input type="checkbox" name="select_subject" id="select-subject" value="{{ subject.subject_id }}">
+                            <input type="checkbox" name="select_subject" id="select-subject{{ subject.subject_id }}" value="{{ subject.subject_id }}">
                         </label>
                     </td>
                     <td class="subject-name">{{ subject.subject_name }}</td>
@@ -77,45 +87,62 @@
 </form>
 
 <script>
-filterSubjects()
-document.querySelector("form").addEventListener("submit", function (event) {
-    const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    const selectedData = [];
-
-    for (let i = 0; i < rows.length; i++) {
-        const checkbox = rows[i].querySelector("input[name='select_subject']");
-        if (checkbox && checkbox.checked) {
-            const subjectId = checkbox.value;
-            const classroomSelect = rows[i].querySelector("select[name='subject_classroom']").value;
-            const dateFirst = rows[i].querySelector("input[name='subject_date_first']").value;
-            const dateLast = rows[i].querySelector("input[name='subject_date_last']").value;
-            const unitSelect = rows[i].querySelector("select[name='subject_unit']").value;
-
-            selectedData.push({
-                'subject_id': subjectId,
-                'classroom_id': classroomSelect,
-                'date_first': dateFirst,
-                'date_last': dateLast,
-                'unit': unitSelect,
-            });
+    filterSubjects()
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const selectedData = [];
+    
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            if (checkbox && checkbox.checked) {
+                const subjectId = checkbox.value;
+                const classroomSelect = rows[i].querySelector("select[name='subject_classroom']").value;
+                const dateFirst = rows[i].querySelector("input[name='subject_date_first']").value;
+                const dateLast = rows[i].querySelector("input[name='subject_date_last']").value;
+                const unitSelect = rows[i].querySelector("select[name='subject_unit']").value;
+    
+                selectedData.push({
+                    'subject_id': subjectId,
+                    'classroom_id': classroomSelect,
+                    'date_first': dateFirst,
+                    'date_last': dateLast,
+                    'unit': unitSelect,
+                });
+            }
+        }
+        // 収集したデータを非表示フィールドに設定
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "selected_subjects";
+        hiddenInput.value = JSON.stringify(selectedData);
+        this.appendChild(hiddenInput);
+    });
+    
+    // 行クリック時のチェックボックス制御
+    function toggleCheckbox(row) {
+    // クリックされた要素を取得
+        const targetTag = event.target.tagName;
+    
+        // <select>や<option>をクリックした場合はチェックボックス操作をスキップ
+        if (targetTag === "SELECT" || targetTag === "OPTION" || targetTag === "INPUT") {
+            return;
+        }
+    
+        // 行内のチェックボックスを取得
+        const checkbox = row.querySelector('input[name="select_subject"]');
+        if (targetTag !== 'INPUT' && checkbox) {
+            checkbox.checked = !checkbox.checked;
         }
     }
 
-    // 収集したデータを非表示フィールドに設定
-    const hiddenInput = document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.name = "selected_subjects";
-    hiddenInput.value = JSON.stringify(selectedData);
-    this.appendChild(hiddenInput);
-});
+    // 教科のフィルタリング
+    function filterSubjects() {
+        const input = document.getElementById("subject-name").value.toLowerCase().trim();
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const subjectTable = document.getElementById("subjectTable");
+        let hasResults = false;
 
-// 教科のフィルタリング
-function filterSubjects() {
-    const input = document.getElementById("subject-name").value.toLowerCase().trim();
-    const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    const subjectTable = document.getElementById("subjectTable");
-    let hasResults = false;
-    if (input === "") {
+        if (input === "") {
             for (let i = 0; i < rows.length; i++) {
                 rows[i].classList.add("hidden-row");
             }
@@ -123,107 +150,120 @@ function filterSubjects() {
             return;
         }
 
-    for (let i = 0; i < rows.length; i++) {
-        const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
-        if (subjectNameCell) {
-            const content = subjectNameCell.textContent || subjectNameCell.innerText;
-            const isMatch = content.toLowerCase().indexOf(input) > -1;
-            if (isMatch) {
+        for (let i = 0; i < rows.length; i++) {
+            const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
+            if (subjectNameCell) {
+                const content = subjectNameCell.textContent || subjectNameCell.innerText;
+                const isMatch = content.toLowerCase().indexOf(input) > -1;
+                if (isMatch) {
+                    rows[i].classList.remove("hidden-row");
+                    hasResults = true;
+                } else {
+                    rows[i].classList.add("hidden-row");
+                }
+            }
+        }
+
+        subjectTable.style.display = hasResults ? "table" : "none";
+    }
+
+    // 全表示機能
+    function allSubjects() {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const subjectTable = document.getElementById("subjectTable");
+        let hasResults = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
+            if (subjectNameCell) {
                 rows[i].classList.remove("hidden-row");
                 hasResults = true;
-            } else {
-                rows[i].classList.add("hidden-row");
+            }
+        }
+        subjectTable.style.display = hasResults ? "table" : "none";
+    }
+
+    // 入力内容を記録
+    function saveInputValues() {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
+            const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
+            const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
+            const unitSelect = rows[i].querySelector("select[name='subject_unit']");
+
+            if (checkbox) {
+                checkbox.dataset.savedChecked = checkbox.checked;
+            }
+            if (classroomSelect) {
+                classroomSelect.dataset.savedValue = classroomSelect.value;
+            }
+            if (dateFirstInput) {
+                dateFirstInput.dataset.savedValue = dateFirstInput.value;
+            }
+            if (dateLastInput) {
+                dateLastInput.dataset.savedValue = dateLastInput.value;
+            }
+            if (unitSelect) {
+                unitSelect.dataset.savedValue = unitSelect.value;
             }
         }
     }
 
-    subjectTable.style.display = hasResults ? "table" : "none";
-}
+    // 入力内容を復元
+    function restoreInputValues() {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
+            const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
+            const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
+            const unitSelect = rows[i].querySelector("select[name='subject_unit']");
 
-function allSubjects(){
-    const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    const subjectTable = document.getElementById("subjectTable");
-    let hasResults = false;
-    
-    for (let i = 0; i < rows.length; i++) {
-        const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
-        if (subjectNameCell) {
-            rows[i].classList.remove("hidden-row");
-            hasResults = true;
+            if (checkbox && checkbox.dataset.savedChecked !== undefined) {
+                checkbox.checked = checkbox.dataset.savedChecked === "true";
+            }
+            if (classroomSelect && classroomSelect.dataset.savedValue) {
+                classroomSelect.value = classroomSelect.dataset.savedValue;
+            }
+            if (dateFirstInput && dateFirstInput.dataset.savedValue) {
+                dateFirstInput.value = dateFirstInput.dataset.savedValue;
+            }
+            if (dateLastInput && dateLastInput.dataset.savedValue) {
+                dateLastInput.value = dateLastInput.dataset.savedValue;
+            }
+            if (unitSelect && unitSelect.dataset.savedValue) {
+                unitSelect.value = unitSelect.dataset.savedValue;
+            }
         }
     }
-    subjectTable.style.display = hasResults ? "table" : "none";
-}
 
-// 入力内容を記録
-function saveInputValues() {
-    const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    for (let i = 0; i < rows.length; i++) {
-        const checkbox = rows[i].querySelector("input[name='select_subject']");
-        const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
-        const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
-        const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
-        const unitSelect = rows[i].querySelector("select[name='subject_unit']");
+    // フィルタリング前にデータ保存
+    document.getElementById("subject-name").addEventListener("input", () => {
+        saveInputValues();
+        filterSubjects();
+        restoreInputValues();
+    });
 
-        if (checkbox) {
-            checkbox.dataset.savedChecked = checkbox.checked;
-        }
-        if (classroomSelect) {
-            classroomSelect.dataset.savedValue = classroomSelect.value;
-        }
-        if (dateFirstInput) {
-            dateFirstInput.dataset.savedValue = dateFirstInput.value;
-        }
-        if (dateLastInput) {
-            dateLastInput.dataset.savedValue = dateLastInput.value;
-        }
-        if (unitSelect) {
-            unitSelect.dataset.savedValue = unitSelect.value;
+    // Enterキーを押されたときに改行を防止
+    function preventNewLine(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
         }
     }
-}
 
-// 入力内容を復元
-function restoreInputValues() {
-    const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-    for (let i = 0; i < rows.length; i++) {
-        const checkbox = rows[i].querySelector("input[name='select_subject']");
-        const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
-        const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
-        const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
-        const unitSelect = rows[i].querySelector("select[name='subject_unit']");
-
-        if (checkbox && checkbox.dataset.savedChecked !== undefined) {
-            checkbox.checked = checkbox.dataset.savedChecked === "true";
-        }
-        if (classroomSelect && classroomSelect.dataset.savedValue) {
-            classroomSelect.value = classroomSelect.dataset.savedValue;
-        }
-        if (dateFirstInput && dateFirstInput.dataset.savedValue) {
-            dateFirstInput.value = dateFirstInput.dataset.savedValue;
-        }
-        if (dateLastInput && dateLastInput.dataset.savedValue) {
-            dateLastInput.value = dateLastInput.dataset.savedValue;
-        }
-        if (unitSelect && unitSelect.dataset.savedValue) {
-            unitSelect.value = unitSelect.dataset.savedValue;
-        }
+    // 学生情報をポップアップで表示
+    function alertName() {
+        const studentElements = document.querySelectorAll('#students-container .student');
+        let message = "学生一覧:\n";
+        studentElements.forEach(student => {
+            const name = student.dataset.name;
+            const email = student.dataset.email;
+            message += `名前: ${name}, メール: ${email}\n`;
+        });
+        alert(message);
     }
-}
-
-// フィルタリング前にデータ保存
-document.getElementById("subject-name").addEventListener("input", () => {
-    saveInputValues();
-    filterSubjects();
-    restoreInputValues();
-});
-
-// Enterキーを押されたときに改行を防止
-function preventNewLine(event) {
-    if (event.key === "Enter") {
-        event.preventDefault();
-    }
-}
 </script>
 
 
