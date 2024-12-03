@@ -369,7 +369,7 @@ def student_course_comp_registration(request):
         return render(request, 'student_course_comp_registration.html')
 
     if request.method == "POST":
-        students = request.POST.get('student')
+        students = request.POST.getlist('student')
 
         selected_subjects_data = request.POST.get("selected_subjects")
 
