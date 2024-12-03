@@ -35,6 +35,11 @@
 <body>
 <div class="container">
     <p>正常に処理を終了しました。</p>
+    {{ students }}
+    {% for student in students %}
+        {{ student.name }}
+    {% endfor %}
+
     {% for subject in subjects %}
     	{{ subject.subject_id }}
     {% endfor %}

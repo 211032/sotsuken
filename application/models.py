@@ -24,9 +24,9 @@ class Subject(models.Model):
     subject_name = models.CharField(max_length=100)  # 科目名
 
 
-class Enrollment(models.Model):
+class Enrollment(models.Model): # 講師がどの科目を持っているのか把握する為に必要
     enrollment_id = models.AutoField(primary_key=True)  # 履修ID
-    instructor_id = models.ForeignKey('Teacher',on_delete=models.CASCADE)  # 講師ID（外部キーとして講師モデルを追加するのが望ましい）
+    instructor_id = models.ForeignKey('Teacher',on_delete=models.CASCADE)  # 講師ID
     subject = models.ForeignKey('Subject', on_delete=models.CASCADE)  # 科目ID（外部キー）
     class_identifier = models.ForeignKey('StudentClass',on_delete=models.CASCADE)  # クラス識別
 
@@ -35,7 +35,7 @@ class Classroom(models.Model):
     classroom_name = models.CharField(max_length=10, unique=True)
 
 
-class Attendance(models.Model):
+class Attendance(models.Model): # 生徒にどの科目が割り当てられたのか実際に出席したのか確認するために必要
     attendance_id = models.AutoField(primary_key=True)  # 出欠IDを文字列型の主キーに設定
     enrollment = models.ForeignKey('Enrollment', on_delete=models.CASCADE)  # 履修ID（外部キー）
     classroom = models.ForeignKey('Classroom', on_delete=models.CASCADE)  # 教室ID（外部キー）
@@ -53,7 +53,7 @@ class Attendance(models.Model):
         ('not_attended', '退席'),
     ])
 
-class Timetable(models.Model):
+class Timetable(models.Model): # 時間割
     email = models.EmailField(primary_key=True)  # メールアドレス
     date = models.DateField()  # 日にち
     period1 = models.ForeignKey('Attendance', related_name='timetable_period1', on_delete=models.SET_NULL, null=True, blank=True)  # 1コマ目

@@ -3,10 +3,11 @@ import re
 
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
+from django.db import transaction
 from django.shortcuts import render, redirect
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, StudentClass, Subject  # modelsはDB
+from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
 
 # Create your views here.
@@ -343,6 +344,7 @@ def student_course_subject_registration(request):
 
         subjects = []
         for subject in selected_subjects:
+            #subjectの要素をタプルに成形
             print("Processing subject:", subject)
             subject_custom = {
                 'subject_id': subject['subject_id'],
@@ -361,10 +363,14 @@ def student_course_subject_registration(request):
             'subjects': subjects
         })
 
+
 def student_course_comp_registration(request):
     if request.method == 'GET':
         return render(request, 'student_course_comp_registration.html')
+
     if request.method == "POST":
+        students = request.POST.get('student')
+
         selected_subjects_data = request.POST.get("selected_subjects")
 
         # JSON文字列をPythonのリストに変換
@@ -374,18 +380,71 @@ def student_course_comp_registration(request):
             print("Error decoding JSON:", e)
             return render(request, 'error.html', {'message': 'Invalid subject data.'})
 
-        subjects = []
-        for subject in selected_subjects:
-            print("Processing subject:", subject)
-            subject_custom = {
-                'subject_id': subject['subject_id'],
-                'classroom_id': subject['classroom_id'],
-                'date_first': subject['date_first'],
-                'date_last': subject['date_last'],
-                'unit': subject['unit'],
-            }
-            subjects.append(subject_custom)
-        return render(request, 'student_course_ok.html', {'subjects': subjects})
+        try:
+            with transaction.atomic():  # トランザクション処理で一括登録
+                subjects = []
+                for subject in selected_subjects:
+                    print("Processing subject:", subject)
+                    # 関連するモデルのインスタンスを取得
+                    subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
+                    classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
+
+                    # Enrollmentテーブルに登録
+                    # 講師やクラス識別子などは必要に応じて取得
+                    # teacher_instance = Teacher.objects.first()  # 適切な講師を設定
+                    # student_class_instance = StudentClass.objects.first()  # 適切なクラスを設定
+                    # enrollment, created = Enrollment.objects.get_or_create(
+                    #     instructor_id=teacher_instance,
+                    #     subject=subject_instance,
+                    #     class_identifier=student_class_instance,
+                    # )
+                    #
+                    # # Attendanceテーブルに登録
+                    # attendance = Attendance.objects.create(
+                    #     enrollment=enrollment,
+                    #     classroom=classroom_instance,
+                    #     student=request.user,  # ログイン中の学生情報を使用する場合
+                    #     period=1,  # 必要に応じて設定
+                    #     start_time=subject['start_time'],
+                    #     end_time=subject['end_time'],
+                    #     attendance_status='not_attended'
+                    # )
+                    #
+                    # # Timetableテーブルに登録または更新
+                    # timetable, created = Timetable.objects.get_or_create(
+                    #     email=request.user.email,  # ログイン中のユーザーのメールアドレス
+                    #     date=subject['date_first'],
+                    #     defaults={'is_special_class': False}
+                    # )
+                    #
+                    # # 適切な時限にAttendanceを設定
+                    # if subject['period'] == 1:
+                    #     timetable.period1 = attendance
+                    # elif subject['period'] == 2:
+                    #     timetable.period2 = attendance
+                    # elif subject['period'] == 3:
+                    #     timetable.period3 = attendance
+                    # elif subject['period'] == 4:
+                    #     timetable.period4 = attendance
+                    # timetable.save()
+
+                    # 表示用データに追加
+                    subject_custom = {
+                        'subject_id': subject_instance.subject_id,
+                        'subject_name': subject_instance.subject_name,
+                        'classroom_id': classroom_instance.classroom_id,
+                        'classroom_name': classroom_instance.classroom_name,
+                        'date_first': subject['date_first'],
+                        'date_last': subject['date_last'],
+                        'unit': subject['unit'],
+                    }
+                    subjects.append(subject_custom)
+
+                return render(request, 'student_course_ok.html', {'subjects': subjects, 'students': students})
+
+        except Exception as e:
+            print("Error saving data:", e)
+            return render(request, 'error.html', {'message': 'An error occurred while processing your request.'})
 
 def student_course_ok(request):
     if request.method == 'POST':
