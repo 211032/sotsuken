@@ -76,6 +76,7 @@
     <div id="students-container" style="display: none;">
         {% for student in students %}
             <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+            <input type="hidden" name="student" id="student" value="{{ student.email }}">
         {% endfor %}
     </div>
 
@@ -88,9 +89,7 @@
                 <div id="student-list"></div>
             </div>
         </div>
-
     <br><a href="#" onclick="allSubjects()">教科を全表示</a><br>
-    <input type="hidden" name="students" id="students" value="{{ students }}">
     <label for="subject-name">
         <textarea rows="1" cols="25" id="subject-name" name="searchBox" placeholder="教科名で検索" onkeyup="filterSubjects()" onkeydown="preventNewLine(event)"
                   style="resize : none; overflow: hidden;"></textarea>
@@ -102,7 +101,7 @@
                 <th></th>
                 <th>教科名</th>
                 <th>教室</th>
-                <th>日にち</th>
+                <th>期間</th>
                 <th>何限</th>
             </tr>
         </thead>

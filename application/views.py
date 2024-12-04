@@ -308,7 +308,7 @@ def student_course_registration(request):
     if request.method== 'POST':
         student_email = request.POST.getlist('select_student')
 
-        students = Student.objects.only('email','name').filter(email__in=student_email)
+        students = list(Student.objects.only('email','name').filter(email__in=student_email))
         subjects = Subject.objects.all()
         classrooms = Classroom.objects.all()
 
@@ -320,15 +320,7 @@ def student_course_subject_registration(request):
         return render(request, 'student_course_subject_registration.html')
     if request.method == 'POST':
         # POSTデータから生徒情報を取得
-        student_data = request.POST.get('students')
-        # emailのリストを抽出
-        student_emails = []
-        if student_data:
-            # 正規表現でStudent objectのメール部分を抽出
-            student_emails = re.findall(r'\(([\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})\)', student_data)
-
-        # デバッグ用に抽出したemailを表示
-        print("emails:", student_emails)
+        student_emails = request.POST.getlist('student')
 
         students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
@@ -369,7 +361,9 @@ def student_course_comp_registration(request):
         return render(request, 'student_course_comp_registration.html')
 
     if request.method == "POST":
-        students = request.POST.getlist('student')
+        student_emails = request.POST.getlist('student')
+
+        students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
         selected_subjects_data = request.POST.get("selected_subjects")
 
@@ -391,7 +385,8 @@ def student_course_comp_registration(request):
 
                     # Enrollmentテーブルに登録
                     # 講師やクラス識別子などは必要に応じて取得
-                    # teacher_instance = Teacher.objects.first()  # 適切な講師を設定
+                    teacher_instance = Teacher.objects.first()  # 適切な講師を設定
+                    print(teacher_instance)
                     # student_class_instance = StudentClass.objects.first()  # 適切なクラスを設定
                     # enrollment, created = Enrollment.objects.get_or_create(
                     #     instructor_id=teacher_instance,

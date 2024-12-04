@@ -91,16 +91,16 @@
         <div id="students-container" style="display: none;">
             {% for student in students %}
                 <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
-                <input type="hidden" name="student" id="student" value="{{ student }}">
+                <input type="hidden" name="student" id="student" value="{{ student.email }}">
             {% endfor %}
         </div>
-        
+    
         <table id="subjects-table">
             <thead>
                 <tr>
                     <th>教科名</th>
                     <th>教室</th>
-                    <th>日にち</th>
+                    <th>期間</th>
                     <th>何限</th>
                     <th>削除</th>
                 </tr>
