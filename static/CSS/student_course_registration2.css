@@ -62,6 +62,49 @@
         table-layout: auto; /* 列幅を自動調整 */
     }
 
+    #subjects-table th, #subjects-table td {
+        padding: 10px; /* セル内の余白を調整（少なめに） */
+        text-align: center; /* テキストを中央揃え */
+        font-size: 17px; /* フォントサイズを小さめに */
+        border: 1px solid #ddd; /* 枠線 */
+    }
+
+    /* スクロール用ラッパー */
+    #subjectTable-wrapper {
+        max-height: 300px; /* スクロール可能な最大の高さを設定 */
+        overflow-y: auto; /* 垂直スクロールを有効化 */
+        margin-top: 10px; /* テーブルの上部に余白 */
+    }
+
+    #subjects-table th {
+        background-color: #4CAF50; /* ヘッダーを緑色に */
+        color: white; /* ヘッダーテキストを白に */
+        font-weight: bold;
+        position: sticky; /* スクロールに追従しない固定ヘッダー */
+        top: 0; /* ヘッダーの位置をテーブル上端に固定 */
+        z-index: 2; /* ヘッダーを最前面に表示 */
+    }
+
+    #subjects-table td {
+        border: 1px solid #ddd; /* セルの境界線を薄く設定 */
+        background-color: #f9f9f9; /* 背景色を控えめに */
+    }
+
+    #subjects-table tr:nth-child(even) td {
+        background-color: #f3f3f3; /* 偶数行の背景を調整 */
+    }
+
+    #subjects-table tr:hover td {
+        background-color: #f1f1f1; /* ホバー時の背景色を調整 */
+    }
+
+    #subjects-table {
+        width: 100%; /* テーブルの幅を調整 */
+        margin-top: 10px; /* 上部の余白を少なく */
+        border-collapse: collapse; /* 枠線を統一 */
+        table-layout: auto; /* 列幅を自動調整 */
+    }
+
     .registration-button{
         width: 200px;
         background-color: #4CAF50;
