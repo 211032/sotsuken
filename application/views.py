@@ -1,5 +1,6 @@
 import asyncio
 import re
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -384,16 +385,9 @@ def student_course_comp_registration(request):
                     classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
 
                     # Enrollmentテーブルに登録
-                    # 講師やクラス識別子などは必要に応じて取得
-                    teacher_instance = Teacher.objects.first()  # 適切な講師を設定
-                    print(teacher_instance)
-                    # student_class_instance = StudentClass.objects.first()  # 適切なクラスを設定
-                    # enrollment, created = Enrollment.objects.get_or_create(
-                    #     instructor_id=teacher_instance,
-                    #     subject=subject_instance,
-                    #     class_identifier=student_class_instance,
-                    # )
-                    #
+                    # 講師やクラス識別子などを取得
+                    enrollments = Enrollment.objects.all()
+
                     # # Attendanceテーブルに登録
                     # attendance = Attendance.objects.create(
                     #     enrollment=enrollment,
@@ -405,12 +399,15 @@ def student_course_comp_registration(request):
                     #     attendance_status='not_attended'
                     # )
                     #
-                    # # Timetableテーブルに登録または更新
-                    # timetable, created = Timetable.objects.get_or_create(
-                    #     email=request.user.email,  # ログイン中のユーザーのメールアドレス
-                    #     date=subject['date_first'],
-                    #     defaults={'is_special_class': False}
-                    # )
+                    # Timetableテーブルに登録または更新
+
+                    distance = int(subject['date_last'] - subject['date_first'])
+                    for i in range(1, distance):
+                        timetable, created = Timetable.objects.get_or_create(
+                            email=student_emails,  # ログイン中のユーザーのメールアドレス
+                            date=subject['date_first'] + i,
+                            defaults={'is_special_class': False}
+                        )
                     #
                     # # 適切な時限にAttendanceを設定
                     # if subject['period'] == 1:

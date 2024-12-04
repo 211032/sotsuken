@@ -89,10 +89,10 @@
 <div class="container">
     <p>正常に処理を終了しました。</p>
     {% if students|length == 1 %}
-        <span class="student-name">{{ students.0.name }}</span>を選択中
+        <span class="student-name">{{ students.0.name }}</span>を登録
     {% else %}
         <a href="#" onclick="alertName()" class="student-count">
-             <span class="count-badge">{{ students|length }}</span> 名を選択中
+             <span class="count-badge">{{ students|length }}</span> 名を登録
         </a>
     {% endif %}
 
@@ -140,6 +140,7 @@
                 {% endfor %}
             </tbody>
         </table>
+    <a class="button" href="student_course_subject_registration.html" methods="post">同じ生徒に教科を再登録</a>
     <a class="button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
 </div>
 <script>
