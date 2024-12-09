@@ -1,7 +1,6 @@
 import asyncio
-import re
 from datetime import datetime
-
+import datetime
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -379,46 +378,72 @@ def student_course_comp_registration(request):
             with transaction.atomic():  # トランザクション処理で一括登録
                 subjects = []
                 for subject in selected_subjects:
-                    print("Processing subject:", subject)
-                    # 関連するモデルのインスタンスを取得
-                    subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
-                    classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
+                    for student in students:
+                        print("Processing subject:", subject)
+                        # 関連するモデルのインスタンスを取得
+                        subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
+                        classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
 
-                    # Enrollmentテーブルに登録
-                    # 講師やクラス識別子などを取得
-                    enrollments = Enrollment.objects.all()
+                        # Enrollmentテーブルに登録
+                        # 講師やクラス識別子などを取得
+                        enrollment = Enrollment.objects.filter(instructor_id=request.session.get('teacher_id'), subject_id=subject['subject_id'])
 
-                    # # Attendanceテーブルに登録
-                    # attendance = Attendance.objects.create(
-                    #     enrollment=enrollment,
-                    #     classroom=classroom_instance,
-                    #     student=request.user,  # ログイン中の学生情報を使用する場合
-                    #     period=1,  # 必要に応じて設定
-                    #     start_time=subject['start_time'],
-                    #     end_time=subject['end_time'],
-                    #     attendance_status='not_attended'
-                    # )
-                    #
-                    # Timetableテーブルに登録または更新
+                        # Attendanceテーブルに登録
+                        start_time = None
+                        end_time = None
+                        if enrollment.is_special_class :
+                            if subject['unit'] == 1:
+                                start_time = '9:30:00'
+                                end_time = '11:00:00'
+                            elif subject['unit'] == 2:
+                                start_time = '11:10:00'
+                                end_time = '12:40:00'
+                            elif subject['unit'] == 3:
+                                start_time = '13:30:00'
+                                end_time = '15:00:00'
+                            elif subject['unit'] == 4:
+                                start_time = '15:15:00'
+                                end_time = '16:45:00'
+                        else:
+                            if subject['unit'] == 1:
+                                start_time = '9:15:00'
+                                end_time = '10:45:00'
+                            elif subject['unit'] == 2:
+                                start_time = '11:00:00'
+                                end_time = '12:30:00'
+                            elif subject['unit'] == 3:
+                                start_time = '13:30:00'
+                                end_time = '15:00:00'
+                            elif subject['unit'] == 4:
+                                start_time = '15:15:00'
+                                end_time = '16:45:00'
 
-                    distance = int(subject['date_last'] - subject['date_first'])
-                    for i in range(1, distance):
-                        timetable, created = Timetable.objects.get_or_create(
-                            email=student_emails,  # ログイン中のユーザーのメールアドレス
-                            date=subject['date_first'] + i,
-                            defaults={'is_special_class': False}
+                        attendance = Attendance.objects.create(
+                            enrollment=enrollment.enrollment_id,
+                            classroom=subject['classroom_id'],
+                            start_time=start_time,
+                            end_time=end_time,
+                            attendance_status='not_attended'
                         )
-                    #
-                    # # 適切な時限にAttendanceを設定
-                    # if subject['period'] == 1:
-                    #     timetable.period1 = attendance
-                    # elif subject['period'] == 2:
-                    #     timetable.period2 = attendance
-                    # elif subject['period'] == 3:
-                    #     timetable.period3 = attendance
-                    # elif subject['period'] == 4:
-                    #     timetable.period4 = attendance
-                    # timetable.save()
+
+                        # Timetableテーブルに登録または更新
+                        distance = int((subject['date_last'] - subject['date_first']).days)
+                        for i in range(1, distance):
+                            timetable, created = Timetable.objects.get_or_create(
+                                email=student.email,  # ログイン中のユーザーのメールアドレス
+                                date=subject['date_first'] + datetime.timedelta(days= i),
+                            )
+
+                        # 適切な時限にAttendanceを設定
+                        if subject['unit'] == 1:
+                            timetable.period1 = attendance
+                        elif subject['unit'] == 2:
+                            timetable.period2 = attendance
+                        elif subject['unit'] == 3:
+                            timetable.period3 = attendance
+                        elif subject['unit'] == 4:
+                            timetable.period4 = attendance
+                        timetable.save()
 
                     # 表示用データに追加
                     subject_custom = {
