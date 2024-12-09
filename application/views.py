@@ -393,7 +393,7 @@ def student_course_comp_registration(request):
                         end_time = None
                         if enrollment.is_special_class :
                             if subject['unit'] == 1:
-                                start_time = '9:30:00'
+                                start_time = '9:15:00'
                                 end_time = '11:00:00'
                             elif subject['unit'] == 2:
                                 start_time = '11:10:00'
@@ -422,8 +422,7 @@ def student_course_comp_registration(request):
                             enrollment=enrollment.enrollment_id,
                             classroom=subject['classroom_id'],
                             start_time=start_time,
-                            end_time=end_time,
-                            attendance_status='not_attended'
+                            end_time=end_time
                         )
 
                         # Timetableテーブルに登録または更新
