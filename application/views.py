@@ -1,6 +1,5 @@
 import asyncio
-from datetime import datetime
-import datetime
+from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -386,62 +385,69 @@ def student_course_comp_registration(request):
 
                         # Enrollmentテーブルに登録
                         # 講師やクラス識別子などを取得
-                        enrollment = Enrollment.objects.filter(instructor_id=request.session.get('teacher_id'), subject_id=subject['subject_id'])
+                        enrollment = Enrollment.objects.get(instructor_id=request.session.get('teacher_id'), subject_id=subject['subject_id'])
 
                         # Attendanceテーブルに登録
                         start_time = None
                         end_time = None
+                        print(subject['unit'])
                         if enrollment.is_special_class :
-                            if subject['unit'] == 1:
+                            print('yes')
+                            if subject['unit'] == '1':
                                 start_time = '9:15:00'
                                 end_time = '11:00:00'
-                            elif subject['unit'] == 2:
+                            elif subject['unit'] == '2':
                                 start_time = '11:10:00'
                                 end_time = '12:40:00'
-                            elif subject['unit'] == 3:
+                            elif subject['unit'] == '3':
                                 start_time = '13:30:00'
                                 end_time = '15:00:00'
-                            elif subject['unit'] == 4:
+                            elif subject['unit'] == '4':
                                 start_time = '15:15:00'
                                 end_time = '16:45:00'
                         else:
-                            if subject['unit'] == 1:
+                            print('no')
+                            if subject['unit'] == '1':
                                 start_time = '9:15:00'
                                 end_time = '10:45:00'
-                            elif subject['unit'] == 2:
+                            elif subject['unit'] == '2':
                                 start_time = '11:00:00'
                                 end_time = '12:30:00'
-                            elif subject['unit'] == 3:
+                            elif subject['unit'] == '3':
                                 start_time = '13:30:00'
                                 end_time = '15:00:00'
-                            elif subject['unit'] == 4:
+                            elif subject['unit'] == '4':
                                 start_time = '15:15:00'
                                 end_time = '16:45:00'
 
                         attendance = Attendance.objects.create(
-                            enrollment=enrollment.enrollment_id,
-                            classroom=subject['classroom_id'],
+                            enrollment_id=enrollment.enrollment_id,
+                            classroom_id=subject['classroom_id'],
                             start_time=start_time,
                             end_time=end_time
                         )
 
                         # Timetableテーブルに登録または更新
-                        distance = int((subject['date_last'] - subject['date_first']).days)
+                        date_first = datetime.strptime(subject['date_first'], '%Y-%m-%d')
+                        date_last = datetime.strptime(subject['date_last'], '%Y-%m-%d')
+                        print(date_first, date_last)
+                        distance = int((date_last - date_first).days)
+                        print(distance)
                         for i in range(1, distance):
                             timetable, created = Timetable.objects.get_or_create(
-                                email=student.email,  # ログイン中のユーザーのメールアドレス
-                                date=subject['date_first'] + datetime.timedelta(days= i),
+                                email=student['email'],  # ログイン中のユーザーのメールアドレス
+                                date=date_first + timedelta(days= i),
                             )
 
                         # 適切な時限にAttendanceを設定
-                        if subject['unit'] == 1:
-                            timetable.period1 = attendance
-                        elif subject['unit'] == 2:
-                            timetable.period2 = attendance
-                        elif subject['unit'] == 3:
-                            timetable.period3 = attendance
-                        elif subject['unit'] == 4:
-                            timetable.period4 = attendance
+                        if subject['unit'] == '1':
+                            timetable.period1 = attendance.attendance_id
+                        elif subject['unit'] == '2':
+                            timetable.period2 = attendance.attendance_id
+                        elif subject['unit'] == '3':
+                            timetable.period3 = attendance.attendance_id
+                        elif subject['unit'] == '4':
+                            timetable.period4 = attendance.attendance_id
                         timetable.save()
 
                     # 表示用データに追加

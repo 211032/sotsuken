@@ -55,6 +55,7 @@ class Attendance(models.Model): # 生徒にどの科目が割り当てられた�
     ])
 
 class Timetable(models.Model): # 時間割
+    timetable_id = models.AutoField(primary_key=True,default=1)
     email = models.EmailField(primary_key=True)  # メールアドレス
     date = models.DateField()  # 日にち
     period1 = models.ForeignKey('Attendance', related_name='timetable_period1', on_delete=models.SET_NULL, null=True, blank=True)  # 1コマ目
@@ -63,7 +64,7 @@ class Timetable(models.Model): # 時間割
     period4 = models.ForeignKey('Attendance', related_name='timetable_period4', on_delete=models.SET_NULL, null=True, blank=True)  # 4コマ目
 
     class Meta:
-        unique_together = (('email', 'date'),)  # emailとdateの複合キー設定
+        models.UniqueConstraint(fields=['email', 'date'], name='unique_email_date')  # emailとdateの複合キー設定
 
 
 class Equipment(models.Model):
