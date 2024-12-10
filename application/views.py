@@ -439,16 +439,16 @@ def student_course_comp_registration(request):
                                 date=date_first + timedelta(days= i),
                             )
 
-                        # 適切な時限にAttendanceを設定
-                        if subject['unit'] == '1':
-                            timetable.period1 = attendance.attendance_id
-                        elif subject['unit'] == '2':
-                            timetable.period2 = attendance.attendance_id
-                        elif subject['unit'] == '3':
-                            timetable.period3 = attendance.attendance_id
-                        elif subject['unit'] == '4':
-                            timetable.period4 = attendance.attendance_id
-                        timetable.save()
+                            # 適切な時限にAttendanceを設定
+                            if subject['unit'] == '1':
+                                timetable.period1_id = attendance.attendance_id
+                            elif subject['unit'] == '2':
+                                timetable.period2_id = attendance.attendance_id
+                            elif subject['unit'] == '3':
+                                timetable.period3_id = attendance.attendance_id
+                            elif subject['unit'] == '4':
+                                timetable.period4_id = attendance.attendance_id
+                            timetable.save()
 
                     # 表示用データに追加
                     subject_custom = {

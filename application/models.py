@@ -56,7 +56,7 @@ class Attendance(models.Model): # 生徒にどの科目が割り当てられた�
 
 class Timetable(models.Model): # 時間割
     timetable_id = models.AutoField(primary_key=True,default=1)
-    email = models.EmailField(primary_key=True)  # メールアドレス
+    email = models.EmailField()  # メールアドレス
     date = models.DateField()  # 日にち
     period1 = models.ForeignKey('Attendance', related_name='timetable_period1', on_delete=models.SET_NULL, null=True, blank=True)  # 1コマ目
     period2 = models.ForeignKey('Attendance', related_name='timetable_period2', on_delete=models.SET_NULL, null=True, blank=True)  # 2コマ目
