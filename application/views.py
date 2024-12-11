@@ -433,12 +433,12 @@ def student_course_comp_registration(request):
                         print(date_first, date_last)
                         distance = int((date_last - date_first).days)
                         print(distance)
-                        for i in range(1, distance):
+                        for i in range(0, distance):
+                            date = date_first + timedelta(days= i)
                             timetable, created = Timetable.objects.get_or_create(
-                                email=student['email'],  # ログイン中のユーザーのメールアドレス
-                                date=date_first + timedelta(days= i),
+                                email=student['email'],
+                                date=date
                             )
-
                             # 適切な時限にAttendanceを設定
                             if subject['unit'] == '1':
                                 timetable.period1_id = attendance.attendance_id
