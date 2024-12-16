@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.shortcuts import render, redirect
-
+from calendar import monthrange
 from .ble_utils import scan_beacons
 from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
@@ -521,6 +521,68 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
+import locale
+
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+    return ""
+
+
+# 時間を日本語形式にフォーマット
+def format_time(time):
+    if time:
+        return time.strftime("%H:%M")  # e.g., "9:00"
+    return ""
+
+def monthly_schedule(request):
+    student_email = request.session.get('student_email')
+    if not student_email:
+        return redirect('login')
+
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    month_start = datetime(current_year, current_month, 1)
+    month_end = datetime(current_year, current_month, monthrange(current_year, current_month)[1])
+
+    timetables = Timetable.objects.filter(
+        email=student_email,
+        date__range=(month_start, month_end)
+    ).order_by('date')
+
+    schedule = []
+    for timetable in timetables:
+        for period, period_field in enumerate(['period1', 'period2', 'period3', 'period4'], start=1):
+            attendance = getattr(timetable, period_field, None)
+            if attendance:
+                subject = attendance.enrollment.subject
+                classroom = attendance.classroom
+                teacher = attendance.enrollment.instructor_id
+
+                schedule.append({
+                    'date': format_japanese_date(timetable.date),  # 日本語形式の日付
+                    'period': period,
+                    'subject_name': subject.subject_name,
+                    'classroom_name': classroom.classroom_name,
+                    'teacher_name': teacher.name,
+                    'start_time': format_time(attendance.start_time),  # 日本語形式の時間
+                    'end_time': format_time(attendance.end_time),
+                })
+
+    return render(request, 'monthly_schedule.html', {
+        'schedule': schedule,
+        'current_month': current_month,
+        'current_year': current_year,
+    })
 
 
 from django.http import JsonResponse
