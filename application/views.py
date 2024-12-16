@@ -18,6 +18,7 @@ from . import ble_utils
 def index(request):
     return render(request, 'index.html')  # トップページを表示
 
+
 def login_student(request):  # ログインページのビュー
     error_message = None
 
@@ -42,6 +43,36 @@ def login_student(request):  # ログインページのビュー
 
     return render(request, 'login.html', {'error_message': error_message})
 
+
+def login_android(request):  # ログインページのビュー
+    error_message = None
+
+    if request.method == "POST":
+        email = request.POST.get('email')  # フォームからメールアドレスを取得
+        password = request.POST.get('password')  # フォームからパスワードを取得
+
+        # バリデーション: フィールドが空でないか確認
+        if email and password:
+            try:
+                student = Student.objects.get(email=email)
+                if student.password == password:
+                    # セッションにメールアドレスを保存
+                    request.session['student_email'] = student.email
+                    return JsonResponse({
+                        "message": "login successfully",
+                        "success": True
+                    })
+                else:
+                    error_message = "パスワードが違います"  # パスワードが一致しない場合のエラーメッセージ
+            except Student.DoesNotExist:
+                error_message = "メールアドレスが存在しません"  # メールアドレスが見つからない場合のエラーメッセージ
+        else:
+            error_message = "メールアドレスとパスワードを入力してください"  # フィールドが空の場合のエラーメッセージ
+    return JsonResponse({
+        "message": error_message,
+        "success": False
+    })
+
 def home(request):
     # セッションからメールアドレスを取得
     student_email = request.session.get('student_email')
@@ -55,8 +86,10 @@ def home(request):
     else:
         return redirect('login')  # ログインしていない場合はログイン画面にリダイレクト
 
+
 def logout(request):
     return render(request, 'login.html')  # トップページを表示
+
 
 def login_teacher(request):
     error_message = None
@@ -121,8 +154,10 @@ def adomin_teacher_home(request):
         # If no teacher_id in session, redirect to the login page
         return redirect('login_teacher')
 
+
 def register_view(request):
     return render(request, 'accountReg.html')
+
 
 def register_teacher(request):
     if request.method == 'POST':
@@ -163,8 +198,10 @@ def register_teacher(request):
 
     return render(request, 'register_teacher.html')
 
+
 def registration_success(request):
     return render(request, 'registration_success.html')
+
 
 def register_student(request):
     if request.method == 'POST':
@@ -186,7 +223,6 @@ def register_student(request):
 
         studentClass = StudentClass.objects.get(class_name=class_name)
 
-
         # 学生データの作成
         student = Student(
             email=email,
@@ -200,6 +236,7 @@ def register_student(request):
         return render(request, 'register_student.html')
     return render(request, 'register_student.html')
 
+
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
@@ -207,9 +244,11 @@ async def beacon_connect(request):
 async def async_scan():
     return await scan_beacons()
 
+
 def teacher_list(request):
     teachers = Teacher.objects.all()
     return render(request, 'teacher_list.html', {'teachers': teachers})
+
 
 def scan_beacon(request):
     # 非同期でBLEビーコンをスキャン
@@ -220,20 +259,25 @@ def scan_beacon(request):
     # 期待するJSON形式でデバイス情報を返す
     response_data = {'devices': devices}
     return JsonResponse(response_data)
-def attendance_confirmation(request):
 
+
+def attendance_confirmation(request):
     attendances = Attendance.objects.filter(student_id=request.user.id)
     return render(request, 'attendance_confirmation.html', {'attendances': attendances})
+
 
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
-#時間割登録機能に遷移する
+
+# 時間割登録機能に遷移する
 def time_table(request):
     return render(request, 'time_table.html')
 
+
 def subject_registration(request):
     return render(request, 'subject_registration.html')
+
 
 def subject_registration_comp(request):
     if request.method == 'POST':
@@ -243,7 +287,6 @@ def subject_registration_comp(request):
         subject.save()
 
         return render(request, 'subject_registration.html', {'message': '登録が完了しました!'})
-
 
 
 # beacon登録
@@ -277,8 +320,8 @@ def register_beacon(request):
         classrooms = Classroom.objects.all()
 
         context = {
-            'classrooms' : classrooms,
-            'success_message' : 'beacon登録成功！'
+            'classrooms': classrooms,
+            'success_message': 'beacon登録成功！'
         }
 
         return render(request, 'register_beacon.html', context)
@@ -304,26 +347,28 @@ def student_course_registration(request):
             }
             students.append(show_student)
         return render(request, 'student_course_registration.html',
-                  {'students': students, 'student_classes': student_classes})
-    if request.method== 'POST':
+                      {'students': students, 'student_classes': student_classes})
+    if request.method == 'POST':
         student_email = request.POST.getlist('select_student')
 
-        students = Student.objects.only('email','name').filter(email__in=student_email)
+        students = Student.objects.only('email', 'name').filter(email__in=student_email)
         subjects = Subject.objects.all()
         classrooms = Classroom.objects.all()
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
+
 def student_course_subject_registration(request):
     if request.method == 'GET':
         return render(request, 'student_course_subject_registration.html')
-    if request.method== 'POST':
+    if request.method == 'POST':
         students = request.POST.getlist('students')
         subject = request.POST.getlist('subjects')
         subject_classroom = request.POST.getlist('subject_classroom')
 
-        return  render(request, 'student_course_subject_registration.html')
+        return render(request, 'student_course_subject_registration.html')
+
 
 def student_search(request):
     students = []
@@ -341,11 +386,11 @@ def student_search(request):
                   {'students': students, 'student_classes': student_classes})
 
 
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Equipment, Classroom
 import json
+
 
 @csrf_exempt
 def api(request):

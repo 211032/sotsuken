@@ -11,6 +11,7 @@ urlpatterns = [
     path('beacon_scan/', views.scan_beacon, name='beacon_scan'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
     path('login/', views.login_student, name='login'),  # login_studentに変更
+    path('login_android/', views.login_android, name='login_android'),
     path('logout/', views.logout, name='logout'),
     path('home/', views.home, name='home'),
     path('login_teacher/', views.login_teacher, name='login_teacher'),  # login_studentに変更
