@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>入力内容の確認</title>
+    <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
+     <style>
+        .modal {
+            display: none; /* 初期状態で非表示 */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            max-width: 600px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            text-align: left;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        .modal-content ul li {
+            margin: 5px 0;
+        }
+
+        .close-button {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            color: #888;
+        }
+
+        .close-button:hover {
+            color: red;
+        }
+
+        .overlay {
+            display: none; /* 初期状態で非表示 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <form action="/student_course_comp_registration/" method="post" id="registration-form">
+        {% csrf_token %}
+        <h1>入力内容の確認</h1>
+        
+        <!-- 学生数の表示部分 -->
+        <div class="student-info">
+            {% if students|length == 1 %}
+                <span class="student-name">{{ students.0.name }}</span>を選択中
+            {% else %}
+                <a href="#" onclick="alertName()" class="student-count">
+                     <span class="count-badge">{{ students|length }}</span> 名を選択中
+                </a>
+            {% endif %}
+        </div>
+    
+        <!-- モーダル用のHTML -->
+         <!-- モーダルとオーバーレイ -->
+        <div class="overlay" id="overlay"></div>
+        <div id="student-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-modal">&times;</span>
+                <h2>学生一覧</h2>
+                <div id="student-list"></div>
+            </div>
+        </div>
+
+        <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+        <div id="students-container" style="display: none;">
+            {% for student in students %}
+                <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+                <input type="hidden" name="student" id="student" value="{{ student.email }}">
+            {% endfor %}
+        </div>
+    
+        <table id="subjects-table" style="display: block;">
+            <thead>
+                <tr>
+                    <th>教科名</th>
+                    <th>教室</th>
+                    <th>期間</th>
+                    <th>何限</th>
+                    <th>削除</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjects %}
+                    <tr id="select_subject" data-subject-id="{{ subject.subject_id }}" data-classroom-id="{{ subject.classroom_id }}" data-date-first="{{ subject.date_first }}" data-date-last="{{ subject.date_last }}" data-unit="{{ subject.unit }}">
+                        <td>
+                            <input type="hidden" name="subject_id" value="{{ subject.subject_id }}">
+                            {{ subject.subject_name }}
+                        </td>
+                        <td>
+                            <input type="hidden" name="classroom_id" value="{{ subject.classroom_id }}">
+                            {{ subject.classroom_name }}
+                        </td>
+                        <td>
+                            {{ subject.date_first }} ～ {{ subject.date_last }}
+                        </td>
+                        <td>
+                            {{ subject.unit }}限目
+                        </td>
+                        <td>
+                            <button type="button" class="delete-button">削除</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <input type="submit" class="button registration-button" value="時間割を登録">
+        <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = document.getElementById("subjects-table");
+            const form = document.getElementById("registration-form");
+        
+            // 削除ボタンのクリックイベントを設定
+            table.addEventListener("click", function (event) {
+                if (event.target.classList.contains("delete-button")) {
+                    const row = event.target.closest("tr");
+                    row.remove(); // 行を削除
+                }
+            });
+        
+            // フォーム送信時にデータを収集
+            form.addEventListener("submit", function (event) {
+                const rows = table.querySelectorAll("tbody tr");
+                const selectedData = []; // 収集したデータを格納するリスト
+        
+                rows.forEach(row => {
+                    const subjectId = row.dataset.subjectId;
+                    const classroomId = row.dataset.classroomId;
+                    const dateFirst = row.dataset.dateFirst;
+                    const dateLast = row.dataset.dateLast;
+                    const unit = row.dataset.unit;
+        
+                    // 各行のデータをオブジェクトとして追加
+                    selectedData.push({
+                        subject_id: subjectId,
+                        classroom_id: classroomId,
+                        date_first: dateFirst,
+                        date_last: dateLast,
+                        unit: unit
+                    });
+                });
+        
+                // 収集したデータを隠しフィールドとして追加
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "selected_subjects";
+                hiddenInput.value = JSON.stringify(selectedData);
+                form.appendChild(hiddenInput);
+            });
+        });
+        
+        function alertName() {
+            const studentElements = document.querySelectorAll('#students-container .student');
+            const modal = document.getElementById('student-modal');
+            const overlay = document.getElementById('overlay');
+            const studentList = document.getElementById('student-list');
+            const closeModalButton = document.getElementById('close-modal');
+
+            // 学生情報をモーダル内に追加
+            let content = "<ul>";
+            studentElements.forEach(student => {
+                const name = student.dataset.name;
+                const email = student.dataset.email;
+                content += `<li><strong>名前:</strong> ${name} | <strong>メール:</strong> ${email}</li>`;
+            });
+            content += "</ul>";
+            studentList.innerHTML = content;
+
+            // モーダルとオーバーレイを表示
+            modal.style.display = "block";
+            overlay.style.display = "block";
+
+            // 閉じるボタンのイベント
+            closeModalButton.onclick = function () {
+                modal.style.display = "none";
+                overlay.style.display = "none";
+            };
+
+            // モーダル外をクリックした場合も閉じる
+            overlay.onclick = function () {
+                modal.style.display = "none";
+                overlay.style.display = "none";
+            };
+        }
+    </script>
+</body>
+</html>

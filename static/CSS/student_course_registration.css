@@ -33,7 +33,8 @@
         text-align: left;
     }
     #studentTable th {
-        background-color: #f2f2f2;
+        background-color: #4caf50;
+        color: white;
     }
 
 .registration-button{

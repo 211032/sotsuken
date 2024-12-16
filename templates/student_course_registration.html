@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <title>生徒の時間割登録</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
-
 </head>
-
 <body>
 <form action="/student_course_registration/" method="post">
     {% csrf_token %}
@@ -45,7 +43,7 @@
     <table id="studentTable" style="display: none;">
         <thead>
             <tr>
-                <th></th>
+                <th><input type="checkbox" id="selectAll" onclick="selectAllCheckboxes()"></th> <!-- 全選択用チェックボックス -->
                 <th>メール</th>
                 <th>名前</th>
                 <th>クラス</th>
@@ -53,7 +51,7 @@
         </thead>
         <tbody>
             {% for student in students %}
-                <tr>
+                <tr class="student-row" onclick="toggleCheckbox(this)">
                     <td class="student-checked{{ student.number }}">
                         <label for="student-checked{{ student.number }}">
                             <input type="checkbox" name="select_student" id="student-checked{{ student.number }}" 
@@ -145,12 +143,30 @@
         }
         studentTable.style.display = hasResults ? "table" : "none";
     }
+
+    // 行クリック時のチェックボックス制御
+    function toggleCheckbox(row) {
+        // 行内のチェックボックスを取得
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        if (event.target.tagName !== 'INPUT') {
+            checkbox.checked = !checkbox.checked;
+        }
+    }
+
+    // 全選択チェックボックス
+    function selectAllCheckboxes() {
+        const selectAll = document.getElementById("selectAll").checked;
+        const checkboxes = document.querySelectorAll('#studentTable input[type="checkbox"]:not(#selectAll)');
+        checkboxes.forEach(checkbox => checkbox.checked = selectAll);
+    }
+
+    // preventNewLine: Enterキーで改行を防止
     function preventNewLine(event) {
-        // Enterキーを押されたときに改行を防止
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     }
 </script>
+
 </body>
 </html>

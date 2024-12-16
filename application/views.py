@@ -1,17 +1,12 @@
-import json
-
-from asgiref.sync import sync_to_async
-from django.shortcuts import render, redirect
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, QueryDict
+import asyncio
+from datetime import datetime, timedelta
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
-from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+from django.shortcuts import render, redirect
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, Classroom, Equipment, StudentClass, Subject  # modelsはDB
-import asyncio
-from . import ble_utils
+from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
 
 # Create your views here.
@@ -106,6 +101,8 @@ def login_teacher(request):
                 # teacher_idをセッションに保持
                 request.session['teacher_id'] = teacher.teacher_id
 
+                request.session['roll'] = teacher.roll
+
                 # ロールに応じてリダイレクト
                 if teacher.roll == 0:  # 管理者ロールの場合
                     return redirect('adomin_teacher_home')
@@ -154,10 +151,8 @@ def adomin_teacher_home(request):
         # If no teacher_id in session, redirect to the login page
         return redirect('login_teacher')
 
-
 def register_view(request):
     return render(request, 'accountReg.html')
-
 
 def register_teacher(request):
     if request.method == 'POST':
@@ -198,12 +193,12 @@ def register_teacher(request):
 
     return render(request, 'register_teacher.html')
 
-
 def registration_success(request):
     return render(request, 'registration_success.html')
 
-
 def register_student(request):
+    teacherroll = request.session.get('roll')
+    print(f"Roll value: {teacherroll}")
     if request.method == 'POST':
         name = request.POST.get('student_name')
         email = request.POST.get('student_mail')
@@ -223,6 +218,7 @@ def register_student(request):
 
         studentClass = StudentClass.objects.get(class_name=class_name)
 
+
         # 学生データの作成
         student = Student(
             email=email,
@@ -236,7 +232,6 @@ def register_student(request):
         return render(request, 'register_student.html')
     return render(request, 'register_student.html')
 
-
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
@@ -244,11 +239,9 @@ async def beacon_connect(request):
 async def async_scan():
     return await scan_beacons()
 
-
 def teacher_list(request):
     teachers = Teacher.objects.all()
     return render(request, 'teacher_list.html', {'teachers': teachers})
-
 
 def scan_beacon(request):
     # 非同期でBLEビーコンをスキャン
@@ -259,25 +252,20 @@ def scan_beacon(request):
     # 期待するJSON形式でデバイス情報を返す
     response_data = {'devices': devices}
     return JsonResponse(response_data)
-
-
 def attendance_confirmation(request):
+
     attendances = Attendance.objects.filter(student_id=request.user.id)
     return render(request, 'attendance_confirmation.html', {'attendances': attendances})
-
 
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
-
-# 時間割登録機能に遷移する
+#時間割登録機能に遷移する
 def time_table(request):
     return render(request, 'time_table.html')
 
-
 def subject_registration(request):
     return render(request, 'subject_registration.html')
-
 
 def subject_registration_comp(request):
     if request.method == 'POST':
@@ -287,6 +275,7 @@ def subject_registration_comp(request):
         subject.save()
 
         return render(request, 'subject_registration.html', {'message': '登録が完了しました!'})
+
 
 
 # beacon登録
@@ -320,8 +309,8 @@ def register_beacon(request):
         classrooms = Classroom.objects.all()
 
         context = {
-            'classrooms': classrooms,
-            'success_message': 'beacon登録成功！'
+            'classrooms' : classrooms,
+            'success_message' : 'beacon登録成功！'
         }
 
         return render(request, 'register_beacon.html', context)
@@ -347,28 +336,175 @@ def student_course_registration(request):
             }
             students.append(show_student)
         return render(request, 'student_course_registration.html',
-                      {'students': students, 'student_classes': student_classes})
-    if request.method == 'POST':
+                  {'students': students, 'student_classes': student_classes})
+    if request.method== 'POST':
         student_email = request.POST.getlist('select_student')
 
-        students = Student.objects.only('email', 'name').filter(email__in=student_email)
+        students = Student.objects.only('email','name').filter(email__in=student_email)
         subjects = Subject.objects.all()
         classrooms = Classroom.objects.all()
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
-
 def student_course_subject_registration(request):
     if request.method == 'GET':
         return render(request, 'student_course_subject_registration.html')
     if request.method == 'POST':
-        students = request.POST.getlist('students')
-        subject = request.POST.getlist('subjects')
-        subject_classroom = request.POST.getlist('subject_classroom')
+        # POSTデータから生徒情報を取得
+        student_emails = request.POST.getlist('student')
 
-        return render(request, 'student_course_subject_registration.html')
+        students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
+        # POSTデータから選択された科目を取得
+        selected_subjects_data = request.POST.get("selected_subjects")
+
+        # JSON文字列をPythonのリストに変換
+        try:
+            selected_subjects = json.loads(selected_subjects_data)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+            return render(request, 'error.html', {'message': 'Invalid subject data.'})
+
+        subjects = []
+        for subject in selected_subjects:
+            #subjectの要素をタプルに成形
+            print("Processing subject:", subject)
+            subject_custom = {
+                'subject_id': subject['subject_id'],
+                'subject_name': Subject.objects.get(subject_id=subject['subject_id']).subject_name,
+                'classroom_id': subject['classroom_id'],
+                'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
+                'date_first': subject['date_first'],
+                'date_last': subject['date_last'],
+                'unit': subject['unit'],
+            }
+            subjects.append(subject_custom)
+
+        # レンダリングするテンプレートにデータを渡す
+        return render(request, 'student_course_comp_registration.html', {
+            'students': students,
+            'subjects': subjects
+        })
+
+
+def student_course_comp_registration(request):
+    if request.method == 'GET':
+        return render(request, 'student_course_comp_registration.html')
+
+    if request.method == "POST":
+        student_emails = request.POST.getlist('student')
+
+        students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
+
+        selected_subjects_data = request.POST.get("selected_subjects")
+
+        # JSON文字列をPythonのリストに変換
+        try:
+            selected_subjects = json.loads(selected_subjects_data)
+        except json.JSONDecodeError as e:
+            print("Error decoding JSON:", e)
+            return render(request, 'error.html', {'message': 'Invalid subject data.'})
+
+        try:
+            with transaction.atomic():  # トランザクション処理で一括登録
+                subjects = []
+                for subject in selected_subjects:
+                    for student in students:
+                        print("Processing subject:", subject)
+                        # 関連するモデルのインスタンスを取得
+                        subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
+                        classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
+
+                        # Enrollmentテーブルに登録
+                        # 講師やクラス識別子などを取得
+                        enrollment = Enrollment.objects.get(instructor_id=request.session.get('teacher_id'), subject_id=subject['subject_id'])
+
+                        # Attendanceテーブルに登録
+                        start_time = None
+                        end_time = None
+                        print(subject['unit'])
+                        if enrollment.is_special_class :
+                            print('yes')
+                            if subject['unit'] == '1':
+                                start_time = '9:15:00'
+                                end_time = '11:00:00'
+                            elif subject['unit'] == '2':
+                                start_time = '11:10:00'
+                                end_time = '12:40:00'
+                            elif subject['unit'] == '3':
+                                start_time = '13:30:00'
+                                end_time = '15:00:00'
+                            elif subject['unit'] == '4':
+                                start_time = '15:15:00'
+                                end_time = '16:45:00'
+                        else:
+                            print('no')
+                            if subject['unit'] == '1':
+                                start_time = '9:15:00'
+                                end_time = '10:45:00'
+                            elif subject['unit'] == '2':
+                                start_time = '11:00:00'
+                                end_time = '12:30:00'
+                            elif subject['unit'] == '3':
+                                start_time = '13:30:00'
+                                end_time = '15:00:00'
+                            elif subject['unit'] == '4':
+                                start_time = '15:15:00'
+                                end_time = '16:45:00'
+
+                        attendance = Attendance.objects.create(
+                            enrollment_id=enrollment.enrollment_id,
+                            classroom_id=subject['classroom_id'],
+                            start_time=start_time,
+                            end_time=end_time
+                        )
+
+                        # Timetableテーブルに登録または更新
+                        date_first = datetime.strptime(subject['date_first'], '%Y-%m-%d')
+                        date_last = datetime.strptime(subject['date_last'], '%Y-%m-%d')
+                        print(date_first, date_last)
+                        distance = int((date_last - date_first).days)
+                        print(distance)
+                        for i in range(0, distance):
+                            date = date_first + timedelta(days= i)
+                            timetable, created = Timetable.objects.get_or_create(
+                                email=student['email'],
+                                date=date
+                            )
+                            # 適切な時限にAttendanceを設定
+                            if subject['unit'] == '1':
+                                timetable.period1_id = attendance.attendance_id
+                            elif subject['unit'] == '2':
+                                timetable.period2_id = attendance.attendance_id
+                            elif subject['unit'] == '3':
+                                timetable.period3_id = attendance.attendance_id
+                            elif subject['unit'] == '4':
+                                timetable.period4_id = attendance.attendance_id
+                            timetable.save()
+
+                    # 表示用データに追加
+                    subject_custom = {
+                        'subject_id': subject_instance.subject_id,
+                        'subject_name': subject_instance.subject_name,
+                        'classroom_id': classroom_instance.classroom_id,
+                        'classroom_name': classroom_instance.classroom_name,
+                        'date_first': subject['date_first'],
+                        'date_last': subject['date_last'],
+                        'unit': subject['unit'],
+                    }
+                    subjects.append(subject_custom)
+
+                return render(request, 'student_course_ok.html', {'subjects': subjects, 'students': students})
+
+        except Exception as e:
+            print("Error saving data:", e)
+            return render(request, 'error.html', {'message': 'An error occurred while processing your request.'})
+
+def student_course_ok(request):
+    if request.method == 'POST':
+
+        return  render(request, 'student_course_ok.html')
 
 def student_search(request):
     students = []
@@ -386,11 +522,11 @@ def student_search(request):
                   {'students': students, 'student_classes': student_classes})
 
 
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Equipment, Classroom
 import json
-
 
 @csrf_exempt
 def api(request):

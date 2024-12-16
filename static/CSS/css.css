@@ -145,14 +145,14 @@ a.button:hover {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 影を追加して強調 */
 }
 
-/* ログアウトボタンを赤くする */
-a.logout-button {
-    width: 230px;
-    background-color: red;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
+ /* ログアウトボタンのスタイル */
+.logout-button {
+    margin-top: 40px;
+    background-color: #D32F2F;
+}
+
+.logout-button:hover {
+    background-color: #B71C1C;
 }
 
 /* その他のスタイル */

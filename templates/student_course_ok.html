@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>時間割登録完了</title>
+    <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
+    <style>
+        .container {
+            border: 1px solid #ccc; /* 枠線の色 */
+            background-color: #fff; /* 背景色を白に設定 */
+            padding: 20px; /* 内側の余白 */
+            border-radius: 8px; /* 角を丸くする */
+            max-width: 400px; /* コンテナの最大幅 */
+            margin: 50px auto; /* 上下中央揃え */
+            text-align: center; /* テキストを中央揃え */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を追加 */
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #D32F2F;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .modal {
+            display: none; /* 初期状態で非表示 */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            max-width: 600px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            text-align: left;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        .modal-content ul li {
+            margin: 5px 0;
+        }
+
+        .close-button {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            color: #888;
+        }
+
+        .close-button:hover {
+            color: red;
+        }
+
+        .overlay {
+            display: none; /* 初期状態で非表示 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>正常に処理を終了しました。</p>
+    {% if students|length == 1 %}
+        <span class="student-name">{{ students.0.name }}</span>を登録
+    {% else %}
+        <a href="#" onclick="alertName()" class="student-count">
+             <span class="count-badge">{{ students|length }}</span> 名を登録
+        </a>
+    {% endif %}
+
+    <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+    <div id="students-container" style="display: none;">
+        {% for student in students %}
+            <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+        {% endfor %}
+    </div>
+
+    <!-- モーダルとオーバーレイ -->
+    <div class="overlay" id="overlay"></div>
+    <div id="student-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-modal">&times;</span>
+            <h2>学生一覧</h2>
+            <div id="student-list"></div>
+        </div>
+    </div>
+    <table id="subjects-table" style="display: block;">
+            <thead>
+                <tr>
+                    <th>教科名</th>
+                    <th>教室</th>
+                    <th>期間</th>
+                    <th>何限</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjects %}
+                    <tr id="select_subject" data-subject-id="{{ subject.subject_id }}" data-classroom-id="{{ subject.classroom_id }}" data-date-first="{{ subject.date_first }}" data-date-last="{{ subject.date_last }}" data-unit="{{ subject.unit }}">
+                        <td>
+                            {{ subject.subject_name }}
+                        </td>
+                        <td>
+                            {{ subject.classroom_name }}
+                        </td>
+                        <td>
+                            {{ subject.date_first }} ～ {{ subject.date_last }}
+                        </td>
+                        <td>
+                            {{ subject.unit }}限目
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <a class="button" href="student_course_subject_registration.html" methods="post">同じ生徒に教科を再登録</a>
+    <a class="button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+</div>
+<script>
+    function alertName() {
+            const studentElements = document.querySelectorAll('#students-container .student');
+            const modal = document.getElementById('student-modal');
+            const overlay = document.getElementById('overlay');
+            const studentList = document.getElementById('student-list');
+            const closeModalButton = document.getElementById('close-modal');
+
+            // 学生情報をモーダル内に追加
+            let content = "<ul>";
+            studentElements.forEach(student => {
+                const name = student.dataset.name;
+                const email = student.dataset.email;
+                content += `<li><strong>名前:</strong> ${name} | <strong>メール:</strong> ${email}</li>`;
+            });
+            content += "</ul>";
+            studentList.innerHTML = content;
+
+            // モーダルとオーバーレイを表示
+            modal.style.display = "block";
+            overlay.style.display = "block";
+
+            // 閉じるボタンのイベント
+            closeModalButton.onclick = function () {
+                modal.style.display = "none";
+                overlay.style.display = "none";
+            };
+
+            // モーダル外をクリックした場合も閉じる
+            overlay.onclick = function () {
+                modal.style.display = "none";
+                overlay.style.display = "none";
+            };
+        }
+</script>
+</body>
+</html>

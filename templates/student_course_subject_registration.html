@@ -4,34 +4,115 @@
     <meta charset="UTF-8">
     <title>生徒に教科を登録</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
+    <style>
+        .modal {
+            display: none; /* 初期状態で非表示 */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            max-width: 600px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            text-align: left;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content ul {
+            padding: 0;
+            list-style: none;
+        }
+
+        .modal-content ul li {
+            margin: 5px 0;
+        }
+
+        .close-button {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
+            color: #888;
+        }
+
+        .close-button:hover {
+            color: red;
+        }
+
+        .overlay {
+            display: none; /* 初期状態で非表示 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
 </head>
 <body>
 <form action="/student_course_subject_registration/" method="post">
     {% csrf_token %}
     <h1>生徒に教科を登録</h1>
     {% if students|length == 1 %}
-        <p>{{ students.first.name }}を選択中</p>
+        <span class="student-name">{{ students.0.name }}</span>を選択中
     {% else %}
-        <p>{{ students|length }}名を選択中</p>
+        <a href="#" onclick="alertName()" class="student-count">
+             <span class="count-badge">{{ students|length }}</span> 名を選択中
+        </a>
     {% endif %}
-    <input type="hidden" name="students" id="students" value="{{ students }}">
+
+    <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+    <div id="students-container" style="display: none;">
+        {% for student in students %}
+            <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+            <input type="hidden" name="student" id="student" value="{{ student.email }}">
+        {% endfor %}
+    </div>
+
+    <!-- モーダルとオーバーレイ -->
+        <div class="overlay" id="overlay"></div>
+        <div id="student-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-modal">&times;</span>
+                <h2>学生一覧</h2>
+                <div id="student-list"></div>
+            </div>
+        </div>
+    <br><a href="#" onclick="allSubjects()">教科を全表示</a><br>
     <label for="subject-name">
         <textarea rows="1" cols="25" id="subject-name" name="searchBox" placeholder="教科名で検索" onkeyup="filterSubjects()" onkeydown="preventNewLine(event)"
                   style="resize : none; overflow: hidden;"></textarea>
     </label>
-   <div id="subjectTable-wrapper">
+    <div id="subjectTable-wrapper">
     <table id="subjectTable" style="display: block;">
         <thead>
             <tr>
+                <th></th>
                 <th>教科名</th>
                 <th>教室</th>
-                <th>日にち</th>
+                <th>期間</th>
                 <th>何限</th>
             </tr>
         </thead>
         <tbody>
             {% for subject in subjects %}
-                <tr>
+                <tr onclick="toggleCheckbox(this)">
+                    <td>
+                        <label for="select-subject">
+                            <input type="checkbox" name="select_subject" id="select-subject{{ subject.subject_id }}" value="{{ subject.subject_id }}">
+                        </label>
+                    </td>
                     <td class="subject-name">{{ subject.subject_name }}</td>
                     <td class="subject-classroom radio-container">
                         <label for="subject-classroom">
@@ -46,8 +127,8 @@
                     </td>
                     <td class="subject-date">
                         <label>
-                            <input type="date" name="subject_date" id="subject-date">～
-                            <input type="date" name="subject_date" id="subject-date">まで
+                            <input type="date" name="subject_date_first">～
+                            <input type="date" name="subject_date_last">まで
                         </label>
                     </td>
                     <td class="subject-unit">
@@ -65,11 +146,59 @@
         </tbody>
     </table></div><br>
     <br>
-    <input type="submit" class="button registration-button" value="時間割登録">
+    <input type="submit" class="button registration-button" value="入力内容の確認">
     <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
 
 <script>
+    filterSubjects()
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const selectedData = [];
+    
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            if (checkbox && checkbox.checked) {
+                const subjectId = checkbox.value;
+                const classroomSelect = rows[i].querySelector("select[name='subject_classroom']").value;
+                const dateFirst = rows[i].querySelector("input[name='subject_date_first']").value;
+                const dateLast = rows[i].querySelector("input[name='subject_date_last']").value;
+                const unitSelect = rows[i].querySelector("select[name='subject_unit']").value;
+    
+                selectedData.push({
+                    'subject_id': subjectId,
+                    'classroom_id': classroomSelect,
+                    'date_first': dateFirst,
+                    'date_last': dateLast,
+                    'unit': unitSelect,
+                });
+            }
+        }
+        // 収集したデータを非表示フィールドに設定
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "selected_subjects";
+        hiddenInput.value = JSON.stringify(selectedData);
+        this.appendChild(hiddenInput);
+    });
+    
+    // 行クリック時のチェックボックス制御
+    function toggleCheckbox(row) {
+    // クリックされた要素を取得
+        const targetTag = event.target.tagName;
+    
+        // <select>や<option>をクリックした場合はチェックボックス操作をスキップ
+        if (targetTag === "SELECT" || targetTag === "OPTION" || targetTag === "INPUT") {
+            return;
+        }
+    
+        // 行内のチェックボックスを取得
+        const checkbox = row.querySelector('input[name="select_subject"]');
+        if (targetTag !== 'INPUT' && checkbox) {
+            checkbox.checked = !checkbox.checked;
+        }
+    }
+
     // 教科のフィルタリング
     function filterSubjects() {
         const input = document.getElementById("subject-name").value.toLowerCase().trim();
@@ -77,35 +206,152 @@
         const subjectTable = document.getElementById("subjectTable");
         let hasResults = false;
 
-        // 入力が空ならすべて非表示
         if (input === "") {
             for (let i = 0; i < rows.length; i++) {
-                rows[i].style.display = "table-row"; // すべて表示
+                rows[i].classList.add("hidden-row");
             }
-            subjectTable.style.display = "block"; // テーブルを表示
+            subjectTable.style.display = "none";
             return;
         }
 
-        // 検索結果がない場合は非表示
         for (let i = 0; i < rows.length; i++) {
             const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
             if (subjectNameCell) {
                 const content = subjectNameCell.textContent || subjectNameCell.innerText;
                 const isMatch = content.toLowerCase().indexOf(input) > -1;
-                rows[i].style.display = isMatch ? "table-row" : "none";
-                if (isMatch) hasResults = true;
+                if (isMatch) {
+                    rows[i].classList.remove("hidden-row");
+                    hasResults = true;
+                } else {
+                    rows[i].classList.add("hidden-row");
+                }
             }
         }
 
-        subjectTable.style.display = hasResults ? "table" : "none"; // 結果があればテーブルを表示、なければ非表示
+        subjectTable.style.display = hasResults ? "table" : "none";
     }
+
+    // 全表示機能
+    function allSubjects() {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const subjectTable = document.getElementById("subjectTable");
+        let hasResults = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            const subjectNameCell = rows[i].getElementsByClassName("subject-name")[0];
+            if (subjectNameCell) {
+                rows[i].classList.remove("hidden-row");
+                hasResults = true;
+            }
+        }
+        subjectTable.style.display = hasResults ? "table" : "none";
+    }
+
+    // 入力内容を記録
+    function saveInputValues() {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
+            const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
+            const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
+            const unitSelect = rows[i].querySelector("select[name='subject_unit']");
+
+            if (checkbox) {
+                checkbox.dataset.savedChecked = checkbox.checked;
+            }
+            if (classroomSelect) {
+                classroomSelect.dataset.savedValue = classroomSelect.value;
+            }
+            if (dateFirstInput) {
+                dateFirstInput.dataset.savedValue = dateFirstInput.value;
+            }
+            if (dateLastInput) {
+                dateLastInput.dataset.savedValue = dateLastInput.value;
+            }
+            if (unitSelect) {
+                unitSelect.dataset.savedValue = unitSelect.value;
+            }
+        }
+    }
+
+    // 入力内容を復元
+    function restoreInputValues() {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
+            const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
+            const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
+            const unitSelect = rows[i].querySelector("select[name='subject_unit']");
+
+            if (checkbox && checkbox.dataset.savedChecked !== undefined) {
+                checkbox.checked = checkbox.dataset.savedChecked === "true";
+            }
+            if (classroomSelect && classroomSelect.dataset.savedValue) {
+                classroomSelect.value = classroomSelect.dataset.savedValue;
+            }
+            if (dateFirstInput && dateFirstInput.dataset.savedValue) {
+                dateFirstInput.value = dateFirstInput.dataset.savedValue;
+            }
+            if (dateLastInput && dateLastInput.dataset.savedValue) {
+                dateLastInput.value = dateLastInput.dataset.savedValue;
+            }
+            if (unitSelect && unitSelect.dataset.savedValue) {
+                unitSelect.value = unitSelect.dataset.savedValue;
+            }
+        }
+    }
+
+    // フィルタリング前にデータ保存
+    document.getElementById("subject-name").addEventListener("input", () => {
+        saveInputValues();
+        filterSubjects();
+        restoreInputValues();
+    });
+
+    // Enterキーを押されたときに改行を防止
     function preventNewLine(event) {
-        // Enterキーを押されたときに改行を防止
-        if (event.key === 'Enter') {
+        if (event.key === "Enter") {
             event.preventDefault();
         }
     }
+
+    function alertName() {
+            const studentElements = document.querySelectorAll('#students-container .student');
+            const modal = document.getElementById('student-modal');
+            const overlay = document.getElementById('overlay');
+            const studentList = document.getElementById('student-list');
+            const closeModalButton = document.getElementById('close-modal');
+
+            // 学生情報をモーダル内に追加
+            let content = "<ul>";
+            studentElements.forEach(student => {
+                const name = student.dataset.name;
+                const email = student.dataset.email;
+                content += `<li><strong>名前:</strong> ${name} | <strong>メール:</strong> ${email}</li>`;
+            });
+            content += "</ul>";
+            studentList.innerHTML = content;
+
+            // モーダルとオーバーレイを表示
+            modal.style.display = "block";
+            overlay.style.display = "block";
+
+            // 閉じるボタンのイベント
+            closeModalButton.onclick = function () {
+                modal.style.display = "none";
+                overlay.style.display = "none";
+            };
+
+            // モーダル外をクリックした場合も閉じる
+            overlay.onclick = function () {
+                modal.style.display = "none";
+                overlay.style.display = "none";
+            };
+        }
 </script>
+
 
 </body>
 </html>
