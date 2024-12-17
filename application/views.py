@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.shortcuts import render, redirect
-
+from calendar import monthrange
 from .ble_utils import scan_beacons
 from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
@@ -12,6 +12,7 @@ from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollm
 # Create your views here.
 def index(request):
     return render(request, 'index.html')  # トップページを表示
+
 
 def login_student(request):  # ログインページのビュー
     error_message = None
@@ -37,6 +38,36 @@ def login_student(request):  # ログインページのビュー
 
     return render(request, 'login.html', {'error_message': error_message})
 
+
+def login_android(request):  # ログインページのビュー
+    error_message = None
+
+    if request.method == "POST":
+        email = request.POST.get('email')  # フォームからメールアドレスを取得
+        password = request.POST.get('password')  # フォームからパスワードを取得
+
+        # バリデーション: フィールドが空でないか確認
+        if email and password:
+            try:
+                student = Student.objects.get(email=email)
+                if student.password == password:
+                    # セッションにメールアドレスを保存
+                    request.session['student_email'] = student.email
+                    return JsonResponse({
+                        "message": "login successfully",
+                        "success": True
+                    })
+                else:
+                    error_message = "パスワードが違います"  # パスワードが一致しない場合のエラーメッセージ
+            except Student.DoesNotExist:
+                error_message = "メールアドレスが存在しません"  # メールアドレスが見つからない場合のエラーメッセージ
+        else:
+            error_message = "メールアドレスとパスワードを入力してください"  # フィールドが空の場合のエラーメッセージ
+    return JsonResponse({
+        "message": error_message,
+        "success": False
+    })
+
 def home(request):
     # セッションからメールアドレスを取得
     student_email = request.session.get('student_email')
@@ -50,8 +81,10 @@ def home(request):
     else:
         return redirect('login')  # ログインしていない場合はログイン画面にリダイレクト
 
+
 def logout(request):
     return render(request, 'login.html')  # トップページを表示
+
 
 def login_teacher(request):
     error_message = None
@@ -307,7 +340,7 @@ def student_course_registration(request):
     if request.method== 'POST':
         student_email = request.POST.getlist('select_student')
 
-        students = list(Student.objects.only('email','name').filter(email__in=student_email))
+        students = Student.objects.only('email','name').filter(email__in=student_email)
         subjects = Subject.objects.all()
         classrooms = Classroom.objects.all()
 
@@ -490,6 +523,68 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
+import locale
+
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+    return ""
+
+
+# 時間を日本語形式にフォーマット
+def format_time(time):
+    if time:
+        return time.strftime("%H:%M")  # e.g., "9:00"
+    return ""
+
+def monthly_schedule(request):
+    student_email = request.session.get('student_email')
+    if not student_email:
+        return redirect('login')
+
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    month_start = datetime(current_year, current_month, 1)
+    month_end = datetime(current_year, current_month, monthrange(current_year, current_month)[1])
+
+    timetables = Timetable.objects.filter(
+        email=student_email,
+        date__range=(month_start, month_end)
+    ).order_by('date')
+
+    schedule = []
+    for timetable in timetables:
+        for period, period_field in enumerate(['period1', 'period2', 'period3', 'period4'], start=1):
+            attendance = getattr(timetable, period_field, None)
+            if attendance:
+                subject = attendance.enrollment.subject
+                classroom = attendance.classroom
+                teacher = attendance.enrollment.instructor_id
+
+                schedule.append({
+                    'date': format_japanese_date(timetable.date),  # 日本語形式の日付
+                    'period': period,
+                    'subject_name': subject.subject_name,
+                    'classroom_name': classroom.classroom_name,
+                    'teacher_name': teacher.name,
+                    'start_time': format_time(attendance.start_time),  # 日本語形式の時間
+                    'end_time': format_time(attendance.end_time),
+                })
+
+    return render(request, 'monthly_schedule.html', {
+        'schedule': schedule,
+        'current_month': current_month,
+        'current_year': current_year,
+    })
 
 
 from django.http import JsonResponse
