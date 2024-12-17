@@ -337,6 +337,7 @@ def student_course_subject_registration(request):
         for subject in selected_subjects:
             #subjectの要素をタプルに成形
             print("Processing subject:", subject)
+            print(subject['schedule'])
             subject_custom = {
                 'subject_id': subject['subject_id'],
                 'subject_name': Subject.objects.get(subject_id=subject['subject_id']).subject_name,
@@ -344,7 +345,7 @@ def student_course_subject_registration(request):
                 'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
                 'date_first': subject['date_first'],
                 'date_last': subject['date_last'],
-                'unit': subject['unit'],
+                'schedule': subject['schedule'],
             }
             subjects.append(subject_custom)
 
@@ -378,6 +379,7 @@ def student_course_comp_registration(request):
                 subjects = []
                 for subject in selected_subjects:
                     for student in students:
+
                         print("Processing subject:", subject)
                         # 関連するモデルのインスタンスを取得
                         subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
@@ -387,54 +389,54 @@ def student_course_comp_registration(request):
                         # 講師やクラス識別子などを取得
                         enrollment = Enrollment.objects.get(instructor_id=request.session.get('teacher_id'), subject_id=subject['subject_id'])
 
-                        # Attendanceテーブルに登録
-                        start_time = None
-                        end_time = None
-                        print(subject['unit'])
-                        if enrollment.is_special_class :
-                            print('yes')
-                            if subject['unit'] == '1':
-                                start_time = '9:15:00'
-                                end_time = '11:00:00'
-                            elif subject['unit'] == '2':
-                                start_time = '11:10:00'
-                                end_time = '12:40:00'
-                            elif subject['unit'] == '3':
-                                start_time = '13:30:00'
-                                end_time = '15:00:00'
-                            elif subject['unit'] == '4':
-                                start_time = '15:15:00'
-                                end_time = '16:45:00'
-                        else:
-                            print('no')
-                            if subject['unit'] == '1':
-                                start_time = '9:15:00'
-                                end_time = '10:45:00'
-                            elif subject['unit'] == '2':
-                                start_time = '11:00:00'
-                                end_time = '12:30:00'
-                            elif subject['unit'] == '3':
-                                start_time = '13:30:00'
-                                end_time = '15:00:00'
-                            elif subject['unit'] == '4':
-                                start_time = '15:15:00'
-                                end_time = '16:45:00'
-
-                        attendance = Attendance.objects.create(
-                            enrollment_id=enrollment.enrollment_id,
-                            classroom_id=subject['classroom_id'],
-                            start_time=start_time,
-                            end_time=end_time
-                        )
-
-                        # Timetableテーブルに登録または更新
+                        # 日数
                         date_first = datetime.strptime(subject['date_first'], '%Y-%m-%d')
                         date_last = datetime.strptime(subject['date_last'], '%Y-%m-%d')
-                        print(date_first, date_last)
                         distance = int((date_last - date_first).days)
-                        print(distance)
                         for i in range(0, distance):
                             date = date_first + timedelta(days= i)
+                            print(date)
+
+                            # Attendanceテーブルに登録
+                            start_time = None
+                            end_time = None
+                            if enrollment.is_special_class :
+                                print('yes')
+                                if subject['unit'] == '1':
+                                    start_time = '9:15:00'
+                                    end_time = '11:00:00'
+                                elif subject['unit'] == '2':
+                                    start_time = '11:10:00'
+                                    end_time = '12:40:00'
+                                elif subject['unit'] == '3':
+                                    start_time = '13:30:00'
+                                    end_time = '15:00:00'
+                                elif subject['unit'] == '4':
+                                    start_time = '15:15:00'
+                                    end_time = '16:45:00'
+                            else:
+                                print('no')
+                                if subject['unit'] == '1':
+                                    start_time = '9:15:00'
+                                    end_time = '10:45:00'
+                                elif subject['unit'] == '2':
+                                    start_time = '11:00:00'
+                                    end_time = '12:30:00'
+                                elif subject['unit'] == '3':
+                                    start_time = '13:30:00'
+                                    end_time = '15:00:00'
+                                elif subject['unit'] == '4':
+                                    start_time = '15:15:00'
+                                    end_time = '16:45:00'
+
+                            attendance = Attendance.objects.create(
+                                enrollment_id=enrollment.enrollment_id,
+                                classroom_id=subject['classroom_id'],
+                                start_time=start_time,
+                                end_time=end_time
+                            )
+
+                            # Timetableテーブルに登録または更新
                             timetable, created = Timetable.objects.get_or_create(
                                 email=student['email'],
                                 date=date
@@ -458,7 +460,7 @@ def student_course_comp_registration(request):
                         'classroom_name': classroom_instance.classroom_name,
                         'date_first': subject['date_first'],
                         'date_last': subject['date_last'],
-                        'unit': subject['unit'],
+                        'schedule': subject['schedule'],
                     }
                     subjects.append(subject_custom)
 
