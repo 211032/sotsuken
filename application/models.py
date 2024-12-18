@@ -71,3 +71,9 @@ class Equipment(models.Model):
     location = models.ForeignKey('Classroom',on_delete=models.CASCADE)  # 場所
     minor = models.IntegerField(unique=True)  # minorを一意にする
 
+class Anomaly(models.Model):
+    anomaly_id = models.AutoField(primary_key=True)  # 主キー
+    attendance_id = models.ForeignKey('Attendance', on_delete=models.CASCADE)  # 外部キー attendance_id
+    classroom = models.ForeignKey('Classroom', on_delete=models.CASCADE)  # 検出されたIDを記録
+    attendance_time = models.TimeField()  # 出席時間
+    exit_time = models.TimeField()  # 退出時間

@@ -543,13 +543,17 @@ def format_time(time):
         return time.strftime("%H:%M")  # e.g., "9:00"
     return ""
 
+
 def monthly_schedule(request):
     student_email = request.session.get('student_email')
     if not student_email:
         return redirect('login')
 
-    current_month = datetime.now().month
-    current_year = datetime.now().year
+    # クエリパラメータから月の選択
+    month_offset = int(request.GET.get('month_offset', 0))  # 0: 今月, 1: 来月, 2: 再来月
+    current_date = datetime.now() + timedelta(days=30 * month_offset)
+    current_month = current_date.month
+    current_year = current_date.year
 
     month_start = datetime(current_year, current_month, 1)
     month_end = datetime(current_year, current_month, monthrange(current_year, current_month)[1])
@@ -569,12 +573,12 @@ def monthly_schedule(request):
                 teacher = attendance.enrollment.instructor_id
 
                 schedule.append({
-                    'date': format_japanese_date(timetable.date),  # 日本語形式の日付
+                    'date': format_japanese_date(timetable.date),
                     'period': period,
                     'subject_name': subject.subject_name,
                     'classroom_name': classroom.classroom_name,
                     'teacher_name': teacher.name,
-                    'start_time': format_time(attendance.start_time),  # 日本語形式の時間
+                    'start_time': format_time(attendance.start_time),
                     'end_time': format_time(attendance.end_time),
                 })
 
@@ -582,7 +586,9 @@ def monthly_schedule(request):
         'schedule': schedule,
         'current_month': current_month,
         'current_year': current_year,
+        'month_offset': month_offset,
     })
+
 
 
 from django.http import JsonResponse
