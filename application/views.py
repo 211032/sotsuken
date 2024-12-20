@@ -523,27 +523,27 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
-import locale
-
-# ロケールを日本語に設定
-try:
-    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
-
-
-# 日付を日本語形式にフォーマット
-def format_japanese_date(date):
-    if date:
-        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
-    return ""
-
-
-# 時間を日本語形式にフォーマット
-def format_time(time):
-    if time:
-        return time.strftime("%H:%M")  # e.g., "9:00"
-    return ""
+# import locale
+#
+# # ロケールを日本語に設定
+# try:
+#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+# except locale.Error:
+#     locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+#
+#
+# # 日付を日本語形式にフォーマット
+# def format_japanese_date(date):
+#     if date:
+#         return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+#     return ""
+#
+#
+# # 時間を日本語形式にフォーマット
+# def format_time(time):
+#     if time:
+#         return time.strftime("%H:%M")  # e.g., "9:00"
+#     return ""
 
 
 def monthly_schedule(request):

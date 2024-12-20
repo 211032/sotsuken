@@ -171,6 +171,7 @@
                             <button type="button" class="delete-button">削除</button>
                         </td>
                     </tr>
+                    <tr data-schedule='{{ subject.schedule}}'></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -180,93 +181,72 @@
     </form>
 
     <script>
-        window.onload=function (){
-            rowData.schedule.forEach(schedule => {
+    document.addEventListener("DOMContentLoaded", function () {
+        const subjectRows = document.querySelectorAll("#subjects-table tbody tr");
+    
+        subjectRows.forEach(row => {
+            const scheduleData = JSON.parse(row.dataset.schedule || "[]"); // 行ごとに保存されたスケジュールデータを取得
+            
+            // セルにスケジュールを復元
+            const scheduleCells = row.querySelectorAll(".grid-cell");
+            scheduleCells.forEach(cell => {
+                cell.classList.remove("selected"); // 既存の選択状態をクリア
+            });
+    
+            scheduleData.forEach(schedule => {
                 scheduleCells.forEach(cell => {
                     if (cell.dataset.day === schedule.day && cell.dataset.period === schedule.period) {
-                        cell.classList.add("selected");
+                        cell.classList.add("selected"); // 対応するセルを選択状態に
                     }
                 });
             });
-        }
-        
-        document.addEventListener("DOMContentLoaded", function () {
-            const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-            const selectedData = [];
-        
-            for (let i = 0; i < rows.length; i++) {
-                const checkbox = rows[i].querySelector("input[name='select_subject']");
-                if (checkbox && checkbox.checked) {
-                    const subjectId = checkbox.value;
-                    const classroomSelect = rows[i].querySelector("select[name='subject_classroom']").value;
-                    const dateFirst = rows[i].querySelector("input[name='subject_date_first']").value;
-                    const dateLast = rows[i].querySelector("input[name='subject_date_last']").value;
-        
-                    // スケジュールの曜日と時間ペアの取得
-                    const scheduleCells = rows[i].querySelectorAll(".grid-cell.selected");
-                    const schedule = [];
-                    scheduleCells.forEach(cell => {
-                        const day = cell.dataset.day; // 曜日
-                        const period = cell.dataset.period; // 限数
-                        schedule.push({ 'day': day, 'period': period });
-                    });
-        
-                    selectedData.push({
-                        'subject_id': subjectId,
-                        'classroom_id': classroomSelect,
-                        'date_first': dateFirst,
-                        'date_last': dateLast,
-                        'schedule': schedule
-                    });
-                }
-            }
-        
-            // 収集したデータを非表示フィールドに設定
-            const hiddenInput = document.createElement("input");
-            hiddenInput.type = "hidden";
-            hiddenInput.name = "selected_subjects";
-            hiddenInput.value = JSON.stringify(selectedData);
-            this.appendChild(hiddenInput);
         });
-        
-        function alertName() {
-            const studentElements = document.querySelectorAll('#students-container .student');
-            const modal = document.getElementById('student-modal');
-            const overlay = document.getElementById('overlay');
-            const studentList = document.getElementById('student-list');
-            const closeModalButton = document.getElementById('close-modal');
 
-            // 学生情報をモーダル内に追加
-            let content = "<ul>";
-            studentElements.forEach(student => {
-                const name = student.dataset.name;
-                const email = student.dataset.email;
-                content += `<li><strong>名前:</strong> ${name} | <strong>メール:</strong> ${email}</li>`;
-            });
-            content += "</ul>";
-            studentList.innerHTML = content;
-
-            // モーダルとオーバーレイを表示
-            modal.style.display = "block";
-            overlay.style.display = "block";
-
-            // 閉じるボタンのイベント
-            closeModalButton.onclick = function () {
-                modal.style.display = "none";
-                overlay.style.display = "none";
-            };
-
-            // モーダル外をクリックした場合も閉じる
-            overlay.onclick = function () {
-                modal.style.display = "none";
-                overlay.style.display = "none";
-            };
-        }
+        // グリッドセルの選択切り替え
         document.querySelectorAll('.grid-cell').forEach(cell => {
             cell.addEventListener('click', function () {
                 this.classList.toggle('selected');
             });
         });
-    </script>
+
+        // 削除ボタンの機能
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const row = this.closest('tr');
+                row.remove();
+            });
+        });
+
+        // 学生一覧モーダル
+        document.getElementById('overlay').addEventListener('click', closeModal);
+        document.getElementById('close-modal').addEventListener('click', closeModal);
+
+        function closeModal() {
+            document.getElementById('student-modal').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+    });
+
+    // 学生モーダルを開く
+    function alertName() {
+        const studentElements = document.querySelectorAll('#students-container .student');
+        const modal = document.getElementById('student-modal');
+        const overlay = document.getElementById('overlay');
+        const studentList = document.getElementById('student-list');
+
+        let content = "<ul>";
+        studentElements.forEach(student => {
+            const name = student.dataset.name;
+            const email = student.dataset.email;
+            content += `<li><strong>名前:</strong> ${name} | <strong>メール:</strong> ${email}</li>`;
+        });
+        content += "</ul>";
+        studentList.innerHTML = content;
+
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+    }
+</script>
 </body>
 </html>
