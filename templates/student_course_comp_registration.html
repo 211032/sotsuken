@@ -117,7 +117,7 @@
                             {{ subject.classroom_name }}
                         </td>
                         <td>
-                            {{ subject.date_first }} ～ {{ subject.date_last }}
+                            {{ subject.date_first }} <br>～<br> {{ subject.date_last }}
                         </td>
                         <td class="subject-unit">
                             <div class="schedule-grid">
@@ -165,13 +165,14 @@
                                 <div class="grid-cell" data-day="金" data-period="4"></div>
                                 <div class="grid-cell" data-day="土" data-period="4"></div>
                                 <div class="grid-cell" data-day="日" data-period="4"></div>
+                                
+                                <span data-schedule='{{ subject.schedule|safe }}'></span>
                             </div>
                         </td>
                         <td>
                             <button type="button" class="delete-button">削除</button>
                         </td>
                     </tr>
-                    <tr data-schedule='{{ subject.schedule}}'></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -181,60 +182,93 @@
     </form>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    window.onload = function () {
         const subjectRows = document.querySelectorAll("#subjects-table tbody tr");
     
         subjectRows.forEach(row => {
-            const scheduleData = JSON.parse(row.dataset.schedule || "[]"); // 行ごとに保存されたスケジュールデータを取得
-            
-            // セルにスケジュールを復元
-            const scheduleCells = row.querySelectorAll(".grid-cell");
-            scheduleCells.forEach(cell => {
-                cell.classList.remove("selected"); // 既存の選択状態をクリア
-            });
+            try {
+                // 行ごとに保存されたスケジュールデータを取得
+                const scheduleData = JSON.parse(row.querySelector(".subject-unit .schedule-grid span").dataset.schedule);
+                console.log(scheduleData)
     
-            scheduleData.forEach(schedule => {
+                // セルにスケジュールを復元
+                const scheduleCells = row.querySelectorAll(".grid-cell");
+                console.log(scheduleCells)
                 scheduleCells.forEach(cell => {
-                    if (cell.dataset.day === schedule.day && cell.dataset.period === schedule.period) {
-                        cell.classList.add("selected"); // 対応するセルを選択状態に
-                    }
+                    cell.classList.remove("selected"); // 既存の選択状態をクリア
                 });
-            });
+    
+                scheduleData.forEach(schedule => {
+                    scheduleCells.forEach(cell => {
+                        console.log(cell)
+                        if (cell.dataset.day === schedule.day && cell.dataset.period === schedule.period) {
+                            cell.classList.add("selected"); // 対応するセルを選択状態に
+                        }
+                    });
+                });
+            } catch (e) {
+                console.error("スケジュールデータのパースに失敗しました:", e);
+            }
         });
-
-        // グリッドセルの選択切り替え
-        document.querySelectorAll('.grid-cell').forEach(cell => {
-            cell.addEventListener('click', function () {
-                this.classList.toggle('selected');
-            });
-        });
-
-        // 削除ボタンの機能
-        const deleteButtons = document.querySelectorAll('.delete-button');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const row = this.closest('tr');
-                row.remove();
-            });
-        });
-
-        // 学生一覧モーダル
-        document.getElementById('overlay').addEventListener('click', closeModal);
-        document.getElementById('close-modal').addEventListener('click', closeModal);
-
-        function closeModal() {
-            document.getElementById('student-modal').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
+    };
+    
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const selectedData = [];
+    
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_subject']");
+            if (checkbox && checkbox.checked) {
+                const subjectId = checkbox.value;
+                const classroomSelect = rows[i].querySelector("select[name='subject_classroom']").value;
+                const dateFirst = rows[i].querySelector("input[name='subject_date_first']").value;
+                const dateLast = rows[i].querySelector("input[name='subject_date_last']").value;
+    
+                const scheduleCells = rows[i].querySelectorAll(".grid-cell.selected");
+                const schedule = [];
+                scheduleCells.forEach(cell => {
+                    const day = cell.dataset.day; // 曜日
+                    const period = cell.dataset.period; // 限数
+                    schedule.push({ 'day': day, 'period': period });
+                });
+                
+                selectedData.push({
+                    'subject_id': subjectId,
+                    'classroom_id': classroomSelect,
+                    'date_first': dateFirst,
+                    'date_last': dateLast,
+                    'schedule': schedule
+                });
+            }
         }
+        // 収集したデータを非表示フィールドに設定
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "selected_subjects";
+        hiddenInput.value = JSON.stringify(selectedData);
+        console.log(hiddenInput.value)
+        this.appendChild(hiddenInput);
     });
 
+    
+    // 削除ボタンの機能
+    const deleteButtons = document.querySelectorAll('.delete-button');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const row = this.closest('tr');
+            row.remove();
+        });
+    });
+    
     // 学生モーダルを開く
     function alertName() {
         const studentElements = document.querySelectorAll('#students-container .student');
         const modal = document.getElementById('student-modal');
         const overlay = document.getElementById('overlay');
         const studentList = document.getElementById('student-list');
+        const closeModalButton = document.getElementById('close-modal');
 
+        // 学生情報をモーダル内に追加
         let content = "<ul>";
         studentElements.forEach(student => {
             const name = student.dataset.name;
@@ -244,8 +278,21 @@
         content += "</ul>";
         studentList.innerHTML = content;
 
-        modal.style.display = 'block';
-        overlay.style.display = 'block';
+        // モーダルとオーバーレイを表示
+        modal.style.display = "block";
+        overlay.style.display = "block";
+
+        // 閉じるボタンのイベント
+        closeModalButton.onclick = function () {
+            modal.style.display = "none";
+            overlay.style.display = "none";
+        };
+
+        // モーダル外をクリックした場合も閉じる
+        overlay.onclick = function () {
+            modal.style.display = "none";
+            overlay.style.display = "none";
+        };
     }
 </script>
 </body>

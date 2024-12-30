@@ -1,10 +1,12 @@
 import asyncio
+from calendar import monthrange
 from datetime import datetime, timedelta
+
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.shortcuts import render, redirect
-from calendar import monthrange
+
 from .ble_utils import scan_beacons
 from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
@@ -336,16 +338,17 @@ def student_course_registration(request):
             }
             students.append(show_student)
         return render(request, 'student_course_registration.html',
-                  {'students': students, 'student_classes': student_classes})
-    if request.method== 'POST':
+                      {'students': students, 'student_classes': student_classes})
+    if request.method == 'POST':
         student_email = request.POST.getlist('select_student')
 
-        students = Student.objects.only('email','name').filter(email__in=student_email)
+        students = Student.objects.only('email', 'name').filter(email__in=student_email)
         subjects = Subject.objects.all()
         classrooms = Classroom.objects.all()
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
+
 
 def student_course_subject_registration(request):
     if request.method == 'GET':
@@ -368,7 +371,6 @@ def student_course_subject_registration(request):
 
         subjects = []
         for subject in selected_subjects:
-            #subjectの要素をタプルに成形
             print("Processing subject:", subject)
             print(subject['schedule'])
             subject_custom = {
@@ -378,7 +380,7 @@ def student_course_subject_registration(request):
                 'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
                 'date_first': subject['date_first'],
                 'date_last': subject['date_last'],
-                'schedule': subject['schedule'],
+                'schedule': json.dumps(subject['schedule']),  # JSON文字列に変換
             }
             subjects.append(subject_custom)
 
@@ -399,6 +401,7 @@ def student_course_comp_registration(request):
         students = list(Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
         selected_subjects_data = request.POST.get("selected_subjects")
+        print(selected_subjects_data)
 
         # JSON文字列をPythonのリストに変換
         try:
@@ -427,13 +430,14 @@ def student_course_comp_registration(request):
                         date_last = datetime.strptime(subject['date_last'], '%Y-%m-%d')
                         distance = int((date_last - date_first).days)
                         for i in range(0, distance):
-                            date = date_first + timedelta(days= i)
+                            date = date_first + timedelta(days=i)
+                            day = date
                             print(date)
 
                             # Attendanceテーブルに登録
                             start_time = None
                             end_time = None
-                            if enrollment.is_special_class :
+                            if enrollment.is_special_class:
                                 print('yes')
                                 if subject['unit'] == '1':
                                     start_time = '9:15:00'
