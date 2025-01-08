@@ -439,7 +439,7 @@ def student_course_comp_registration(request):
 
                     for student in students:
 
-                        for i in range(0, distance):
+                        for i in range(0, distance+1):
                             date = date_first + timedelta(days=i)
 
                             date_obj = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
@@ -462,35 +462,33 @@ def student_course_comp_registration(request):
                                     end_time = None
 
                                     if enrollment.is_special_class:
-                                        print('yes')
-                                        if day_same['period'] == '1':
-                                            start_time = '9:15:00'
-                                            end_time = '11:00:00'
-                                        elif day_same['period'] == '2':
-                                            start_time = '11:10:00'
-                                            end_time = '12:40:00'
-                                        elif day_same['period'] == '3':
-                                            start_time = '13:30:00'
-                                            end_time = '15:00:00'
-                                        elif day_same['period'] == '4':
-                                            start_time = '15:15:00'
-                                            end_time = '16:45:00'
+                                        match day_same['period']:
+                                            case '1':
+                                                start_time = '9:15:00'
+                                                end_time = '11:00:00'
+                                            case '2':
+                                                start_time = '11:10:00'
+                                                end_time = '12:40:00'
+                                            case '3':
+                                                start_time = '13:30:00'
+                                                end_time = '15:00:00'
+                                            case '4':
+                                                start_time = '15:15:00'
+                                                end_time = '16:45:00'
                                     else:
-                                        print('no')
-                                        if day_same['period'] == '1':
-                                            start_time = '9:15:00'
-                                            end_time = '10:45:00'
-                                        elif day_same['period'] == '2':
-                                            start_time = '11:00:00'
-                                            end_time = '12:30:00'
-                                        elif day_same['period'] == '3':
-                                            start_time = '13:30:00'
-                                            end_time = '15:00:00'
-                                        elif day_same['period'] == '4':
-                                            start_time = '15:15:00'
-                                            end_time = '16:45:00'
-
-                                    print('ok')
+                                        match day_same['period']:
+                                            case '1':
+                                                start_time = '9:15:00'
+                                                end_time = '10:45:00'
+                                            case '2':
+                                                start_time = '11:00:00'
+                                                end_time = '12:30:00'
+                                            case '3':
+                                                start_time = '13:30:00'
+                                                end_time = '15:00:00'
+                                            case '4':
+                                                start_time = '15:15:00'
+                                                end_time = '16:45:00'
 
                                     attendance = Attendance.objects.create(
                                         enrollment_id=enrollment.enrollment_id,
@@ -526,6 +524,7 @@ def student_course_comp_registration(request):
                         'schedule': subject['schedule'],
                     }
                     subjects.append(subject_custom)
+                    print(subjects)
 
                 return render(request, 'student_course_ok.html', {'subjects': subjects, 'students': students})
 
