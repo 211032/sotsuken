@@ -552,48 +552,61 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
-# import locale
-#
-# # ロケールを日本語に設定
-# try:
-#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-# except locale.Error:
-#     locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
-#
-#
-# # 日付を日本語形式にフォーマット
-# def format_japanese_date(date):
-#     if date:
-#         return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
-#     return ""
-#
-#
-# # 時間を日本語形式にフォーマット
-# def format_time(time):
-#     if time:
-#         return time.strftime("%H:%M")  # e.g., "9:00"
-#     return ""
+import locale
 
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+    return ""
+
+
+# 時間を日本語形式にフォーマット
+def format_time(time):
+    if time:
+        return time.strftime("%H:%M")  # e.g., "9:00"
+    return ""
+
+
+from django.db.models import Q  # 複雑なクエリ作成に使用
 
 def monthly_schedule(request):
     student_email = request.session.get('student_email')
     if not student_email:
         return redirect('login')
 
-    # クエリパラメータから月の選択
-    month_offset = int(request.GET.get('month_offset', 0))  # 0: 今月, 1: 来月, 2: 再来月
+    # クエリパラメータの取得
+    month_offset = int(request.GET.get('month_offset', 0))  # 月単位でのオフセット
+    search_date = request.GET.get('search_date', None)  # 特定の日付での検索
     current_date = datetime.now() + timedelta(days=30 * month_offset)
     current_month = current_date.month
     current_year = current_date.year
 
+    # 月の開始日と終了日を計算
     month_start = datetime(current_year, current_month, 1)
     month_end = datetime(current_year, current_month, monthrange(current_year, current_month)[1])
 
-    timetables = Timetable.objects.filter(
-        email=student_email,
-        date__range=(month_start, month_end)
-    ).order_by('date')
+    # 日付でのフィルタリング
+    if search_date:
+        try:
+            search_date = datetime.strptime(search_date, '%Y-%m-%d').date()  # 入力された日付をパース
+            timetables = Timetable.objects.filter(email=student_email, date=search_date).order_by('date')
+        except ValueError:
+            timetables = []  # 日付が不正な場合は空リストを返す
+    else:
+        timetables = Timetable.objects.filter(
+            email=student_email,
+            date__range=(month_start, month_end)
+        ).order_by('date')
 
+    # スケジュールデータの生成
     schedule = []
     for timetable in timetables:
         for period, period_field in enumerate(['period1', 'period2', 'period3', 'period4'], start=1):
@@ -613,11 +626,13 @@ def monthly_schedule(request):
                     'end_time': format_time(attendance.end_time),
                 })
 
+    # テンプレートにデータを渡してレンダリング
     return render(request, 'monthly_schedule.html', {
         'schedule': schedule,
         'current_month': current_month,
         'current_year': current_year,
         'month_offset': month_offset,
+        'search_date': search_date,  # 入力された日付を再度テンプレートに渡す
     })
 
 
