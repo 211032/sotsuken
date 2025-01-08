@@ -20,7 +20,18 @@
             display: inline-block;
             padding: 10px 20px;
             color: #fff;
-            background-color: #D32F2F;
+            background-color: #4CAF50;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        
+        .logoutbutton {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: red;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
@@ -141,7 +152,7 @@
             </tbody>
         </table>
     <a class="button" href="student_course_subject_registration.html" methods="post">同じ生徒に教科を再登録</a>
-    <a class="button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+    <a class="logoutbutton" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
 </div>
 <script>
     function alertName() {
