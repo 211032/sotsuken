@@ -1,6 +1,7 @@
 import asyncio
 from calendar import monthrange
 from datetime import datetime, timedelta
+from collections import defaultdict
 
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -414,80 +415,105 @@ def student_course_comp_registration(request):
             with transaction.atomic():  # トランザクション処理で一括登録
                 subjects = []
                 for subject in selected_subjects:
+                    print("Processing subject:", subject)
+                    # 関連するモデルのインスタンスを取得
+                    subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
+                    classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
+
+                    # Enrollmentテーブルに登録
+                    # 講師やクラス識別子などを取得
+                    enrollment = Enrollment.objects.get(instructor_id=request.session.get('teacher_id'),
+                                                        subject_id=subject['subject_id'])
+
+                    # 日数
+                    date_first = datetime.strptime(subject['date_first'], '%Y-%m-%d')
+                    date_last = datetime.strptime(subject['date_last'], '%Y-%m-%d')
+                    distance = int((date_last - date_first).days)
+
+                    # 曜日だけを取り出したリスト
+                    days = list(set(item['day'] for item in subject['schedule']))
+
+                    grouped_data = defaultdict(list)
+                    for item in subject['schedule']:
+                        grouped_data[item['day']].append(item)
+
                     for student in students:
 
-                        print("Processing subject:", subject)
-                        # 関連するモデルのインスタンスを取得
-                        subject_instance = Subject.objects.get(subject_id=subject['subject_id'])
-                        classroom_instance = Classroom.objects.get(classroom_id=subject['classroom_id'])
-
-                        # Enrollmentテーブルに登録
-                        # 講師やクラス識別子などを取得
-                        enrollment = Enrollment.objects.get(instructor_id=request.session.get('teacher_id'), subject_id=subject['subject_id'])
-
-                        # 日数
-                        date_first = datetime.strptime(subject['date_first'], '%Y-%m-%d')
-                        date_last = datetime.strptime(subject['date_last'], '%Y-%m-%d')
-                        distance = int((date_last - date_first).days)
                         for i in range(0, distance):
                             date = date_first + timedelta(days=i)
-                            day = date
-                            print(date)
 
-                            # Attendanceテーブルに登録
-                            start_time = None
-                            end_time = None
-                            if enrollment.is_special_class:
-                                print('yes')
-                                if subject['unit'] == '1':
-                                    start_time = '9:15:00'
-                                    end_time = '11:00:00'
-                                elif subject['unit'] == '2':
-                                    start_time = '11:10:00'
-                                    end_time = '12:40:00'
-                                elif subject['unit'] == '3':
-                                    start_time = '13:30:00'
-                                    end_time = '15:00:00'
-                                elif subject['unit'] == '4':
-                                    start_time = '15:15:00'
-                                    end_time = '16:45:00'
-                            else:
-                                print('no')
-                                if subject['unit'] == '1':
-                                    start_time = '9:15:00'
-                                    end_time = '10:45:00'
-                                elif subject['unit'] == '2':
-                                    start_time = '11:00:00'
-                                    end_time = '12:30:00'
-                                elif subject['unit'] == '3':
-                                    start_time = '13:30:00'
-                                    end_time = '15:00:00'
-                                elif subject['unit'] == '4':
-                                    start_time = '15:15:00'
-                                    end_time = '16:45:00'
+                            date_obj = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
 
-                            attendance = Attendance.objects.create(
-                                enrollment_id=enrollment.enrollment_id,
-                                classroom_id=subject['classroom_id'],
-                                start_time=start_time,
-                                end_time=end_time
-                            )
+                            weekday_index = date_obj.weekday()
 
-                            # Timetableテーブルに登録または更新
-                            timetable, created = Timetable.objects.get_or_create(
-                                email=student['email'],
-                                date=date
-                            )
-                            # 適切な時限にAttendanceを設定
-                            if subject['unit'] == '1':
-                                timetable.period1_id = attendance.attendance_id
-                            elif subject['unit'] == '2':
-                                timetable.period2_id = attendance.attendance_id
-                            elif subject['unit'] == '3':
-                                timetable.period3_id = attendance.attendance_id
-                            elif subject['unit'] == '4':
-                                timetable.period4_id = attendance.attendance_id
-                            timetable.save()
+                            # 曜日の名前を取得する (日本語や英語のリストを定義)
+                            weekdays = ["月", "火", "水", "木", "金", "土", "日"]
+                            weekday_name = weekdays[weekday_index]
+
+                            # dateの曜日を取得しscheduleの曜日と突き合わせる
+                            if weekday_name in days:
+                                # 曜日が何個あるか数える
+                                for day, periods in grouped_data.items():
+                                    if day == weekday_name:
+                                        day_sames = periods
+                                for day_same in day_sames:
+                                    # Attendanceテーブルに登録
+                                    start_time = None
+                                    end_time = None
+
+                                    if enrollment.is_special_class:
+                                        print('yes')
+                                        if day_same['period'] == '1':
+                                            start_time = '9:15:00'
+                                            end_time = '11:00:00'
+                                        elif day_same['period'] == '2':
+                                            start_time = '11:10:00'
+                                            end_time = '12:40:00'
+                                        elif day_same['period'] == '3':
+                                            start_time = '13:30:00'
+                                            end_time = '15:00:00'
+                                        elif day_same['period'] == '4':
+                                            start_time = '15:15:00'
+                                            end_time = '16:45:00'
+                                    else:
+                                        print('no')
+                                        if day_same['period'] == '1':
+                                            start_time = '9:15:00'
+                                            end_time = '10:45:00'
+                                        elif day_same['period'] == '2':
+                                            start_time = '11:00:00'
+                                            end_time = '12:30:00'
+                                        elif day_same['period'] == '3':
+                                            start_time = '13:30:00'
+                                            end_time = '15:00:00'
+                                        elif day_same['period'] == '4':
+                                            start_time = '15:15:00'
+                                            end_time = '16:45:00'
+
+                                    print('ok')
+
+                                    attendance = Attendance.objects.create(
+                                        enrollment_id=enrollment.enrollment_id,
+                                        classroom_id=subject['classroom_id'],
+                                        start_time=start_time,
+                                        end_time=end_time
+                                    )
+
+                                    # Timetableテーブルに登録または更新
+                                    timetable, created = Timetable.objects.get_or_create(
+                                        email=student['email'],
+                                        date=date
+                                    )
+                                    # 適切な時限にAttendanceを設定
+                                    if day_same['period'] == '1':
+                                        timetable.period1_id = attendance.attendance_id
+                                    elif day_same['period'] == '2':
+                                        timetable.period2_id = attendance.attendance_id
+                                    elif day_same['period'] == '3':
+                                        timetable.period3_id = attendance.attendance_id
+                                    elif day_same['period'] == '4':
+                                        timetable.period4_id = attendance.attendance_id
+                                    timetable.save()
 
                     # 表示用データに追加
                     subject_custom = {
@@ -505,7 +531,7 @@ def student_course_comp_registration(request):
 
         except Exception as e:
             print("Error saving data:", e)
-            return render(request, 'error.html', {'message': 'An error occurred while processing your request.'})
+            return render(request, 'error.html', {'message': e})
 
 def student_course_ok(request):
     if request.method == 'POST':

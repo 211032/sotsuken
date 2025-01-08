@@ -6,7 +6,10 @@
 </head>
 <body>
 エラーが発生しました。
-<!--この下に詳しいエラー文を出力-->
+
+{% if message %}
+    {{ message }}
+{% endif %}
 
 <button>ホーム画面へ</button>
 </body>

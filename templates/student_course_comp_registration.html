@@ -210,45 +210,41 @@
                 console.error("スケジュールデータのパースに失敗しました:", e);
             }
         });
-    };
+        document.querySelector("form").addEventListener("submit", function (event) {
+            const selectedData = []; // 収集したデータを格納するリスト
     
-    document.querySelector("form").addEventListener("submit", function (event) {
-        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        const selectedData = [];
-    
-        for (let i = 0; i < rows.length; i++) {
-            const checkbox = rows[i].querySelector("input[name='select_subject']");
-            if (checkbox && checkbox.checked) {
-                const subjectId = checkbox.value;
-                const classroomSelect = rows[i].querySelector("select[name='subject_classroom']").value;
-                const dateFirst = rows[i].querySelector("input[name='subject_date_first']").value;
-                const dateLast = rows[i].querySelector("input[name='subject_date_last']").value;
-    
-                const scheduleCells = rows[i].querySelectorAll(".grid-cell.selected");
+            subjectRows.forEach(row => {
+                const subjectId = row.dataset.subjectId;
+                const classroomId = row.dataset.classroomId;
+                const dateFirst = row.dataset.dateFirst;
+                const dateLast = row.dataset.dateLast;
+                
+                const scheduleCells = row.querySelectorAll(".grid-cell.selected");
                 const schedule = [];
                 scheduleCells.forEach(cell => {
                     const day = cell.dataset.day; // 曜日
                     const period = cell.dataset.period; // 限数
                     schedule.push({ 'day': day, 'period': period });
                 });
-                
+    
+                // 各行のデータをオブジェクトとして追加
                 selectedData.push({
-                    'subject_id': subjectId,
-                    'classroom_id': classroomSelect,
-                    'date_first': dateFirst,
-                    'date_last': dateLast,
-                    'schedule': schedule
+                    subject_id: subjectId,
+                    classroom_id: classroomId,
+                    date_first: dateFirst,
+                    date_last: dateLast,
+                    schedule: schedule
                 });
-            }
-        }
-        // 収集したデータを非表示フィールドに設定
-        const hiddenInput = document.createElement("input");
-        hiddenInput.type = "hidden";
-        hiddenInput.name = "selected_subjects";
-        hiddenInput.value = JSON.stringify(selectedData);
-        console.log(hiddenInput.value)
-        this.appendChild(hiddenInput);
-    });
+            });
+    
+            // 収集したデータを隠しフィールドとして追加
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "selected_subjects";
+            hiddenInput.value = JSON.stringify(selectedData);
+            this.appendChild(hiddenInput);
+        });
+    };
 
     
     // 削除ボタンの機能
