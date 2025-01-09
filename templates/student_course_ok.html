@@ -24,9 +24,10 @@
             border-radius: 5px;
             font-size: 14px;
             margin-top: 15px;
+            border: none;
         }
         
-        .logoutbutton {
+        .logout-button {
             display: inline-block;
             padding: 10px 20px;
             color: #fff;
@@ -196,8 +197,18 @@
                 {% endfor %}
             </tbody>
         </table>
-    <a class="button" href="student_course_subject_registration.html" methods="post">同じ生徒に教科を再登録</a>
-    <a class="logout-button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+    <form action="/student_course_ok/" method="post">
+        {% csrf_token %}
+        <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+        <div id="students-container" style="display: none;">
+            {% for student in students %}
+                <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+                <input type="hidden" name="student" id="student" value="{{ student.email }}">
+            {% endfor %}
+        </div>
+        <input type="submit" class="button" value="同じ生徒に教科を再登録">
+        <a class="logout-button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+    </form>
 </div>
 <script>
     window.onload = function () {

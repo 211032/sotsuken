@@ -534,8 +534,14 @@ def student_course_comp_registration(request):
 
 def student_course_ok(request):
     if request.method == 'POST':
+        student_email = request.POST.getlist('student')
 
-        return  render(request, 'student_course_ok.html')
+        students = Student.objects.only('email', 'name').filter(email__in=student_email)
+        subjects = Subject.objects.all()
+        classrooms = Classroom.objects.all()
+
+        return render(request, 'student_course_subject_registration.html',
+                      {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
 def student_search(request):
     students = []

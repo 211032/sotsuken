@@ -207,8 +207,8 @@
             }
         });
     };
-    
-    
+
+
     document.querySelector("form").addEventListener("submit", function (event) {
         const selectedData = []; // 収集したデータを格納するリスト
         const subjectRows = document.querySelectorAll("#subjects-table tbody tr");
@@ -218,7 +218,7 @@
             const classroomId = row.dataset.classroomId;
             const dateFirst = row.dataset.dateFirst;
             const dateLast = row.dataset.dateLast;
-            
+
             const scheduleCells = row.querySelectorAll(".grid-cell.selected");
             const schedule = [];
             scheduleCells.forEach(cell => {
@@ -235,7 +235,6 @@
                 date_last: dateLast,
                 schedule: schedule
             });
-            alert(selectedData)
         });
 
         // 収集したデータを隠しフィールドとして追加
