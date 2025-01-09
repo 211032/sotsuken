@@ -302,16 +302,18 @@
         subjectTable.style.display = hasResults ? "table" : "none";
     }
 
+    let savedData = [];
+
     function saveInputValues() {
         const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        const savedData = [];
+        savedData = []; // グローバル変数にデータを保存
     
         for (let i = 0; i < rows.length; i++) {
             const checkbox = rows[i].querySelector("input[name='select_subject']");
             const classroomSelect = rows[i].querySelector("select[name='subject_classroom']");
             const dateFirstInput = rows[i].querySelector("input[name='subject_date_first']");
             const dateLastInput = rows[i].querySelector("input[name='subject_date_last']");
-            const scheduleCells = rows[i].querySelectorAll(".grid-cell.selected"); // 選択されたスケジュール
+            const scheduleCells = rows[i].querySelectorAll(".grid-cell.selected");
     
             const rowData = {
                 savedChecked: checkbox ? checkbox.checked : false,
@@ -326,16 +328,12 @@
     
             savedData.push(rowData);
         }
-    
-        localStorage.setItem("subjectTableData", JSON.stringify(savedData));
     }
-
     
     function restoreInputValues() {
-        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        const savedData = JSON.parse(localStorage.getItem("subjectTableData"));
+        if (savedData.length === 0) return; // 保存されたデータが無ければ何もしない
     
-        if (!savedData) return; // 保存データがなければ終了
+        const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
     
         for (let i = 0; i < rows.length; i++) {
             const checkbox = rows[i].querySelector("input[name='select_subject']");
@@ -375,7 +373,6 @@
             });
         }
     }
-
 
     
 

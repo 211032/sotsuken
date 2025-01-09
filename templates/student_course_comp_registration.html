@@ -184,23 +184,19 @@
     <script>
     window.onload = function () {
         const subjectRows = document.querySelectorAll("#subjects-table tbody tr");
-    
         subjectRows.forEach(row => {
             try {
                 // 行ごとに保存されたスケジュールデータを取得
                 const scheduleData = JSON.parse(row.querySelector(".subject-unit .schedule-grid span").dataset.schedule);
-                console.log(scheduleData)
-    
+
                 // セルにスケジュールを復元
                 const scheduleCells = row.querySelectorAll(".grid-cell");
-                console.log(scheduleCells)
                 scheduleCells.forEach(cell => {
                     cell.classList.remove("selected"); // 既存の選択状態をクリア
                 });
-    
+
                 scheduleData.forEach(schedule => {
                     scheduleCells.forEach(cell => {
-                        console.log(cell)
                         if (cell.dataset.day === schedule.day && cell.dataset.period === schedule.period) {
                             cell.classList.add("selected"); // 対応するセルを選択状態に
                         }
@@ -210,41 +206,45 @@
                 console.error("スケジュールデータのパースに失敗しました:", e);
             }
         });
-        document.querySelector("form").addEventListener("submit", function (event) {
-            const selectedData = []; // 収集したデータを格納するリスト
-    
-            subjectRows.forEach(row => {
-                const subjectId = row.dataset.subjectId;
-                const classroomId = row.dataset.classroomId;
-                const dateFirst = row.dataset.dateFirst;
-                const dateLast = row.dataset.dateLast;
-                
-                const scheduleCells = row.querySelectorAll(".grid-cell.selected");
-                const schedule = [];
-                scheduleCells.forEach(cell => {
-                    const day = cell.dataset.day; // 曜日
-                    const period = cell.dataset.period; // 限数
-                    schedule.push({ 'day': day, 'period': period });
-                });
-    
-                // 各行のデータをオブジェクトとして追加
-                selectedData.push({
-                    subject_id: subjectId,
-                    classroom_id: classroomId,
-                    date_first: dateFirst,
-                    date_last: dateLast,
-                    schedule: schedule
-                });
-            });
-    
-            // 収集したデータを隠しフィールドとして追加
-            const hiddenInput = document.createElement("input");
-            hiddenInput.type = "hidden";
-            hiddenInput.name = "selected_subjects";
-            hiddenInput.value = JSON.stringify(selectedData);
-            this.appendChild(hiddenInput);
-        });
     };
+    
+    
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const selectedData = []; // 収集したデータを格納するリスト
+        const subjectRows = document.querySelectorAll("#subjects-table tbody tr");
+
+        subjectRows.forEach(row => {
+            const subjectId = row.dataset.subjectId;
+            const classroomId = row.dataset.classroomId;
+            const dateFirst = row.dataset.dateFirst;
+            const dateLast = row.dataset.dateLast;
+            
+            const scheduleCells = row.querySelectorAll(".grid-cell.selected");
+            const schedule = [];
+            scheduleCells.forEach(cell => {
+                const day = cell.dataset.day; // 曜日
+                const period = cell.dataset.period; // 限数
+                schedule.push({ 'day': day, 'period': period });
+            });
+
+            // 各行のデータをオブジェクトとして追加
+            selectedData.push({
+                subject_id: subjectId,
+                classroom_id: classroomId,
+                date_first: dateFirst,
+                date_last: dateLast,
+                schedule: schedule
+            });
+            alert(selectedData)
+        });
+
+        // 収集したデータを隠しフィールドとして追加
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.name = "selected_subjects";
+        hiddenInput.value = JSON.stringify(selectedData);
+        this.appendChild(hiddenInput);
+    });
 
     
     // 削除ボタンの機能
