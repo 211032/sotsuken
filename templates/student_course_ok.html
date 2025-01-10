@@ -10,7 +10,6 @@
             background-color: #fff; /* 背景色を白に設定 */
             padding: 20px; /* 内側の余白 */
             border-radius: 8px; /* 角を丸くする */
-            max-width: 400px; /* コンテナの最大幅 */
             margin: 50px auto; /* 上下中央揃え */
             text-align: center; /* テキストを中央揃え */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を追加 */
@@ -20,16 +19,25 @@
             display: inline-block;
             padding: 10px 20px;
             color: #fff;
-            background-color: #D32F2F;
+            background-color: #4CAF50;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 15px;
+            border: none;
+        }
+        
+        .logout-button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: red;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
             margin-top: 15px;
         }
-
-        .button:hover {
-            background-color: #0056b3;
-        }
+        
         .modal {
             display: none; /* 初期状態で非表示 */
             position: fixed;
@@ -125,25 +133,109 @@
                 {% for subject in subjects %}
                     <tr id="select_subject" data-subject-id="{{ subject.subject_id }}" data-classroom-id="{{ subject.classroom_id }}" data-date-first="{{ subject.date_first }}" data-date-last="{{ subject.date_last }}" data-unit="{{ subject.unit }}">
                         <td>
+                            <input type="hidden" name="subject_id" value="{{ subject.subject_id }}">
                             {{ subject.subject_name }}
                         </td>
                         <td>
+                            <input type="hidden" name="classroom_id" value="{{ subject.classroom_id }}">
                             {{ subject.classroom_name }}
                         </td>
                         <td>
-                            {{ subject.date_first }} ～ {{ subject.date_last }}
+                            {{ subject.date_first }} ～<br> {{ subject.date_last }}
                         </td>
-                        <td>
-                            {{ subject.unit }}限目
+                        <td class="subject-unit">
+                            <div class="schedule-grid">
+                                <div class="grid-header"></div>
+                                <div class="grid-header">月</div>
+                                <div class="grid-header">火</div>
+                                <div class="grid-header">水</div>
+                                <div class="grid-header">木</div>
+                                <div class="grid-header">金</div>
+                                <div class="grid-header">土</div>
+                                <div class="grid-header">日</div>
+                            
+                                <div class="grid-time">1限目</div>
+                                <div class="grid-cell" data-day="月" data-period="1"></div>
+                                <div class="grid-cell" data-day="火" data-period="1"></div>
+                                <div class="grid-cell" data-day="水" data-period="1"></div>
+                                <div class="grid-cell" data-day="木" data-period="1"></div>
+                                <div class="grid-cell" data-day="金" data-period="1"></div>
+                                <div class="grid-cell" data-day="土" data-period="1"></div>
+                                <div class="grid-cell" data-day="日" data-period="1"></div>
+                            
+                                <div class="grid-time">2限目</div>
+                                <div class="grid-cell" data-day="月" data-period="2"></div>
+                                <div class="grid-cell" data-day="火" data-period="2"></div>
+                                <div class="grid-cell" data-day="水" data-period="2"></div>
+                                <div class="grid-cell" data-day="木" data-period="2"></div>
+                                <div class="grid-cell" data-day="金" data-period="2"></div>
+                                <div class="grid-cell" data-day="土" data-period="2"></div>
+                                <div class="grid-cell" data-day="日" data-period="2"></div>
+                            
+                                <div class="grid-time">3限目</div>
+                                <div class="grid-cell" data-day="月" data-period="3"></div>
+                                <div class="grid-cell" data-day="火" data-period="3"></div>
+                                <div class="grid-cell" data-day="水" data-period="3"></div>
+                                <div class="grid-cell" data-day="木" data-period="3"></div>
+                                <div class="grid-cell" data-day="金" data-period="3"></div>
+                                <div class="grid-cell" data-day="土" data-period="3"></div>
+                                <div class="grid-cell" data-day="日" data-period="3"></div>
+                            
+                                <div class="grid-time">4限目</div>
+                                <div class="grid-cell" data-day="月" data-period="4"></div>
+                                <div class="grid-cell" data-day="火" data-period="4"></div>
+                                <div class="grid-cell" data-day="水" data-period="4"></div>
+                                <div class="grid-cell" data-day="木" data-period="4"></div>
+                                <div class="grid-cell" data-day="金" data-period="4"></div>
+                                <div class="grid-cell" data-day="土" data-period="4"></div>
+                                <div class="grid-cell" data-day="日" data-period="4"></div>
+                                
+                                <span data-schedule='{{ subject.schedule|safe }}'></span>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-    <a class="button" href="student_course_subject_registration.html" methods="post">同じ生徒に教科を再登録</a>
-    <a class="button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+    <form action="/student_course_ok/" method="post">
+        {% csrf_token %}
+        <!-- 学生情報をデータ属性付きの隠し要素に埋め込む -->
+        <div id="students-container" style="display: none;">
+            {% for student in students %}
+                <div class="student" data-name="{{ student.name }}" data-email="{{ student.email }}"></div>
+                <input type="hidden" name="student" id="student" value="{{ student.email }}">
+            {% endfor %}
+        </div>
+        <input type="submit" class="button" value="同じ生徒に教科を再登録">
+        <a class="logout-button" href="{% url 'teacher_home' %}">教師ホームに戻る</a>
+    </form>
 </div>
 <script>
+    window.onload = function () {
+        const subjectRows = document.querySelectorAll("#subjects-table tbody tr");
+        subjectRows.forEach(row => {
+            try {
+                // 行ごとに保存されたスケジュールデータを取得
+                const scheduleData = JSON.parse(row.querySelector(".subject-unit .schedule-grid span").dataset.schedule);
+
+                // セルにスケジュールを復元
+                const scheduleCells = row.querySelectorAll(".grid-cell");
+                scheduleCells.forEach(cell => {
+                    cell.classList.remove("selected"); // 既存の選択状態をクリア
+                });
+
+                scheduleData.forEach(schedule => {
+                    scheduleCells.forEach(cell => {
+                        if (cell.dataset.day === schedule.day && cell.dataset.period === schedule.period) {
+                            cell.classList.add("selected"); // 対応するセルを選択状態に
+                        }
+                    });
+                });
+            } catch (e) {
+                console.error("スケジュールデータのパースに失敗しました:", e);
+            }
+        });
+    };
     function alertName() {
             const studentElements = document.querySelectorAll('#students-container .student');
             const modal = document.getElementById('student-modal');

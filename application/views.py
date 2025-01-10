@@ -1,4 +1,4 @@
-import asyncio
+# import asyncio
 from calendar import monthrange
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.shortcuts import render, redirect
 
-from .ble_utils import scan_beacons
+# from .ble_utils import scan_beacons
 from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
 
@@ -252,26 +252,26 @@ def register_student(request):
         return render(request, 'register_student.html')
     return render(request, 'register_student.html')
 
-async def beacon_connect(request):
-    return render(request, 'beacon_connect.html')
-
-
-async def async_scan():
-    return await scan_beacons()
+# async def beacon_connect(request):
+#     return render(request, 'beacon_connect.html')
+#
+#
+# async def async_scan():
+#     return await scan_beacons()
 
 def teacher_list(request):
     teachers = Teacher.objects.all()
     return render(request, 'teacher_list.html', {'teachers': teachers})
 
-def scan_beacon(request):
-    # 非同期でBLEビーコンをスキャン
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    devices = loop.run_until_complete(async_scan())
-
-    # 期待するJSON形式でデバイス情報を返す
-    response_data = {'devices': devices}
-    return JsonResponse(response_data)
+# def scan_beacon(request):
+#     # 非同期でBLEビーコンをスキャン
+#     loop = asyncio.new_event_loop()
+#     asyncio.set_event_loop(loop)
+#     devices = loop.run_until_complete(async_scan())
+#
+#     # 期待するJSON形式でデバイス情報を返す
+#     response_data = {'devices': devices}
+#     return JsonResponse(response_data)
 def attendance_confirmation(request):
 
     attendances = Attendance.objects.filter(student_id=request.user.id)
@@ -538,7 +538,7 @@ def student_course_comp_registration(request):
                         'classroom_name': classroom_instance.classroom_name,
                         'date_first': subject['date_first'],
                         'date_last': subject['date_last'],
-                        'schedule': subject['schedule'],
+                        'schedule': json.dumps(subject['schedule']),
                     }
                     subjects.append(subject_custom)
                     print(subjects)
@@ -547,12 +547,18 @@ def student_course_comp_registration(request):
 
         except Exception as e:
             print("Error saving data:", e)
-            return render(request, 'error.html', {'message': e})
+            return render(request, 'error.html', {'message': 'トランザクション処理でエラーが起きました。'})
 
 def student_course_ok(request):
     if request.method == 'POST':
+        student_email = request.POST.getlist('student')
 
-        return  render(request, 'student_course_ok.html')
+        students = Student.objects.only('email', 'name').filter(email__in=student_email)
+        subjects = Subject.objects.all()
+        classrooms = Classroom.objects.all()
+
+        return render(request, 'student_course_subject_registration.html',
+                      {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
 def student_search(request):
     students = []
@@ -569,27 +575,27 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
-import locale
-
-# ロケールを日本語に設定
-try:
-    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
-
-
-# 日付を日本語形式にフォーマット
-def format_japanese_date(date):
-    if date:
-        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
-    return ""
-
-
-# 時間を日本語形式にフォーマット
-def format_time(time):
-    if time:
-        return time.strftime("%H:%M")  # e.g., "9:00"
-    return ""
+# import locale
+#
+# # ロケールを日本語に設定
+# try:
+#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+# except locale.Error:
+#     locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+#
+#
+# # 日付を日本語形式にフォーマット
+# def format_japanese_date(date):
+#     if date:
+#         return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+#     return ""
+#
+#
+# # 時間を日本語形式にフォーマット
+# def format_time(time):
+#     if time:
+#         return time.strftime("%H:%M")  # e.g., "9:00"
+#     return ""
 
 
 from django.db.models import Q  # 複雑なクエリ作成に使用

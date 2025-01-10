@@ -37,9 +37,9 @@
         <input type="password" id="confirm_password" name="confirm_password" required>
         <button type="submit">登録</button>
         {% if request.session.roll == 0 %}
-            <a href="{% url 'adomin_teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+            <a href="{% url 'adomin_teacher_home' %}" class=" logout-button">ホームへ戻る</a>
         {% else %}
-            <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+            <a href="{% url 'teacher_home' %}" class="logout-button">ホームへ戻る</a>
         {% endif %}
     </form>
 </body>
