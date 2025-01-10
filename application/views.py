@@ -42,30 +42,47 @@ def login_student(request):  # ログインページのビュー
     return render(request, 'login.html', {'error_message': error_message})
 
 
-def login_android(request):  # ログインページのビュー
-    error_message = None
+def login_android(request):
+    error_message = None  # エラーメッセージ初期化
 
     if request.method == "POST":
-        email = request.POST.get('email')  # フォームからメールアドレスを取得
-        password = request.POST.get('password')  # フォームからパスワードを取得
+        try:
+            # POSTデータを取得
+            body = json.loads(request.body.decode('utf-8'))
+            email = body.get('email')
+            password = body.get('password')
 
-        # バリデーション: フィールドが空でないか確認
-        if email and password:
-            try:
-                student = Student.objects.get(email=email)
-                if student.password == password:
-                    # セッションにメールアドレスを保存
-                    request.session['student_email'] = student.email
-                    return JsonResponse({
-                        "message": "login successfully",
-                        "success": True
-                    })
-                else:
-                    error_message = "パスワードが違います"  # パスワードが一致しない場合のエラーメッセージ
-            except Student.DoesNotExist:
-                error_message = "メールアドレスが存在しません"  # メールアドレスが見つからない場合のエラーメッセージ
-        else:
-            error_message = "メールアドレスとパスワードを入力してください"  # フィールドが空の場合のエラーメッセージ
+            # バリデーション: フィールドが空でないか確認
+            if email and password:
+                try:
+                    student = Student.objects.get(email=email)
+                    if student.password == password:
+                        # セッションにメールアドレスを保存
+                        request.session['student_email'] = student.email
+                        request.session.modified = True
+                        request.session.save()
+
+                        print(f"Session Key (after creation): {request.session.session_key}")
+                        print(f"Request Cookies: {request.COOKIES}")
+
+                        return JsonResponse({
+                            "message": "login successfully",
+                            "success": True
+                        })
+                    else:
+                        error_message = "パスワードが違います"  # パスワードが一致しない場合のエラーメッセージ
+                except Student.DoesNotExist:
+                    error_message = "メールアドレスが存在しません"  # メールアドレスが見つからない場合のエラーメッセージ
+            else:
+                error_message = "メールアドレスとパスワードを入力してください"  # フィールドが空の場合のエラーメッセージ
+        except json.JSONDecodeError:
+            error_message = "不正なリクエスト形式です"
+
+    # セッション情報のデバッグ
+    print(body)
+    print(f"Session Key (after creation): {request.session.session_key}")
+    print(f"Request Cookies: {request.COOKIES}")
+
     return JsonResponse({
         "message": error_message,
         "success": False
