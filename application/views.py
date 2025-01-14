@@ -417,6 +417,38 @@ def student_course_subject_registration(request):
             'subjects': subjects
         })
 
+def register_admin_teacher_course(request):
+    if request.method == 'GET':
+        teachers = Teacher.objects.all()
+        subjects = Subject.objects.all()
+        studentClass = StudentClass.objects.all()
+        context = {
+            'teachers': teachers,
+            'subjects': subjects,
+            'studentClass': studentClass
+        }
+        return render(request, 'register_admin_teacher_course.html' , context)
+
+    if request.method == 'POST':
+        teacher_id = request.POST.get('teacher')
+        subject_id = request.POST.get('subject')
+        student_class_id = request.POST.get('studentClass')
+        class_format = request.POST.get('classFormat')
+
+        is_special_class = class_format == '1'
+
+        enrollment = Enrollment(
+            instructor_id=Teacher.objects.get(teacher_id=teacher_id),
+            subject=Subject.objects.get(subject_id=subject_id),
+            class_identifier=StudentClass.objects.get(class_id=student_class_id),
+            is_special_class=is_special_class
+        )
+
+        # 保存
+        enrollment.save()
+
+        return render(request, 'register_admin_teacher_course_complete.html')
+
 
 def student_course_comp_registration(request):
     if request.method == 'GET':
