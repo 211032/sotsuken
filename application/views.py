@@ -145,7 +145,10 @@ def teacher_home(request):
         try:
             # Fetch the teacher object using the teacher_id from the session
             teacher = Teacher.objects.get(teacher_id=teacher_id)
-            return render(request, 'teacher_home.html', {'teacher': teacher})
+            if teacher.roll == 0:  # 管理者ロールの場合
+                return render(request, 'adomin_teacher_home.html', {'teacher': teacher})
+            elif teacher.roll == 1:  # 教師ロールの場合
+                return render(request, 'teacher_home.html', {'teacher': teacher})
         except teacher.DoesNotExist:
             # If teacher is not found, redirect to the login page
             return redirect('login_teacher')
@@ -359,10 +362,15 @@ def student_course_registration(request):
                       {'students': students, 'student_classes': student_classes})
     if request.method == 'POST':
         student_email = request.POST.getlist('select_student')
+        enrollments = Enrollment.objects.only('subject_id').filter(instructor_id_id=request.session.get('teacher_id'))
 
         students = Student.objects.only('email', 'name').filter(email__in=student_email)
-        subjects = Subject.objects.all()
+        subjects = Subject.objects.filter(subject_id__in=enrollments)
         classrooms = Classroom.objects.all()
+
+        if not(subjects.exists()):
+            # リクエスト先をEnrollmentの登録ページに変える
+            return render(request, 'student_course_registration.html', {messages:'この教員に割り当てられている教科がありません。'})
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
