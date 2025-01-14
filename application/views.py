@@ -1,4 +1,4 @@
-# import asyncio
+import asyncio
 from calendar import monthrange
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.shortcuts import render, redirect
 
-# from .ble_utils import scan_beacons
+from .ble_utils import scan_beacons
 from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
 
 
@@ -80,6 +80,7 @@ def login_android(request):
 
     # セッション情報のデバッグ
     print(body)
+    print(f"Session Engine: {settings.SESSION_ENGINE}")
     print(f"Session Key (after creation): {request.session.session_key}")
     print(f"Request Cookies: {request.COOKIES}")
 
@@ -255,26 +256,26 @@ def register_student(request):
         return render(request, 'register_student.html')
     return render(request, 'register_student.html')
 
-# async def beacon_connect(request):
-#     return render(request, 'beacon_connect.html')
-#
-#
-# async def async_scan():
-#     return await scan_beacons()
+async def beacon_connect(request):
+    return render(request, 'beacon_connect.html')
+
+
+async def async_scan():
+    return await scan_beacons()
 
 def teacher_list(request):
     teachers = Teacher.objects.all()
     return render(request, 'teacher_list.html', {'teachers': teachers})
 
-# def scan_beacon(request):
-#     # 非同期でBLEビーコンをスキャン
-#     loop = asyncio.new_event_loop()
-#     asyncio.set_event_loop(loop)
-#     devices = loop.run_until_complete(async_scan())
-#
-#     # 期待するJSON形式でデバイス情報を返す
-#     response_data = {'devices': devices}
-#     return JsonResponse(response_data)
+def scan_beacon(request):
+    # 非同期でBLEビーコンをスキャン
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    devices = loop.run_until_complete(async_scan())
+
+    # 期待するJSON形式でデバイス情報を返す
+    response_data = {'devices': devices}
+    return JsonResponse(response_data)
 def attendance_confirmation(request):
 
     attendances = Attendance.objects.filter(student_id=request.user.id)
@@ -546,7 +547,7 @@ def student_course_comp_registration(request):
                         'classroom_name': classroom_instance.classroom_name,
                         'date_first': subject['date_first'],
                         'date_last': subject['date_last'],
-                        'schedule': json.dumps(subject['schedule']),
+                        'schedule': subject['schedule'],
                     }
                     subjects.append(subject_custom)
                     print(subjects)
@@ -555,18 +556,12 @@ def student_course_comp_registration(request):
 
         except Exception as e:
             print("Error saving data:", e)
-            return render(request, 'error.html', {'message': 'トランザクション処理でエラーが起きました。'})
+            return render(request, 'error.html', {'message': e})
 
 def student_course_ok(request):
     if request.method == 'POST':
-        student_email = request.POST.getlist('student')
 
-        students = Student.objects.only('email', 'name').filter(email__in=student_email)
-        subjects = Subject.objects.all()
-        classrooms = Classroom.objects.all()
-
-        return render(request, 'student_course_subject_registration.html',
-                      {'students': students, 'subjects': subjects, 'classrooms': classrooms})
+        return  render(request, 'student_course_ok.html')
 
 def student_search(request):
     students = []
@@ -583,27 +578,27 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
-# import locale
-#
-# # ロケールを日本語に設定
-# try:
-#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-# except locale.Error:
-#     locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
-#
-#
-# # 日付を日本語形式にフォーマット
-# def format_japanese_date(date):
-#     if date:
-#         return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
-#     return ""
-#
-#
-# # 時間を日本語形式にフォーマット
-# def format_time(time):
-#     if time:
-#         return time.strftime("%H:%M")  # e.g., "9:00"
-#     return ""
+import locale
+
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+    return ""
+
+
+# 時間を日本語形式にフォーマット
+def format_time(time):
+    if time:
+        return time.strftime("%H:%M")  # e.g., "9:00"
+    return ""
 
 
 from django.db.models import Q  # 複雑なクエリ作成に使用
@@ -670,8 +665,9 @@ def monthly_schedule(request):
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Equipment, Classroom
+from .models import Equipment, Classroom, Timetable, Attendance
 import json
+from datetime import datetime
 
 @csrf_exempt
 def api(request):
@@ -680,22 +676,51 @@ def api(request):
             # クライアントから送信されたデータを取得
             body = json.loads(request.body)
             minor = body.get("minor")
+            email = body.get("email")
+
+            if not minor:
+                return JsonResponse({"error": "Minor not provided"}, status=400)
 
             # デバイス情報を取得
             equipment = Equipment.objects.get(minor=minor)
             classroom = Classroom.objects.get(classroom_id=equipment.location_id)
+
+            # 今日の日付を取得
+            today = datetime.now().date()
+
+            # Timetableを検索
+            timetable = Timetable.objects.filter(date=today, email=email).first()
+            if not timetable:
+                return JsonResponse({"error": "Timetable not found"}, status=404)
+
+            # Attendanceの時間を更新
+            current_time = datetime.now().time()
+            attendance_updated = False
+
+            for attendance_obj in [timetable.period1, timetable.period2, timetable.period3]:
+                if attendance_obj:
+                    #if attendance_obj and attendance_obj.start_time <= current_time <= attendance_obj.end_time:
+                    attendance_obj.attendance_time = current_time
+                    attendance_obj.save()
+                    attendance_updated = True
+                    break
+
+            if not attendance_updated:
+                return JsonResponse({"error": "No matching attendance time found"}, status=400)
 
             # レスポンスを作成
             return JsonResponse({
                 "message": "Data processed successfully",
                 "classroom_name": classroom.classroom_name,
                 "equipment_location": equipment.location_id,
+                "attendance_time": current_time.strftime("%H:%M:%S"),
             })
         except Equipment.DoesNotExist:
             return JsonResponse({"error": "Equipment not found"}, status=404)
         except Classroom.DoesNotExist:
             return JsonResponse({"error": "Classroom not found"}, status=404)
         except Exception as e:
+            print(e)
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
