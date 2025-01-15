@@ -621,27 +621,27 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
-# import locale
-#
-# # ロケールを日本語に設定
-# try:
-#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-# except locale.Error:
-#     locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
-#
-#
-# # 日付を日本語形式にフォーマット
-# def format_japanese_date(date):
-#     if date:
-#         return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
-#     return ""
-#
-#
-# # 時間を日本語形式にフォーマット
-# def format_time(time):
-#     if time:
-#         return time.strftime("%H:%M")  # e.g., "9:00"
-#     return ""
+import locale
+
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+    return ""
+
+
+# 時間を日本語形式にフォーマット
+def format_time(time):
+    if time:
+        return time.strftime("%H:%M")  # e.g., "9:00"
+    return ""
 
 
 def monthly_schedule(request):
@@ -703,6 +703,65 @@ def monthly_schedule(request):
         'search_date': search_date,  # 入力された日付を再度テンプレートに渡す
     })
 
+
+def monthly_schedule_teacher(request):
+    student_email = request.session.get('student_email')
+    if not student_email:
+        return redirect('login')
+
+    # クエリパラメータの取得
+    month_offset = int(request.GET.get('month_offset', 0))  # 月単位でのオフセット
+    search_date = request.GET.get('search_date', None)  # 特定の日付での検索
+    current_date = datetime.now() + timedelta(days=30 * month_offset)
+    current_month = current_date.month
+    current_year = current_date.year
+
+    # 月の開始日と終了日を計算
+    month_start = datetime(current_year, current_month, 1)
+    month_end = datetime(current_year, current_month, monthrange(current_year, current_month)[1])
+
+    # 日付でのフィルタリング
+    if search_date:
+        try:
+            search_date = datetime.strptime(search_date, '%Y-%m-%d').date()  # 入力された日付をパース
+            timetables = Timetable.objects.filter(email=student_email, date=search_date).order_by('date')
+        except ValueError:
+            timetables = []  # 日付が不正な場合は空リストを返す
+    else:
+        timetables = Timetable.objects.filter(
+            email=student_email,
+            date__range=(month_start, month_end)
+        ).order_by('date')
+
+    # スケジュールデータの生成
+    schedule = []
+    for timetable in timetables:
+        for period, period_field in enumerate(['period1', 'period2', 'period3', 'period4'], start=1):
+            attendance = getattr(timetable, period_field, None)
+            if attendance:
+                subject = attendance.enrollment.subject
+                classroom = attendance.classroom
+                teacher = attendance.enrollment.instructor_id
+
+                schedule.append({
+                    'date': format_japanese_date(timetable.date),
+                    'period': period,
+                    'subject_name': subject.subject_name,
+                    'classroom_name': classroom.classroom_name,
+                    'teacher_name': teacher.name,
+                    'start_time': format_time(attendance.start_time),
+                    'end_time': format_time(attendance.end_time),
+                    'attendance_time': format_time(attendance.attendance_time),  # 出席時間を追加
+                })
+
+    # テンプレートにデータを渡してレンダリング
+    return render(request, 'monthly_schedule.html', {
+        'schedule': schedule,
+        'current_month': current_month,
+        'current_year': current_year,
+        'month_offset': month_offset,
+        'search_date': search_date,  # 入力された日付を再度テンプレートに渡す
+    })
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -785,3 +844,5 @@ def api(request):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
