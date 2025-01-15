@@ -8,7 +8,7 @@
 <body>
 <form action="/student_course_registration/" method="post">
     {% csrf_token %}
-    <h1>生徒の履修登録</h1>
+    <h1>生徒の選択</h1>
     <label for="student-class">
         <input type="radio" id="student-class" name="student_select" value="search_class" onclick="toggleInput()">
         クラスで検索
@@ -166,6 +166,24 @@
             event.preventDefault();
         }
     }
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const selectedData = [];
+    
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_student']");
+            if (checkbox && checkbox.checked) {
+                const studentId = checkbox.value;
+                
+                selectedData.push(studentId);
+            }
+        }
+        // データが空でないか確認
+        if (selectedData.length === 0) {
+            alert("少なくとも1人の生徒を選択してください。");
+            event.preventDefault();
+        }
+    });
 </script>
 
 </body>

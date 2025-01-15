@@ -362,9 +362,15 @@ def student_course_registration(request):
                       {'students': students, 'student_classes': student_classes})
     if request.method == 'POST':
         student_email = request.POST.getlist('select_student')
+        students = Student.objects.only('email', 'name').filter(email__in=student_email)
+
+        if student_email is None or student_email == []:
+            student_emails = request.POST.getlist('student')
+            students = list(
+                Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
+
         enrollments = Enrollment.objects.only('subject_id').filter(instructor_id_id=request.session.get('teacher_id'))
 
-        students = Student.objects.only('email', 'name').filter(email__in=student_email)
         subjects = Subject.objects.filter(subject_id__in=enrollments)
         classrooms = Classroom.objects.all()
 

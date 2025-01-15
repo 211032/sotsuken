@@ -10,7 +10,7 @@
         }
     form {
         width: 1200px; /* フォームの幅を100%に設定 */
-        max-height: 800px;
+        max-height: 10000px;
         background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
         padding: 20px;
         border-radius: 10px; /* 角を丸める */
@@ -27,12 +27,7 @@
         border: 1px solid #ddd; /* 枠線 */
     }
 
-    /* スクロール用ラッパー */
-    #subjectTable-wrapper {
-        max-height: 600px; /* スクロール可能な最大の高さを設定 */
-        overflow-y: auto; /* 垂直スクロールを有効化 */
-        margin-top: 10px; /* テーブルの上部に余白 */
-    }
+
 
     #subjectTable th {
         background-color: #4CAF50; /* ヘッダーを緑色に */
@@ -70,12 +65,7 @@
         border: 1px solid #ddd; /* 枠線 */
     }
 
-    /* スクロール用ラッパー */
-    #subjectTable-wrapper {
-        max-height: 400px; /* スクロール可能な最大の高さを設定 */
-        overflow-y: auto; /* 垂直スクロールを有効化 */
-        margin-top: 10px; /* テーブルの上部に余白 */
-    }
+
 
     #subjects-table th {
         background-color: #4CAF50; /* ヘッダーを緑色に */
