@@ -1,7 +1,7 @@
 import asyncio
 from calendar import monthrange
-from datetime import datetime, timedelta
 from collections import defaultdict
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -9,7 +9,7 @@ from django.db import transaction
 from django.shortcuts import render, redirect
 
 from .ble_utils import scan_beacons
-from .models import Attendance, Student, Teacher, StudentClass, Subject, Enrollment, Timetable  # modelsはDB
+from .models import Student, Teacher, StudentClass, Subject, Enrollment  # modelsはDB
 
 
 # Create your views here.
@@ -79,8 +79,7 @@ def login_android(request):
             error_message = "不正なリクエスト形式です"
 
     # セッション情報のデバッグ
-    print(body)
-    print(f"Session Engine: {settings.SESSION_ENGINE}")
+
     print(f"Session Key (after creation): {request.session.session_key}")
     print(f"Request Cookies: {request.COOKIES}")
 
@@ -633,8 +632,6 @@ def format_time(time):
     return ""
 
 
-from django.db.models import Q  # 複雑なクエリ作成に使用
-
 def monthly_schedule(request):
     student_email = request.session.get('student_email')
     if not student_email:
@@ -682,6 +679,7 @@ def monthly_schedule(request):
                     'teacher_name': teacher.name,
                     'start_time': format_time(attendance.start_time),
                     'end_time': format_time(attendance.end_time),
+                    'attendance_time': format_time(attendance.attendance_time),  # 出席時間を追加
                 })
 
     # テンプレートにデータを渡してレンダリング
@@ -694,14 +692,35 @@ def monthly_schedule(request):
     })
 
 
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Equipment, Classroom, Timetable, Attendance
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
-@csrf_exempt
+
+from datetime import datetime, timedelta
+from django.http import JsonResponse
+
+def register_attendance(attendance_obj, current_time, today):
+    """
+    出席を登録するヘルパー関数。
+    """
+    # 出席可能な時間範囲を計算
+    start_time = datetime.combine(today, attendance_obj.start_time)
+    end_time = datetime.combine(today, attendance_obj.end_time)
+
+    # `start_time`の10分前を計算
+    valid_start_time = start_time - timedelta(minutes=10)
+
+    # 現在時刻が有効範囲内であるか確認
+    if valid_start_time.time() <= current_time <= end_time.time():
+        attendance_obj.attendance_time = current_time
+        attendance_obj.save()
+        return True
+    else:
+        return False
+
 def api(request):
     if request.method == "POST":
         try:
@@ -729,20 +748,19 @@ def api(request):
             current_time = datetime.now().time()
             attendance_updated = False
 
-            for attendance_obj in [timetable.period1, timetable.period2, timetable.period3]:
+            for attendance_obj in [timetable.period1, timetable.period2, timetable.period3, timetable.period4]:
                 if attendance_obj:
-                    #if attendance_obj and attendance_obj.start_time <= current_time <= attendance_obj.end_time:
-                    attendance_obj.attendance_time = current_time
-                    attendance_obj.save()
-                    attendance_updated = True
-                    break
+                    # ヘルパー関数を呼び出して登録処理を実行
+                    if register_attendance(attendance_obj, current_time, today):
+                        attendance_updated = True
+                        break
 
             if not attendance_updated:
-                return JsonResponse({"error": "No matching attendance time found"}, status=400)
+                return JsonResponse({"error": "出席可能な時間範囲外です"}, status=400)
 
             # レスポンスを作成
             return JsonResponse({
-                "message": "Data processed successfully",
+                "message": "出席登録に成功しました",
                 "classroom_name": classroom.classroom_name,
                 "equipment_location": equipment.location_id,
                 "attendance_time": current_time.strftime("%H:%M:%S"),
@@ -752,7 +770,6 @@ def api(request):
         except Classroom.DoesNotExist:
             return JsonResponse({"error": "Classroom not found"}, status=404)
         except Exception as e:
-            print(e)
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
