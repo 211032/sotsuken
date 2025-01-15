@@ -371,7 +371,7 @@ def student_course_registration(request):
 
         enrollments = Enrollment.objects.only('subject_id').filter(instructor_id_id=request.session.get('teacher_id'))
 
-        subjects = Subject.objects.filter(subject_id__in=enrollments)
+        subjects = Subject.objects.filter(subject_id__in=enrollments.values('subject_id'))
         classrooms = Classroom.objects.all()
 
         if not(subjects.exists()):
