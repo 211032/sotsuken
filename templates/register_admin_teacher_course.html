@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>教師科目登録</title>
+   <link rel="stylesheet" href="/static/CSS/admin_teacher_course.css">
+</head>
+<body>
+<form method="POST" action="{% url 'register_admin_teacher_course' %}">
+   <h1>教師科目登録</h1>
+   {% csrf_token %}
+  
+   <label for="teacher">教師を選択する:</label>
+   <select name="teacher" id="teacher">
+       {% for teacher in teachers %}
+           <!-- nameを表示し、teacher_idをvalueとして送信 -->
+           <option value="{{ teacher.teacher_id }}">{{ teacher.name }}</option>
+       {% endfor %}
+   </select>
+
+
+   <label for="subject">科目選択:</label>
+   <select name="subject" id="subject">
+       {% for subject in subjects %}
+           <!-- nameを表示し、teacher_idをvalueとして送信 -->
+           <option value="{{ subject.subject_id }}">{{ subject.subject_name }}</option>
+       {% endfor %}
+   </select>
+
+
+   <label for="studentClass">クラス選択:</label>
+   <select name="studentClass" id="studentClass">
+       {% for class in studentClass %}
+           <!-- nameを表示し、teacher_idをvalueとして送信 -->
+           <option value="{{ class.class_id }}">{{ class.class_name }}</option>
+       {% endfor %}
+   </select>
+
+
+   <label for="classFormat">授業形態を選択:</label>
+   <select name="classFormat" id="classFormat">
+       <option value="0">通常授業</option>
+       <option value="1">国試対策</option>
+   </select>
+
+
+   <button type="submit">登録</button>
+   <a href="{% url 'adomin_teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</form>
+</body>
+</html>
