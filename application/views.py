@@ -369,14 +369,44 @@ def student_course_registration(request):
             students = list(
                 Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
-        enrollments = Enrollment.objects.only('subject_id').filter(instructor_id_id=request.session.get('teacher_id'))
+        enrollments = Enrollment.objects.only('subject_id').filter(
+            instructor_id_id=request.session.get('teacher_id'))
 
         subjects = Subject.objects.filter(subject_id__in=enrollments.values('subject_id'))
         classrooms = Classroom.objects.all()
 
-        if not(subjects.exists()):
+        if not (subjects.exists()):
             # リクエスト先をEnrollmentの登録ページに変える
-            return render(request, 'student_course_registration.html', {messages:'この教員に割り当てられている教科がありません。'})
+            return render(request, 'student_course_registration.html',
+                          {messages: 'この教員に割り当てられている教科がありません。'})
+        another = request.POST.get('another')
+        if another == '教科の選択に戻る':
+            selected_subjects_data = request.POST.get("selected_subjects")
+
+            # JSON文字列をPythonのリストに変換
+            try:
+                selected_subjects = json.loads(selected_subjects_data)
+            except json.JSONDecodeError as e:
+                print("Error decoding JSON:", e)
+                return render(request, 'error.html', {'message': 'Invalid subject data.'})
+
+            another_subjects = []
+            for subject in selected_subjects:
+                print("Processing subject:", subject)
+                print(subject['schedule'])
+                subject_custom = {
+                    'subject_id': subject['subject_id'],
+                    'subject_name': Subject.objects.get(subject_id=subject['subject_id']).subject_name,
+                    'classroom_id': subject['classroom_id'],
+                    'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
+                    'date_first': subject['date_first'],
+                    'date_last': subject['date_last'],
+                    'schedule': json.dumps(subject['schedule']),  # JSON文字列に変換
+                }
+                another_subjects.append(subject_custom)
+
+            return render(request, 'student_course_subject_registration.html',
+                          {'students': students, 'subjects': subjects, 'classrooms': classrooms, 'another_subjects': another_subjects})
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})

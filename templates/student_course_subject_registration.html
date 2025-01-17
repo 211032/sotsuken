@@ -116,7 +116,7 @@
                     <td class="subject-name">{{ subject.subject_name }}</td>
                     <td class="subject-classroom radio-container">
                         <label for="subject-classroom">
-                        <select id="subject-classroom" name="subject_classroom">
+                        <select id="subject-classroom" name="subject_classroom" data-subject-id="{{ subject.subject_id }}">
                             {% for classroom in classrooms %}
                                 <option type="radio" name="subject_classroom" id="subject-classroom"
                                        value="{{ classroom.classroom_id }}" >
@@ -127,8 +127,8 @@
                     </td>
                     <td class="subject-date">
                         <label>
-                            <input type="date" name="subject_date_first">～
-                            <input type="date" name="subject_date_last">まで
+                            <input type="date" name="subject_date_first" data-subject-id="{{ subject.subject_id }}">～
+                            <input type="date" name="subject_date_last" data-subject-id="{{ subject.subject_id }}">まで
                         </label>
                     </td>
                     <td class="subject-unit">
@@ -143,40 +143,40 @@
                             <div class="grid-header">日</div>
                         
                             <div class="grid-time">1限目</div>
-                            <div class="grid-cell" data-day="月" data-period="1"></div>
-                            <div class="grid-cell" data-day="火" data-period="1"></div>
-                            <div class="grid-cell" data-day="水" data-period="1"></div>
-                            <div class="grid-cell" data-day="木" data-period="1"></div>
-                            <div class="grid-cell" data-day="金" data-period="1"></div>
-                            <div class="grid-cell" data-day="土" data-period="1"></div>
-                            <div class="grid-cell" data-day="日" data-period="1"></div>
+                            <div class="grid-cell" data-day="月" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="火" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="水" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="木" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="金" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="土" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="日" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
                         
                             <div class="grid-time">2限目</div>
-                            <div class="grid-cell" data-day="月" data-period="2"></div>
-                            <div class="grid-cell" data-day="火" data-period="2"></div>
-                            <div class="grid-cell" data-day="水" data-period="2"></div>
-                            <div class="grid-cell" data-day="木" data-period="2"></div>
-                            <div class="grid-cell" data-day="金" data-period="2"></div>
-                            <div class="grid-cell" data-day="土" data-period="2"></div>
-                            <div class="grid-cell" data-day="日" data-period="2"></div>
+                            <div class="grid-cell" data-day="月" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="火" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="水" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="木" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="金" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="土" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="日" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
                         
                             <div class="grid-time">3限目</div>
-                            <div class="grid-cell" data-day="月" data-period="3"></div>
-                            <div class="grid-cell" data-day="火" data-period="3"></div>
-                            <div class="grid-cell" data-day="水" data-period="3"></div>
-                            <div class="grid-cell" data-day="木" data-period="3"></div>
-                            <div class="grid-cell" data-day="金" data-period="3"></div>
-                            <div class="grid-cell" data-day="土" data-period="3"></div>
-                            <div class="grid-cell" data-day="日" data-period="3"></div>
+                            <div class="grid-cell" data-day="月" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="火" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="水" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="木" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="金" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="土" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="日" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
                         
                             <div class="grid-time">4限目</div>
-                            <div class="grid-cell" data-day="月" data-period="4"></div>
-                            <div class="grid-cell" data-day="火" data-period="4"></div>
-                            <div class="grid-cell" data-day="水" data-period="4"></div>
-                            <div class="grid-cell" data-day="木" data-period="4"></div>
-                            <div class="grid-cell" data-day="金" data-period="4"></div>
-                            <div class="grid-cell" data-day="土" data-period="4"></div>
-                            <div class="grid-cell" data-day="日" data-period="4"></div>
+                            <div class="grid-cell" data-day="月" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="火" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="水" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="木" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="金" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="土" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
+                            <div class="grid-cell" data-day="日" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
                         </div>
                     </td>
                 </tr>
@@ -184,10 +184,10 @@
         </tbody>
     </table></div><br>
     <br>
+    <div id="anotherSubjects" style="display: none;">{{ another_subjects|json_script }}</div>
     <input type="submit" class="button registration-button" value="入力内容の確認">
     <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
-
 <script>
     filterSubjects()
     document.querySelector("form").addEventListener("submit", function (event) {
@@ -226,6 +226,39 @@
             alert("少なくとも1つの教科を選択してください。");
             event.preventDefault();
             return;
+        }
+        
+        // 各項目が正しく入力されているか確認
+        for (let i = 0; i < selectedData.length; i++) {
+            const data = selectedData[i];
+        
+            // 教室が選択されていない場合
+            if (!data.classroom_id) {
+                alert("教室を選択してください。");
+                event.preventDefault();
+                return;
+            }
+        
+            // 開始日と終了日が入力されていない場合
+            if (!data.date_first || !data.date_last) {
+                alert("開始日と終了日を入力してください。");
+                event.preventDefault();
+                return;
+            }
+        
+            // 開始日が終了日より後の場合
+            if (data.date_first > data.date_last) {
+                alert("開始日が終了日よりも後になっています。");
+                event.preventDefault();
+                return;
+            }
+        
+            // スケジュールが選択されていない場合
+            if (data.schedule.length === 0) {
+                alert("スケジュールを選択してください。");
+                event.preventDefault();
+                return;
+            }
         }
     
         // 収集したデータを非表示フィールドに設定
@@ -429,6 +462,48 @@
     document.getElementById("subjectTable").addEventListener("input", saveInputValues);
     
     window.addEventListener("beforeunload", saveInputValues);
+    
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        // `json_script` で埋め込んだデータを取得
+        const anotherSubjects = JSON.parse(document.getElementById('anotherSubjects').textContent);
+        
+    
+        // 既に選択されている教科情報を復元
+        if (anotherSubjects && anotherSubjects.length > 0) {
+            anotherSubjects.forEach(subject => {
+                // 該当する教科のチェックボックスを選択状態に
+                const checkbox = document.getElementById("select-subject" + subject.subject_id);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+    
+                // 教室の選択
+                const classroomSelect = document.querySelector(`select[name='subject_classroom'][data-subject-id='${subject.subject_id}']`);
+                if (classroomSelect) {
+                    classroomSelect.value = subject.classroom_id;
+                }
+    
+                // 開始日と終了日を復元
+                const dateFirst = document.querySelector(`input[name='subject_date_first'][data-subject-id='${subject.subject_id}']`);
+                const dateLast = document.querySelector(`input[name='subject_date_last'][data-subject-id='${subject.subject_id}']`);
+                if (dateFirst && dateLast) {
+                    dateFirst.value = subject.date_first;
+                    dateLast.value = subject.date_last;
+                }
+    
+                // スケジュールの復元
+                const scheduleCells = document.querySelectorAll(`.grid-cell[data-subject-id='${subject.subject_id}']`);
+                scheduleCells.forEach(cell => {
+                    JSON.parse(subject.schedule).forEach(schedule => {
+                        if (cell.dataset.day === schedule.day && cell.dataset.period === schedule.period) {
+                            cell.classList.add('selected');
+                        }
+                    });
+                });
+            });
+        }
+    });
 
 </script>
 
