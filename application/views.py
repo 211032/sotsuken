@@ -380,7 +380,8 @@ def student_course_registration(request):
             students = list(
                 Student.objects.filter(email__in=student_emails).only('email', 'name').values('email', 'name'))
 
-        enrollments = Enrollment.objects.only('subject_id').filter(instructor_id_id=request.session.get('teacher_id'))
+        enrollments = Enrollment.objects.only('subject_id').filter(
+            instructor_id_id=request.session.get('teacher_id'))
 
         subjects = Subject.objects.filter(subject_id__in=enrollments.values('subject_id'))
         classrooms = Classroom.objects.all()
@@ -389,6 +390,35 @@ def student_course_registration(request):
             # リクエスト先をEnrollmentの登録ページに変える
             return render(request, 'student_course_registration.html',
                           {messages: 'この教員に割り当てられている教科がありません。'})
+        another = request.POST.get('another')
+        if another == '教科の選択に戻る':
+            selected_subjects_data = request.POST.get("selected_subjects")
+
+            # JSON文字列をPythonのリストに変換
+            try:
+                selected_subjects = json.loads(selected_subjects_data)
+            except json.JSONDecodeError as e:
+                print("Error decoding JSON:", e)
+                return render(request, 'error.html', {'message': 'Invalid subject data.'})
+
+            another_subjects = []
+            for subject in selected_subjects:
+                print("Processing subject:", subject)
+                print(subject['schedule'])
+                subject_custom = {
+                    'subject_id': subject['subject_id'],
+                    'subject_name': Subject.objects.get(subject_id=subject['subject_id']).subject_name,
+                    'classroom_id': subject['classroom_id'],
+                    'classroom_name': Classroom.objects.get(classroom_id=subject['classroom_id']).classroom_name,
+                    'date_first': subject['date_first'],
+                    'date_last': subject['date_last'],
+                    'schedule': json.dumps(subject['schedule']),  # JSON文字列に変換
+                }
+                another_subjects.append(subject_custom)
+
+            return render(request, 'student_course_subject_registration.html',
+                          {'students': students, 'subjects': subjects, 'classrooms': classrooms,
+                           'another_subjects': another_subjects})
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
@@ -597,7 +627,7 @@ def student_course_comp_registration(request):
                         'classroom_name': classroom_instance.classroom_name,
                         'date_first': subject['date_first'],
                         'date_last': subject['date_last'],
-                        'schedule': subject['schedule'],
+                        'schedule': json.dumps(subject['schedule']),
                     }
                     subjects.append(subject_custom)
                     print(subjects)
@@ -611,7 +641,14 @@ def student_course_comp_registration(request):
 
 def student_course_ok(request):
     if request.method == 'POST':
-        return render(request, 'student_course_ok.html')
+        student_email = request.POST.getlist('student')
+
+        students = Student.objects.only('email', 'name').filter(email__in=student_email)
+        subjects = Subject.objects.all()
+        classrooms = Classroom.objects.all()
+
+        return render(request, 'student_course_subject_registration.html',
+                      {'students': students, 'subjects': subjects, 'classrooms': classrooms})
 
 
 def student_search(request):
@@ -623,34 +660,66 @@ def student_search(request):
             show_student = {
                 'email': student.email,
                 'name': student.name,
-                'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
+                'class_name': (StudentClass.objects.get(class_id=student.class_name_id)).class_name
             }
             students.append(show_student)
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
 
-import locale
+def student_change(request):
+    if request.method == 'POST':
+        mode = request.POST.get('mode')
+        student = request.POST.get('student_email')
+        student = Student.objects.get(email=student)
+        message = None
+        if mode == 'delete':
+            student.delete()
+            Timetable.objects.filter(email=student.email).delete()
+            student_classes = StudentClass.objects.all()
+            students = []
+            student_all = Student.objects.all()
+            for target_student in student_all:
+                show_student = {
+                    'email': target_student.email,
+                    'name': target_student.name,
+                    'class_name': StudentClass.objects.get(class_id=target_student.class_name_id).class_name
+                }
+                students.append(show_student)
+            return render(request, 'student_search.html', {'student_classes':student_classes, 'students':students, 'message': student.name+'は削除されました'})
+        elif mode == 'change':
+            student.name = request.POST.get('name')
 
-# ロケールを日本語に設定
-try:
-    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+        student = {
+            'email': student.email,
+            'name': student.name,
+            'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name,
+        }
+
+        return render(request, 'student_change.html', {'student': student, 'message': message})
 
 
-# 日付を日本語形式にフォーマット
-def format_japanese_date(date):
-    if date:
-        return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
-    return ""
-
-
-# 時間を日本語形式にフォーマット
-def format_time(time):
-    if time:
-        return time.strftime("%H:%M")  # e.g., "9:00"
-    return ""
+# import locale
+#
+# # ロケールを日本語に設定
+# try:
+#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+# except locale.Error:
+#     locale.setlocale(locale.LC_TIME, "C")  # ロケールが設定できない場合はデフォルトを使用
+#
+#
+# # 日付を日本語形式にフォーマット
+# def format_japanese_date(date):
+#     if date:
+#         return date.strftime("%Y年%m月%d日 (%a)")  # e.g., "2024年12月15日 (日)"
+#     return ""
+#
+#
+# # 時間を日本語形式にフォーマット
+# def format_time(time):
+#     if time:
+#         return time.strftime("%H:%M")  # e.g., "9:00"
+#     return ""
 
 
 def monthly_schedule(request):
@@ -713,8 +782,73 @@ def monthly_schedule(request):
     })
 
 
+def monthly_schedule_teacher(request):
+    student_email = request.session.get('student_email')
+    if not student_email:
+        return redirect('login')
+
+    # クエリパラメータの取得
+    month_offset = int(request.GET.get('month_offset', 0))  # 月単位でのオフセット
+    search_date = request.GET.get('search_date', None)  # 特定の日付での検索
+    current_date = datetime.now() + timedelta(days=30 * month_offset)
+    current_month = current_date.month
+    current_year = current_date.year
+
+    # 月の開始日と終了日を計算
+    month_start = datetime(current_year, current_month, 1)
+    month_end = datetime(current_year, current_month, monthrange(current_year, current_month)[1])
+
+    # 日付でのフィルタリング
+    if search_date:
+        try:
+            search_date = datetime.strptime(search_date, '%Y-%m-%d').date()  # 入力された日付をパース
+            timetables = Timetable.objects.filter(email=student_email, date=search_date).order_by('date')
+        except ValueError:
+            timetables = []  # 日付が不正な場合は空リストを返す
+    else:
+        timetables = Timetable.objects.filter(
+            email=student_email,
+            date__range=(month_start, month_end)
+        ).order_by('date')
+
+    # スケジュールデータの生成
+    schedule = []
+    for timetable in timetables:
+        for period, period_field in enumerate(['period1', 'period2', 'period3', 'period4'], start=1):
+            attendance = getattr(timetable, period_field, None)
+            if attendance:
+                subject = attendance.enrollment.subject
+                classroom = attendance.classroom
+                teacher = attendance.enrollment.instructor_id
+
+                schedule.append({
+                    'date': format_japanese_date(timetable.date),
+                    'period': period,
+                    'subject_name': subject.subject_name,
+                    'classroom_name': classroom.classroom_name,
+                    'teacher_name': teacher.name,
+                    'start_time': format_time(attendance.start_time),
+                    'end_time': format_time(attendance.end_time),
+                    'attendance_time': format_time(attendance.attendance_time),  # 出席時間を追加
+                })
+
+    # テンプレートにデータを渡してレンダリング
+    return render(request, 'monthly_schedule.html', {
+        'schedule': schedule,
+        'current_month': current_month,
+        'current_year': current_year,
+        'month_offset': month_offset,
+        'search_date': search_date,  # 入力された日付を再度テンプレートに渡す
+    })
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from .models import Equipment, Classroom, Timetable, Attendance
 import json
+from datetime import datetime, timedelta
+
+from datetime import datetime, timedelta
 from django.http import JsonResponse
 
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>生徒情報変更</title>
+    <link rel="stylesheet" href="/static/CSS/student_search.css">
+</head>
+<body>
+<div id="about">
+    <h1>{{ student.name }}さんの変更・削除ページです</h1>
+    {% if message %}
+        {{ message }}
+    {% endif %}
+    <table id="studentTable">
+        <thead>
+            <tr><!--ここに欠課数を追加-->
+                <th>メール</th>
+                <th>名前</th>
+                <th>クラス</th>
+                <th>パスワード</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="student-id">{{ student.email }}</td>
+                <td class="student-name">{{ student.name }}</td>
+                <td class="student-class">{{ student.class_name }}</td>
+                <td class="student-class">****</td>
+            </tr>
+        </tbody>
+    </table><br>
+    <form action="/student_change" method="post" id="change">
+        <input type="radio" id="name" name="radio" value="name"><label for="name">名前</label>
+        <input type="radio" id="class" name="radio" value="class"><label for="class">クラス</label>
+        <input type="radio" id="password" name="radio" value="password"><label for="password">パスワード</label><br>
+        <input type="hidden" name="mode" value="change">
+        <input type="hidden" name="student_email" value="{{ student.email }}">
+        <label>
+            <input type="text" name="text">
+        </label>
+        <input type="submit" value="変更" onclick="return confirmDelete2()"><br><br><br><br>
+    </form>
+    
+    <form action="/student_change" method="post" id="delete">
+        <input type="hidden" name="mode" value="delete">
+        <input type="hidden" name="student_email" value="{{ student.email }}">
+        <input type="submit" value="この生徒を削除する" onclick="return confirmDelete1()" class="button logout-button">
+    </form>
+    <br><a href="{% url 'adomin_teacher_home' %}" class="button home-button">ホームへ戻る</a>
+</div>
+</body>
+<script>
+    function confirmDelete1() {
+        const isConfirmed = confirm("本当にこの生徒を削除してもよろしいですか？");
+        if (isConfirmed) {
+            return true;  // フォームが送信される
+        } else {
+            return false; // フォームの送信をキャンセル
+        }
+    }
+    function confirmDelete2() {
+        const isConfirmed = confirm("本当にこの生徒の情報を変更してもよろしいですか？");
+        if (isConfirmed) {
+            return true;  // フォームが送信される
+        } else {
+            return false; // フォームの送信をキャンセル
+        }
+    }
+</script>
+</html>
