@@ -1,7 +1,7 @@
 import asyncio
 from calendar import monthrange
 from collections import defaultdict
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
@@ -87,6 +87,7 @@ def login_android(request):
         "message": error_message,
         "success": False
     })
+
 
 def home(request):
     # セッションからメールアドレスを取得
@@ -174,8 +175,10 @@ def adomin_teacher_home(request):
         # If no teacher_id in session, redirect to the login page
         return redirect('login_teacher')
 
+
 def register_view(request):
     return render(request, 'accountReg.html')
+
 
 def register_teacher(request):
     if request.method == 'POST':
@@ -216,8 +219,10 @@ def register_teacher(request):
 
     return render(request, 'register_teacher.html')
 
+
 def registration_success(request):
     return render(request, 'registration_success.html')
+
 
 def register_student(request):
     teacherroll = request.session.get('roll')
@@ -241,7 +246,6 @@ def register_student(request):
 
         studentClass = StudentClass.objects.get(class_name=class_name)
 
-
         # 学生データの作成
         student = Student(
             email=email,
@@ -255,6 +259,7 @@ def register_student(request):
         return render(request, 'register_student.html')
     return render(request, 'register_student.html')
 
+
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
@@ -262,9 +267,11 @@ async def beacon_connect(request):
 async def async_scan():
     return await scan_beacons()
 
+
 def teacher_list(request):
     teachers = Teacher.objects.all()
     return render(request, 'teacher_list.html', {'teachers': teachers})
+
 
 def scan_beacon(request):
     # 非同期でBLEビーコンをスキャン
@@ -275,20 +282,25 @@ def scan_beacon(request):
     # 期待するJSON形式でデバイス情報を返す
     response_data = {'devices': devices}
     return JsonResponse(response_data)
-def attendance_confirmation(request):
 
+
+def attendance_confirmation(request):
     attendances = Attendance.objects.filter(student_id=request.user.id)
     return render(request, 'attendance_confirmation.html', {'attendances': attendances})
+
 
 def teacher_submit(request):
     return render(request, 'teacher_submit.html')
 
-#時間割登録機能に遷移する
+
+# 時間割登録機能に遷移する
 def time_table(request):
     return render(request, 'time_table.html')
 
+
 def subject_registration(request):
     return render(request, 'subject_registration.html')
+
 
 def subject_registration_comp(request):
     if request.method == 'POST':
@@ -298,7 +310,6 @@ def subject_registration_comp(request):
         subject.save()
 
         return render(request, 'subject_registration.html', {'message': '登録が完了しました!'})
-
 
 
 # beacon登録
@@ -332,8 +343,8 @@ def register_beacon(request):
         classrooms = Classroom.objects.all()
 
         context = {
-            'classrooms' : classrooms,
-            'success_message' : 'beacon登録成功！'
+            'classrooms': classrooms,
+            'success_message': 'beacon登録成功！'
         }
 
         return render(request, 'register_beacon.html', context)
@@ -374,9 +385,10 @@ def student_course_registration(request):
         subjects = Subject.objects.filter(subject_id__in=enrollments.values('subject_id'))
         classrooms = Classroom.objects.all()
 
-        if not(subjects.exists()):
+        if not (subjects.exists()):
             # リクエスト先をEnrollmentの登録ページに変える
-            return render(request, 'student_course_registration.html', {messages:'この教員に割り当てられている教科がありません。'})
+            return render(request, 'student_course_registration.html',
+                          {messages: 'この教員に割り当てられている教科がありません。'})
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
@@ -422,6 +434,7 @@ def student_course_subject_registration(request):
             'subjects': subjects
         })
 
+
 def register_admin_teacher_course(request):
     if request.method == 'GET':
         teachers = Teacher.objects.all()
@@ -432,7 +445,7 @@ def register_admin_teacher_course(request):
             'subjects': subjects,
             'studentClass': studentClass
         }
-        return render(request, 'register_admin_teacher_course.html' , context)
+        return render(request, 'register_admin_teacher_course.html', context)
 
     if request.method == 'POST':
         teacher_id = request.POST.get('teacher')
@@ -502,7 +515,7 @@ def student_course_comp_registration(request):
 
                     for student in students:
 
-                        for i in range(0, distance+1):
+                        for i in range(0, distance + 1):
                             date = date_first + timedelta(days=i)
 
                             date_obj = datetime.strptime(str(date), "%Y-%m-%d %H:%M:%S")
@@ -595,10 +608,11 @@ def student_course_comp_registration(request):
             print("Error saving data:", e)
             return render(request, 'error.html', {'message': e})
 
+
 def student_course_ok(request):
     if request.method == 'POST':
+        return render(request, 'student_course_ok.html')
 
-        return  render(request, 'student_course_ok.html')
 
 def student_search(request):
     students = []
@@ -614,6 +628,7 @@ def student_search(request):
             students.append(show_student)
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
+
 
 import locale
 
@@ -698,15 +713,10 @@ def monthly_schedule(request):
     })
 
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from .models import Equipment, Classroom, Timetable, Attendance
 import json
-from datetime import datetime, timedelta
-
-
-from datetime import datetime, timedelta
 from django.http import JsonResponse
+
 
 def register_attendance(attendance_obj, current_time, today):
     """
@@ -725,7 +735,9 @@ def register_attendance(attendance_obj, current_time, today):
         attendance_obj.save()
         return True
     else:
+        print('時間外です')
         return False
+
 
 def api(request):
     if request.method == "POST":
@@ -764,6 +776,12 @@ def api(request):
             if not attendance_updated:
                 return JsonResponse({"error": "出席可能な時間範囲外です"}, status=400)
 
+            student = Student.objects.get(email=email)
+            # データを更新
+            student.time = datetime.now().time()
+            student.room = minor
+            student.save()
+
             # レスポンスを作成
             return JsonResponse({
                 "message": "出席登録に成功しました",
@@ -777,5 +795,47 @@ def api(request):
             return JsonResponse({"error": "Classroom not found"}, status=404)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+def attend_check(request):
+    if request.method == "POST":
+        try:
+            # クライアントから送信されたデータを取得
+            body = json.loads(request.body)
+            minor = body.get("minor")
+            email = body.get("email")
+            print(email, minor)
+
+            if not minor:
+                return JsonResponse({"error": "Minor not provided"}, status=400)
+
+            now = datetime.now()
+
+            student = Student.objects.get(email=email)
+            # 学生のtimeをdatetime型に変換（例として、今日の日付を使用）
+            if student.time is not None:
+                student_datetime = datetime.combine(now.date(), student.time)
+                if (now - student_datetime) <= timedelta(seconds=90):
+                    if student.room == str(minor):
+                        data = {"message": "入室"}
+                    else:
+                        data = {"message": "別教室"}
+                else:
+                    data = {"message": "退出"}
+            else:
+                data = {"message": "error"}
+            # データを更新
+            student.time = datetime.now().time()
+            student.room = minor
+            student.save()
+
+            # レスポンスを作成
+            return JsonResponse(data)
+        except Equipment.DoesNotExist:
+            return JsonResponse({"error": "Equipment not found"}, status=404)
+        except Classroom.DoesNotExist:
+            return JsonResponse({"error": "Classroom not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
