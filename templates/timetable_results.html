@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>生徒の出席状況</title>
+    <link rel="stylesheet" href="/static/CSS/timetable_results.css">
+</head>
+
+<body>
+<div class = "container">
+
+    <h1><b>{{ name }}</b>の出席状況</h1>
+    <table>
+    <thead>
+        <tr>
+            <th>日付</th>
+            <th>1限目</th>
+            <th>2限目</th>
+            <th>3限目</th>
+            <th>4限目</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for date, periods in grouped_data.items %}
+            <tr>
+                <td>{{ date }}</td>
+                <td>
+                    {% if not periods.period1.message %}
+                        教室: {{ periods.period1.classroom }}<br>
+                        科目: {{ periods.period1.subject }}<br>
+                        出席時間: {{ periods.period1.start_time }}<br>
+                        退席時間: {{ periods.period1.end_time }}<br>
+                        出席状況: {{ periods.period1.status }}
+                    {% else %}
+                        <span class="centered-message">{{ periods.period1.message }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not periods.period2.message %}
+                        教室: {{ periods.period2.classroom }}<br>
+                        科目: {{ periods.period2.subject }}<br>
+                        出席時間: {{ periods.period2.start_time }}<br>
+                        退席時間: {{ periods.period2.end_time }}<br>
+                        出席状況: {{ periods.period2.status }}
+                    {% else %}
+                        <span class="centered-message">{{ periods.period2.message }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not periods.period3.message %}
+                        教室: {{ periods.period3.classroom }}<br>
+                        科目: {{ periods.period3.subject }}<br>
+                        出席時間: {{ periods.period3.start_time }}<br>
+                        退席時間: {{ periods.period3.end_time }}<br>
+                        出席状況: {{ periods.period3.status }}
+                    {% else %}
+                        <span class="centered-message">{{ periods.period3.message }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not periods.period4.message %}
+                        教室: {{ periods.period4.classroom }}<br>
+                        科目: {{ periods.period4.subject }}<br>
+                        出席時間: {{ periods.period4.start_time }}<br>
+                        退席時間: {{ periods.period4.end_time }}<br>
+                        出席状況: {{ periods.period4.status }}
+                    {% else %}
+                        <span class="centered-message">{{ periods.period4.message }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</div>
+</body>
+</html>

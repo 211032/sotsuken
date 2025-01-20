@@ -9,7 +9,7 @@ from django.db import transaction
 from django.shortcuts import render, redirect
 
 from .ble_utils import scan_beacons
-from .models import Student, Teacher, StudentClass, Subject, Enrollment  # modelsはDB
+from .models import Student, Teacher, StudentClass, Subject, Enrollment,Classroom # modelsはDB
 
 
 # Create your views here.
@@ -422,6 +422,7 @@ def student_course_subject_registration(request):
             'subjects': subjects
         })
 
+
 def register_admin_teacher_course(request):
     if request.method == 'GET':
         teachers = Teacher.objects.all()
@@ -525,33 +526,32 @@ def student_course_comp_registration(request):
                                     end_time = None
 
                                     if enrollment.is_special_class:
-                                        match day_same['period']:
-                                            case '1':
-                                                start_time = '9:15:00'
-                                                end_time = '11:00:00'
-                                            case '2':
-                                                start_time = '11:10:00'
-                                                end_time = '12:40:00'
-                                            case '3':
-                                                start_time = '13:30:00'
-                                                end_time = '15:00:00'
-                                            case '4':
-                                                start_time = '15:15:00'
-                                                end_time = '16:45:00'
+                                        if day_same['period'] == '1':
+                                            start_time = '9:15:00'
+                                            end_time = '11:00:00'
+                                        elif day_same['period'] == '2':
+                                            start_time = '11:10:00'
+                                            end_time = '12:40:00'
+                                        elif day_same['period'] == '3':
+                                            start_time = '13:30:00'
+                                            end_time = '15:00:00'
+                                        elif day_same['period'] == '4':
+                                            start_time = '15:15:00'
+                                            end_time = '16:45:00'
                                     else:
-                                        match day_same['period']:
-                                            case '1':
-                                                start_time = '9:15:00'
-                                                end_time = '10:45:00'
-                                            case '2':
-                                                start_time = '11:00:00'
-                                                end_time = '12:30:00'
-                                            case '3':
-                                                start_time = '13:30:00'
-                                                end_time = '15:00:00'
-                                            case '4':
-                                                start_time = '15:15:00'
-                                                end_time = '16:45:00'
+
+                                        if day_same['period'] == '1':
+                                            start_time = '9:15:00'
+                                            end_time = '10:45:00'
+                                        elif day_same['period'] == '2':
+                                            start_time = '11:00:00'
+                                            end_time = '12:30:00'
+                                        elif day_same['period'] == '3':
+                                            start_time = '13:30:00'
+                                            end_time = '15:00:00'
+                                        elif day_same['period'] ==  '4':
+                                            start_time = '15:15:00'
+                                            end_time = '16:45:00'
 
                                     attendance = Attendance.objects.create(
                                         enrollment_id=enrollment.enrollment_id,
@@ -595,6 +595,7 @@ def student_course_comp_registration(request):
             print("Error saving data:", e)
             return render(request, 'error.html', {'message': e})
 
+
 def student_course_ok(request):
     if request.method == 'POST':
         student_email = request.POST.getlist('student')
@@ -605,6 +606,7 @@ def student_course_ok(request):
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
+
 
 def student_search(request):
     students = []
@@ -621,6 +623,92 @@ def student_search(request):
     return render(request, 'student_search.html',
                   {'students': students, 'student_classes': student_classes})
 
+
+def student_attendance_confirmation(request):
+    students = []
+    student_classes = StudentClass.objects.all()
+    if request.method == 'GET':
+
+        number = 0
+
+        student_all = Student.objects.all()
+
+        for student in student_all:
+
+            number += 1
+
+            show_student = {
+                'number': number,
+                'email': student.email,
+                'name': student.name,
+                'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
+            }
+
+            students.append(show_student)
+
+        return render(request, 'student_attendance_confirmation.html',
+
+                      {'students': students, 'student_classes': student_classes})
+
+    if request.method == 'POST':
+
+        email = request.POST.get('email')
+
+        start_date = request.POST.get('start_date')
+
+        end_date = request.POST.get('end_date')
+
+        student = Student.objects.filter(email=email).first()
+
+        # Timetableから条件に一致するデータを取得
+        timetables = Timetable.objects.filter(
+            email=email,
+            date__range=[start_date, end_date]
+        )
+
+        # grouped_dataを辞書形式で構築
+        grouped_data = defaultdict(dict)
+        for timetable in timetables:
+            grouped_data[str(timetable.date)] = {
+                "period1": get_attendance_and_classroom(timetable.period1_id),
+                "period2": get_attendance_and_classroom(timetable.period2_id),
+                "period3": get_attendance_and_classroom(timetable.period3_id),
+                "period4": get_attendance_and_classroom(timetable.period4_id),
+            }
+
+        # grouped_dataを普通の辞書に変換
+        grouped_data = dict(grouped_data)
+
+        # コンテキストに渡す
+        context = {
+            "grouped_data": grouped_data,
+            "name": student.name,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+        return render(request, 'timetable_results.html', context)
+
+
+def get_attendance_and_classroom(period_id):
+    """
+    指定されたperiod_idからAttendanceレコードと関連するClassroom情報を取得します。
+    """
+    attendance = Attendance.objects.filter(pk=period_id).first()
+    if attendance:
+        classroom = Classroom.objects.filter(classroom_id=attendance.classroom_id).first()
+        enrollment = Enrollment.objects.filter(enrollment_id=attendance.enrollment_id).first()
+        subject = Subject.objects.filter(subject_id=enrollment.subject_id).first()
+        return {
+            "start_time": attendance.attendance_time,
+            "end_time": attendance.exit_time,
+            "status": attendance.attendance_status,
+            "classroom": classroom.classroom_name if classroom else "未設定",
+            "subject": subject.subject_name
+        }
+    return {
+
+        "message": "空きコマ"
+    }
 import locale
 
 # ロケールを日本語に設定

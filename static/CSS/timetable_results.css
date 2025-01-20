@@ -1,0 +1,64 @@
+body {
+    background-color: #87CEEB; /* 水色の背景 */
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center; /* ページ中央に配置 */
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container{
+    width: 900px; /* フォームの幅を100%に設定 */
+    background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
+    padding: 20px;
+    margin-top:70px;
+    border-radius: 10px; /* 角を丸める */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ボックスシャドウ */
+    animation: slideIn 0.5s; /* スライドインアニメーション */
+
+    flex-direction: column;
+}
+
+
+th, td {
+    border: 1px solid #ddd; /* 線の色を薄いグレーに設定 */
+    padding: 10px; /* セル内の余白 */
+}
+
+th {
+    background-color: #f4f4f4; /* ヘッダーの背景色 */
+    font-weight: bold; /* ヘッダーの文字を太字に */
+    text-align: center; /* 横方向の中央揃え */
+
+    vertical-align: middle; /*
+
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* 偶数行に背景色を追加 */
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+a.logout-button {
+    width: 210px;
+    background-color: red;
+    color: white;
+    padding: 11.4px 49.5px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.centered-message {
+    text-align: center; /* 横方向の中央揃え */
+    display: block; /* ブロック要素化 */
+    vertical-align: middle; /* 縦方向の中央揃え */
+}
+

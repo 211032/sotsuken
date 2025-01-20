@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>生徒の出席状況検索</title>
+    <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+</head>
+<body>
+<form action="/student_attendance_confirmation/" method="post">
+    {% csrf_token %}
+    <h1>生徒と期間の選択</h1>
+    <div>
+        <label for="startDate">開始日:</label>
+        <input type="date" id="startDate" name="start_date" required>
+        <label for="endDate">終了日:</label>
+        <input type="date" id="endDate" name="end_date" required>
+    </div>
+    <br>
+    
+    <div>
+        <label for="student-class">
+        <input type="radio" id="student-class" name="student_select" value="search_class" onclick="toggleInput()">
+        クラスで検索
+        </label>
+        <label for="student-name">
+        <input type="radio" id="student-name" name="student_select" value="search_name" onclick="toggleInput()">
+        名前で検索
+        </label>
+        <label for="student-id">
+        <input type="radio" id="student-id" name="student_select" value="search_id" onclick="toggleInput()">
+        学籍番号で検索
+    </label>
+    </div>
+    
+
+    <div id="checkboxes" style="display: none;">
+        {% for student_class in student_classes %}
+            <label class="checkbox-label">
+                <input type="checkbox" name="option"
+                       value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
+            </label>
+        {% endfor %}
+    </div>
+
+    <!-- テキスト入力 -->
+    <div id="textInput" style="display: none;">
+        <label for="searchBox">
+            <textarea rows="1" cols="25" id="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()" onkeydown="preventNewLine(event)"
+            style="resize : none; overflow: hidden;"></textarea>
+        </label>
+    </div>
+    
+    <!-- 学生一覧テーブル -->
+    <table id="studentTable" style="display: none;">
+        <thead>
+            <tr>
+                <th></th> <!-- 全選択用チェックボックス -->
+                <th>メール</th>
+                <th>名前</th>
+                <th>クラス</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+                <tr class="student-row" onclick="toggleCheckbox(this)">
+                    <td class="student-checked{{ student.number }}">
+                        <label for="student-checked{{ student.number }}">
+                            <input type="radio" name="email" id="student-checked{{ student.number }}" 
+                                   value="{{ student.email }}">
+                        </label>
+                    </td>
+                    <td class="student-id">{{ student.email }}</td>
+                    <td class="student-name">{{ student.name }}</td>
+                    <td class="student-class">{{ student.class_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table><br>
+<br>
+<input type="submit" class="button registration-button" value="出欠確認する">
+<a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</form>
+
+<script>
+    // ラジオボタンに応じて入力方法を切り替える
+    function toggleInput() {
+        const method = document.querySelector('input[name="student_select"]:checked').value;
+        const checkboxes = document.getElementById("checkboxes");
+        const textInput = document.getElementById("textInput");
+        const studentTable = document.getElementById("studentTable");
+
+        if (method === "search_class") {
+            checkboxes.style.display = "grid";
+            textInput.style.display = "none";
+            studentTable.style.display = "none"; // 初期は非表示
+        } else if (method === "search_name" || method === "search_id") {
+            checkboxes.style.display = "none";
+            textInput.style.display = "block";
+            document.getElementById("searchBox").placeholder = method === "search_name" ? "名前で検索" : "学籍番号で検索";
+            studentTable.style.display = "none"; // 初期は非表示
+        }
+    }
+
+    // 名前または学籍番号で検索
+    function filterStudents() {
+        const input = document.getElementById("searchBox").value.toLowerCase().trim();
+        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const method = document.querySelector('input[name="student_select"]:checked').value;
+        const studentTable = document.getElementById("studentTable");
+        let hasResults = false;
+
+        // 入力が空ならすべて非表示
+        if (input === "") {
+            for (let i = 0; i < rows.length; i++) {
+                rows[i].style.display = "none";
+            }
+            studentTable.style.display = "none";
+            return;
+        }
+
+        for (let i = 0; i < rows.length; i++) {
+            let cell;
+            if (method === "search_name") {
+                cell = rows[i].getElementsByClassName("student-name")[0];
+            } else if (method === "search_id") {
+                cell = rows[i].getElementsByClassName("student-id")[0];
+            }
+            if (cell) {
+                const content = cell.textContent || cell.innerText;
+                const isMatch = content.toLowerCase().indexOf(input) > -1;
+                rows[i].style.display = isMatch ? "" : "none";
+                if (isMatch) hasResults = true;
+            }
+        }
+        studentTable.style.display = hasResults ? "table" : "none";
+    }
+
+    // クラスでフィルタリング
+    function filterByClass() {
+        const checkboxes = document.querySelectorAll('input[name="option"]:checked');
+        const selectedClasses = Array.from(checkboxes).map(cb => cb.value);
+        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const studentTable = document.getElementById("studentTable");
+        let hasResults = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            const classNameCell = rows[i].getElementsByClassName("student-class")[0];
+            if (classNameCell) {
+                const className = classNameCell.textContent || classNameCell.innerText;
+                const isMatch = selectedClasses.includes(className);
+                rows[i].style.display = isMatch ? "" : "none";
+                if (isMatch) hasResults = true;
+            }
+        }
+        studentTable.style.display = hasResults ? "table" : "none";
+    }
+
+    // 行クリック時のチェックボックス制御
+    function toggleCheckbox(row) {
+        // 行内のチェックボックスを取得
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        if (event.target.tagName !== 'INPUT') {
+            checkbox.checked = !checkbox.checked;
+        }
+    }
+
+    // 全選択チェックボックス
+    function selectAllCheckboxes() {
+        const selectAll = document.getElementById("selectAll").checked;
+        const checkboxes = document.querySelectorAll('#studentTable input[type="checkbox"]:not(#selectAll)');
+        checkboxes.forEach(checkbox => checkbox.checked = selectAll);
+    }
+
+    // preventNewLine: Enterキーで改行を防止
+    function preventNewLine(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    }
+    document.querySelector("form").addEventListener("submit", function (event) {
+        const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+        const selectedData = [];
+    
+        for (let i = 0; i < rows.length; i++) {
+            const checkbox = rows[i].querySelector("input[name='select_student']");
+            if (checkbox && checkbox.checked) {
+                const studentId = checkbox.value;
+                
+                selectedData.push(studentId);
+            }
+        }
+        
+        const selectedEmail = document.querySelector('input[name="email"]:checked');
+
+    // 選択されていない場合に警告を表示
+        if (!selectedEmail) {
+            alert("少なくとも1人の生徒を選択してください。");
+            event.preventDefault(); // フォーム送信を中止
+        }
+        
+    });
+</script>
+
+</body>
+</html>
