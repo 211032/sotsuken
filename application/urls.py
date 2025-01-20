@@ -31,9 +31,12 @@ urlpatterns = [
     path('student_search/', views.student_search, name='student_search'),
     path('register_beacon/', views.register_beacon, name='register_beacon'),  # ビーコン登録ページへのパス
     path('course_registration_comp/', views.subject_registration_comp, name='course_registration_comp'),
+    path('student_change', views.student_change, name='student_change'),
     path('monthly_schedule/', views.monthly_schedule, name='monthly_schedule'),
-    path('monthly_schedule_teacher/', views.monthly_schedule_teacher,name='monthly_schedule_teacher'),
     path('api/',views.api, name='api'),
+    path('attend_check/',views.attend_check,name='attend_check'),
+    path('api/',views.api, name='api'),
+    path('monthly_schedule_teacher/', views.monthly_schedule_teacher,name='monthly_schedule_teacher'),
     path('student_attendance_confirmation/', views.student_attendance_confirmation, name='student_attendance_confirmation')
 
 ]

@@ -3,14 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>生徒一覧</title>
-<link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+    <link rel="stylesheet" href="/static/CSS/student_search.css">
+
+    <style>
+        #checkboxes {
+        grid-template-columns: 1fr 1fr; /* 2列 */
+        gap: 5px; /* 各チェックボックス間の隙間 */
+        margin-left: 20px;
+    }
+
+         .checkbox-label {
+        display: flex;
+        align-items: center;
+    }
+
+    </style>
 
 </head>
 
 <body>
-<form action="/student_search/" method="post">
-    {% csrf_token %}
+<div id="about">
     <h1>生徒検索</h1>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
     <label for="student-class">
         <input type="radio" id="student-class" name="student_select" value="search_class" onclick="toggleInput()">
         クラスで検索
@@ -27,7 +43,7 @@
     <!-- チェックボックス -->
     <div id="checkboxes" style="display: none;">
         {% for student_class in student_classes %}
-            <label>
+            <label class="checkbox-label">
                 <input type="checkbox" name="option" value="{{ student_class.class_name }}" onclick="filterByClass()"> {{ student_class.class_name }}
             </label>
         {% endfor %}
@@ -35,7 +51,7 @@
 
     <!-- テキスト入力 -->
     <div id="textInput" style="display: none;">
-        <input type="text" id="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()">
+        <input type="text" id="searchBox" placeholder="キーワードで検索" onkeyup="filterStudents()" onkeydown="preventNewLine(event)">
     </div>
     
     <!-- 学生一覧テーブル -->
@@ -50,7 +66,11 @@
         <tbody>
             {% for student in students %}
                 <tr>
-                    <td class="student-id">{{ student.email }}</td>
+                    <td class="student-id">
+                        <form method="post" id="{{ student.email }}" action="/student_change">
+                            <a href="javascript:document.getElementById('{{ student.email }}').submit();" style="text-decoration: none; color: #333333">{{ student.email }}</a>
+                            <input type="hidden" name="student_email" id="student_email" value="{{ student.email }}">
+                        </form></td>
                     <td class="student-name">{{ student.name }}</td>
                     <td class="student-class">{{ student.class_name }}</td>
                 </tr>
@@ -58,7 +78,7 @@
         </tbody>
     </table><br>
     <br><a href="{% url 'adomin_teacher_home' %}" class="button logout-button">ホームへ戻る</a>
-</form>
+</div>
 
 <script>
     // ラジオボタンに応じて入力方法を切り替える
@@ -69,7 +89,7 @@
         const studentTable = document.getElementById("studentTable");
 
         if (method === "search_class") {
-            checkboxes.style.display = "block";
+            checkboxes.style.display = "grid";
             textInput.style.display = "none";
             studentTable.style.display = "none"; // 初期は非表示
         } else if (method === "search_name" || method === "search_id") {
@@ -132,6 +152,11 @@
             }
         }
         studentTable.style.display = hasResults ? "table" : "none";
+    }
+    function preventNewLine(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
     }
 </script>
 </body>
