@@ -385,7 +385,7 @@ def student_course_registration(request):
 
         if not (subjects.exists()):
             # リクエスト先をEnrollmentの登録ページに変える
-            return render(request, 'student_course_registration.html',
+            return render(request, 'register_admin_teacher_course.html',
                           {messages: 'この教員に割り当てられている教科がありません。'})
         another = request.POST.get('another')
         if another == '教科の選択に戻る':
@@ -639,7 +639,10 @@ def student_course_ok(request):
         student_email = request.POST.getlist('student')
 
         students = Student.objects.only('email', 'name').filter(email__in=student_email)
-        subjects = Subject.objects.all()
+        enrollments = Enrollment.objects.only('subject_id').filter(
+            instructor_id_id=request.session.get('teacher_id'))
+
+        subjects = Subject.objects.filter(subject_id__in=enrollments.values('subject_id'))
         classrooms = Classroom.objects.all()
 
         return render(request, 'student_course_subject_registration.html',
@@ -753,11 +756,11 @@ def student_change(request):
         mode = request.POST.get('mode')
         student = request.POST.get('student_email')
         student = Student.objects.get(email=student)
+        student_classes = StudentClass.objects.all()
         message = None
         if mode == 'delete':
             student.delete()
             Timetable.objects.filter(email=student.email).delete()
-            student_classes = StudentClass.objects.all()
             students = []
             student_all = Student.objects.all()
             for target_student in student_all:
@@ -769,15 +772,31 @@ def student_change(request):
                 students.append(show_student)
             return render(request, 'student_search.html', {'student_classes':student_classes, 'students':students, 'message': student.name+'は削除されました'})
         elif mode == 'change':
-            student.name = request.POST.get('name')
-
+            change_mode = request.POST.get('radio')
+            text = request.POST.getlist('text')
+            if text[0] =='' and text[1] =='':
+                message = '変更する値が不正です'
+            else:
+                if change_mode == 'name':
+                    student.name = text[0]
+                elif change_mode == 'class':
+                    student.class_name_id = text[1]
+                elif change_mode == 'password':
+                    student.password = text[0]
+                student.save()
+                message = '正常に変更されました。'
+        student = Student.objects.get(email=student.email)
         student = {
             'email': student.email,
             'name': student.name,
             'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name,
         }
 
-        return render(request, 'student_change.html', {'student': student, 'message': message})
+        return render(request, 'student_change.html', {'student': student, 'student_classes':student_classes, 'message': message})
+
+
+def teacher_change(request):
+    return render(request, 'teacher_change.html', {'teacher': Teacher.objects.get(teacher_id=request.POST.get('teacher_id'))})
 
 
 # 時間を日本語形式にフォーマット

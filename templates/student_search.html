@@ -76,7 +76,8 @@
                 </tr>
             {% endfor %}
         </tbody>
-    </table><br>
+    </table>
+    <p id="comment" style="display: none">emailをクリックで削除＆編集！</p><br>
     <br><a href="{% url 'adomin_teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </div>
 
@@ -87,16 +88,19 @@
         const checkboxes = document.getElementById("checkboxes");
         const textInput = document.getElementById("textInput");
         const studentTable = document.getElementById("studentTable");
+        const comment = document.getElementById('comment');
 
         if (method === "search_class") {
             checkboxes.style.display = "grid";
             textInput.style.display = "none";
             studentTable.style.display = "none"; // 初期は非表示
+            comment.style.display = "none";
         } else if (method === "search_name" || method === "search_id") {
             checkboxes.style.display = "none";
             textInput.style.display = "block";
             document.getElementById("searchBox").placeholder = method === "search_name" ? "名前で検索" : "学籍番号で検索";
             studentTable.style.display = "none"; // 初期は非表示
+            comment.style.display = "none";
         }
     }
 
@@ -106,6 +110,7 @@
         const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
         const method = document.querySelector('input[name="student_select"]:checked').value;
         const studentTable = document.getElementById("studentTable");
+        const comment = document.getElementById('comment');
         let hasResults = false;
 
         // 入力が空ならすべて非表示
@@ -114,6 +119,7 @@
                 rows[i].style.display = "none";
             }
             studentTable.style.display = "none";
+            comment.style.display = "none";
             return;
         }
 
@@ -132,6 +138,7 @@
             }
         }
         studentTable.style.display = hasResults ? "table" : "none";
+        comment.style.display = hasResults ? "" : "none";
     }
 
     // クラスでフィルタリング
@@ -140,6 +147,7 @@
         const selectedClasses = Array.from(checkboxes).map(cb => cb.value);
         const rows = document.getElementById("studentTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
         const studentTable = document.getElementById("studentTable");
+        const comment = document.getElementById('comment');
         let hasResults = false;
 
         for (let i = 0; i < rows.length; i++) {
@@ -152,6 +160,7 @@
             }
         }
         studentTable.style.display = hasResults ? "table" : "none";
+        comment.style.display = hasResults ? "" : "none";
     }
     function preventNewLine(event) {
         if (event.key === 'Enter') {

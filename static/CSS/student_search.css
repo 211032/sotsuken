@@ -9,7 +9,7 @@
         margin: 0;
         }
     #about {
-        width: 500px; /* フォームの幅を100%に設定 */
+        width: 700px; /* フォームの幅を100%に設定 */
         background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
         padding: 20px;
         border-radius: 10px; /* 角を丸める */
@@ -49,10 +49,10 @@
 }
     /* ログアウトボタンを赤くする */
 input.logout-button {
-    width: 210px;
+    width: 150px;
     background-color: red;
     color: white;
-    padding: 11.4px 49.5px;
+    padding: 5px 20px;
     text-decoration: none;
     border-radius: 5px;
     border: none;
@@ -87,3 +87,13 @@ a.home-button {
         display: flex;
         align-items: center;
     }
+
+#delete-button-container {
+    position: relative;
+    width: 100%;
+}
+#delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

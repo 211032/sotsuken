@@ -107,10 +107,10 @@
     }
     /* ログアウトボタンを赤くする */
     a.logout-button {
-        width: 210px;
+        width: 150px;
         background-color: red;
         color: white;
-        padding: 11.4px 49.5px;
+        padding: 11.4px 30px;
         text-decoration: none;
         border-radius: 5px;
     }

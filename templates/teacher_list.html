@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>教師一覧</title>
-    <link rel="stylesheet" href="/static/CSS/css.css">
+    <link rel="stylesheet" href="/static/CSS/student_search.css">
     <style>
         /* シンプルなテーブルスタイル */
         table {
@@ -18,10 +18,12 @@
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #4caf50;
+            color: white;
+
         }
         #searchBox {
-            width: 100%;
+            width: 35%;
             padding: 8px;
             margin-bottom: 10px;
             font-size: 16px;
@@ -29,7 +31,7 @@
     </style>
 </head>
 <body>
- <form>
+ <div id="about">
     <h2>教師一覧</h2>
 
     <!-- 検索ボックス -->
@@ -39,7 +41,6 @@
     <table id="teacherTable">
         <thead>
             <tr>
-                <th>教師ID</th>
                 <th>名前</th>
                 <th>役割</th>
             </tr>
@@ -47,13 +48,17 @@
         <tbody>
             {% for teacher in teachers %}
                 <tr>
-                    <td>{{ teacher.teacher_id }}</td>
-                    <td class="teacher-name">{{ teacher.name }}</td>
+                    <td class="teacher-name">
+                        <form method="post" id="{{ teacher.teacher_id }}" action="/teacher_change">
+                            <a href="javascript:document.getElementById('{{ teacher.teacher_id }}').submit();" style="text-decoration: none; color: #333333">{{ teacher.name }}</a>
+                            <input type="hidden" name="teacher_id" id="teacher_id" value="{{ teacher.teacher_id }}">
+                        </form>
+                    </td>
                     <td>
                         {% if teacher.roll == 0 %}
-                            教務部長
+                            管理講師
                         {% elif teacher.roll == 1 %}
-                            講師
+                            通常講師
                         {% else %}
                             不明
                         {% endif %}
@@ -61,9 +66,9 @@
                 </tr>
             {% endfor %}
         </tbody>
-    </table>
+    </table><br>
  <a href="{% url 'adomin_teacher_home' %}" class="logout-button">ホームへ戻る</a> 
- </form>
+ </div>
     <!-- JavaScriptで動的検索機能を実装 -->
     <script>
         function filterTeachers() {
