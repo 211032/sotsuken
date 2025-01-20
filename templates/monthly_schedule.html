@@ -42,7 +42,8 @@
                         <th>教師名</th>
                         <th>開始時間</th>
                         <th>終了時間</th>
-                        <th>出席時間</th> <!-- 出席時間の列 -->
+                        <th>出席時間</th>
+                        <th>退席時間</th> <!-- 退席時間の列 -->
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +56,8 @@
                             <td>{{ entry.teacher_name }}</td>
                             <td class="text-center">{{ entry.start_time }}</td>
                             <td class="text-center">{{ entry.end_time }}</td>
-                            <td class="text-center">{{ entry.attendance_time|default:"-" }}</td> <!-- 出席時間を表示 -->
+                            <td class="text-center">{{ entry.attendance_time|default:"-" }}</td>
+                            <td class="text-center">{{ entry.exit_time|default:"-" }}</td> <!-- 退席時間を表示 -->
                         </tr>
                     {% endfor %}
                 </tbody>

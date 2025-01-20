@@ -27,7 +27,8 @@ th, td {
 }
 
 th {
-    background-color: #f4f4f4; /* ヘッダーの背景色 */
+    background-color: #4CAF50; /* ヘッダーの背景色 */
+    color: white;
     font-weight: bold; /* ヘッダーの文字を太字に */
     text-align: center; /* 横方向の中央揃え */
 

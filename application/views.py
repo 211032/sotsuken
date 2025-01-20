@@ -795,6 +795,21 @@ def student_change(request):
         return render(request, 'student_change.html', {'student': student, 'student_classes':student_classes, 'message': message})
 
 
+
+import locale
+
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
+    return ""
+
 def teacher_change(request):
     return render(request, 'teacher_change.html', {'teacher': Teacher.objects.get(teacher_id=request.POST.get('teacher_id'))})
 
@@ -854,6 +869,7 @@ def monthly_schedule(request):
                     'start_time': format_time(attendance.start_time),
                     'end_time': format_time(attendance.end_time),
                     'attendance_time': format_time(attendance.attendance_time),  # 出席時間を追加
+                    'exit_time': format_time(attendance.exit_time),  # 退席時間を追加
                 })
 
     # テンプレートにデータを渡してレンダリング
@@ -864,6 +880,8 @@ def monthly_schedule(request):
         'month_offset': month_offset,
         'search_date': search_date,  # 入力された日付を再度テンプレートに渡す
     })
+
+
 
 
 def monthly_schedule_teacher(request):
@@ -926,35 +944,12 @@ def monthly_schedule_teacher(request):
     })
 
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+
 from .models import Equipment, Classroom, Timetable, Attendance
 import json
 from datetime import datetime, timedelta
 
-from datetime import datetime, timedelta
 from django.http import JsonResponse
-
-
-def register_attendance(attendance_obj, current_time, today):
-    """
-    出席を登録するヘルパー関数。
-    """
-    # 出席可能な時間範囲を計算
-    start_time = datetime.combine(today, attendance_obj.start_time)
-    end_time = datetime.combine(today, attendance_obj.end_time)
-
-    # `start_time`の10分前を計算
-    valid_start_time = start_time - timedelta(minutes=10)
-
-    # 現在時刻が有効範囲内であるか確認
-    if valid_start_time.time() <= current_time <= end_time.time():
-        attendance_obj.attendance_time = current_time
-        attendance_obj.save()
-        return True
-    else:
-        print('時間外です')
-        return False
 
 
 def api(request):
@@ -986,10 +981,30 @@ def api(request):
 
             for attendance_obj in [timetable.period1, timetable.period2, timetable.period3, timetable.period4]:
                 if attendance_obj:
-                    # ヘルパー関数を呼び出して登録処理を実行
-                    if register_attendance(attendance_obj, current_time, today):
+                    # 出席可能な時間範囲を計算
+                    start_time = datetime.combine(today, attendance_obj.start_time)
+                    end_time = datetime.combine(today, attendance_obj.end_time)
+                    # `start_time`の10分前を計算
+                    valid_start_time = start_time - timedelta(minutes=10)
+
+                    # 現在時刻が有効範囲内であるか確認
+                    if valid_start_time.time() <= current_time <= end_time.time():
+                        if attendance_obj.attendance_time is not None:
+                            print('登録しない')
+                        else:
+                            attendance_obj.attendance_time = current_time
+                            attendance_obj.save()
                         attendance_updated = True
                         break
+                    else:
+                        print(f"時間外です: 現在時刻: {current_time}, 有効範囲: {valid_start_time.time()} - {end_time.time()}")
+
+                    # 退席時間の登録
+                    if current_time > end_time.time():
+                        if attendance_obj.exit_time is None:
+                            attendance_obj.exit_time = current_time
+                            attendance_obj.save()
+                            print("退席時間を登録しました。")
 
             if not attendance_updated:
                 return JsonResponse({"error": "出席可能な時間範囲外です"}, status=400)
@@ -1038,8 +1053,11 @@ def attend_check(request):
                     if student.room == str(minor):
                         data = {"message": "入室"}
                     else:
-                        data = {"message": "別教室"}
+                        data = {"message": "入室"}
                 else:
+                    # 1分半以上通信がなかった場合、退席として登録
+                    student.exit_time = now.time()
+                    student.save()
                     data = {"message": "退出"}
             else:
                 data = {"message": "error"}
