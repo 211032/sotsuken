@@ -256,7 +256,6 @@ def register_student(request):
         return render(request, 'register_student.html')
     return render(request, 'register_student.html')
 
-
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
 
@@ -739,6 +738,7 @@ def get_attendance_and_classroom(period_id):
         enrollment = Enrollment.objects.filter(enrollment_id=attendance.enrollment_id).first()
         subject = Subject.objects.filter(subject_id=enrollment.subject_id).first()
         return {
+            "id": attendance.attendance_id,
             "start_time": attendance.attendance_time,
             "end_time": attendance.exit_time,
             "status": attendance.attendance_status,
@@ -749,6 +749,30 @@ def get_attendance_and_classroom(period_id):
 
         "message": "空きコマ"
     }
+
+
+def edit_attendance(request, attendance_id):
+    # 出席状況編集のロジックをここに記述します
+    request.session['attendance_id'] = attendance_id
+    return render(request, 'edit_attendance.html')
+
+
+def edit_attendance_course(request):
+    if request.method == 'POST':
+        # フォームデータから選択された出席状況を取得
+        new_status = request.POST.get('edit')
+
+        attendance_id = request.session.get('attendance_id', None)
+
+        attendance = Attendance.objects.get(attendance_id=attendance_id)
+
+        # attendance_status を更新
+        attendance.attendance_status = new_status
+        attendance.save()
+
+        # 更新完了後にリダイレクト
+        return redirect('adomin_teacher_home')
+
 import locale
 
 def student_change(request):

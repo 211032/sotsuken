@@ -4,6 +4,37 @@
     <meta charset="UTF-8">
     <title>生徒の出席状況</title>
     <link rel="stylesheet" href="/static/CSS/timetable_results.css">
+    <style>
+        th {
+            background-color: #4caf50; /* ヘッダーの背景色 */
+            color: white;
+            font-weight: bold; /* ヘッダーの文字を太字に */
+            text-align: center; /* 横方向の中央揃え */
+            vertical-align: middle;
+        
+        }
+        
+        .btn-primary {
+            display: inline-block;           /* ボタンのように表示 */
+            padding: 5px 10px;               /* 縦横の余白を設定 */
+            border: none;                    /* ボーダーを削除 */
+            border-radius: 20px;             /* 楕円形にする */
+            background-color: #218838;       /* 背景色を黄緑色に設定 */
+            color: white;                    /* 文字色を白に設定 */
+            font-size: 10px;                 /* フォントサイズを調整 */
+            font-weight: bold;               /* 文字を強調 */
+            text-decoration: none;           /* テキストの下線を削除 */
+            text-align: center;              /* テキストを中央揃え */
+            line-height: 1;                  /* 不自然な縦方向の余白を修正 */
+            cursor: pointer;                 /* ポインターを表示 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* ボタンに影を追加 */
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #ADFF2F;
+        }
+    </style>
 </head>
 
 <body>
@@ -31,6 +62,7 @@
                         出席時間: {{ periods.period1.start_time }}<br>
                         退席時間: {{ periods.period1.end_time }}<br>
                         出席状況: {{ periods.period1.status }}
+                        <a href="{% url 'edit_attendance' periods.period1.id %}" class="btn btn-primary">出席状況を編集</a>
                     {% else %}
                         <span class="centered-message">{{ periods.period1.message }}</span>
                     {% endif %}
@@ -42,6 +74,7 @@
                         出席時間: {{ periods.period2.start_time }}<br>
                         退席時間: {{ periods.period2.end_time }}<br>
                         出席状況: {{ periods.period2.status }}
+                        <a href="{% url 'edit_attendance' periods.period2.id %}" class="btn btn-primary">出席状況を編集</a>
                     {% else %}
                         <span class="centered-message">{{ periods.period2.message }}</span>
                     {% endif %}
@@ -53,6 +86,7 @@
                         出席時間: {{ periods.period3.start_time }}<br>
                         退席時間: {{ periods.period3.end_time }}<br>
                         出席状況: {{ periods.period3.status }}
+                        <a href="{% url 'edit_attendance' periods.period3.id %}" class="btn btn-primary">出席状況を編集</a>
                     {% else %}
                         <span class="centered-message">{{ periods.period3.message }}</span>
                     {% endif %}
@@ -64,6 +98,7 @@
                         出席時間: {{ periods.period4.start_time }}<br>
                         退席時間: {{ periods.period4.end_time }}<br>
                         出席状況: {{ periods.period4.status }}
+                        <a href="{% url 'edit_attendance' periods.period4.id %}" class="btn btn-primary">出席状況を編集</a>
                     {% else %}
                         <span class="centered-message">{{ periods.period4.message }}</span>
                     {% endif %}
