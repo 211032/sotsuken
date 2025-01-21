@@ -14,7 +14,7 @@
     <div id="delete-button-container">
         <form action="/teacher_change" method="post" id="delete">
             <input type="hidden" name="mode" value="delete">
-            <input type="hidden" name="teacher_email" value="{{ teacher.email }}">
+            <input type="hidden" name="teacher_id" value="{{ teacher.teacher_id }}">
             <input type="submit" value="この講師を削除する" onclick="return confirmDelete1()" class="button logout-button">
         </form>
     </div>

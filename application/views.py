@@ -798,8 +798,8 @@ def student_change(request):
         student_classes = StudentClass.objects.all()
         message = None
         if mode == 'delete':
-            student.delete()
             Timetable.objects.filter(email=student.email).delete()
+            student.delete()
             students = []
             student_all = Student.objects.all()
             for target_student in student_all:
@@ -858,7 +858,8 @@ def teacher_change(request):
         if mode == 'delete':
             teacher.delete()
             teachers = Teacher.objects.all()
-            return render(request, 'student_search.html', {'teachers':teachers, 'message': teacher.name+'は削除されました'})
+            Enrollment.objects.filter(instructor_id=teacher.teacher_id).delete()
+            return render(request, 'teacher_list.html', {'teachers':teachers, 'message': teacher.name+'は削除されました'})
         elif mode == 'change':
             change_mode = request.POST.get('radio')
             text = request.POST.getlist('text')
