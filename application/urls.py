@@ -10,6 +10,8 @@ urlpatterns = [
     # path('beacon_connect/', views.beacon_connect, name='beacon_connect'),
     # path('beacon_scan/', views.scan_beacon, name='beacon_scan'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
+    path('edit-attendance/<int:attendance_id>/', views.edit_attendance, name='edit_attendance'),
+    path('edit_attendance_course/', views.edit_attendance_course, name='edit_attendance_course'),
     path('login/', views.login_student, name='login'),  # login_studentに変更
     path('login_android/', views.login_android, name='login_android'),
     path('logout/', views.logout, name='logout'),
@@ -36,8 +38,9 @@ urlpatterns = [
     path('monthly_schedule/', views.monthly_schedule, name='monthly_schedule'),
     path('api/',views.api, name='api'),
     path('attend_check/',views.attend_check,name='attend_check'),
-    path('api/',views.api, name='api'),
-    path('monthly_schedule_teacher/', views.monthly_schedule_teacher,name='monthly_schedule_teacher'),
-    path('student_attendance_confirmation/', views.student_attendance_confirmation, name='student_attendance_confirmation')
+    path('api/', views.api, name='api'),
+    path('monthly_schedule_teacher/', views.monthly_schedule_teacher, name='monthly_schedule_teacher'),
+    path('student_attendance_confirmation/', views.student_attendance_confirmation,
+         name='student_attendance_confirmation')
 
 ]
