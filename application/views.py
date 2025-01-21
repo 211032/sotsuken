@@ -975,7 +975,6 @@ from datetime import datetime, timedelta
 
 from django.http import JsonResponse
 
-
 def api(request):
     if request.method == "POST":
         try:
@@ -1008,16 +1007,16 @@ def api(request):
                     # 出席可能な時間範囲を計算
                     start_time = datetime.combine(today, attendance_obj.start_time)
                     end_time = datetime.combine(today, attendance_obj.end_time)
-                    # `start_time`の10分前を計算
-                    valid_start_time = start_time - timedelta(minutes=10)
+                    valid_start_time = start_time - timedelta(minutes=10)  # 開始10分前
 
                     # 現在時刻が有効範囲内であるか確認
                     if valid_start_time.time() <= current_time <= end_time.time():
                         if attendance_obj.attendance_time is not None:
-                            print('登録しない')
+                            print('既に出席登録済み')
                         else:
                             attendance_obj.attendance_time = current_time
                             attendance_obj.save()
+                            print("出席時間を登録しました。")
                         attendance_updated = True
                         break
                     else:
@@ -1026,9 +1025,13 @@ def api(request):
                     # 退席時間の登録
                     if current_time > end_time.time():
                         if attendance_obj.exit_time is None:
-                            attendance_obj.exit_time = current_time
-                            attendance_obj.save()
-                            print("退席時間を登録しました。")
+                            # 授業終了時間より遅い退出時間は登録しない
+                            if current_time <= end_time.time():
+                                attendance_obj.exit_time = current_time
+                                attendance_obj.save()
+                                print("退席時間を登録しました。")
+                            else:
+                                print(f"退席時間は授業終了時間を超えています: {current_time} > {end_time.time()}")
 
             if not attendance_updated:
                 return JsonResponse({"error": "出席可能な時間範囲外です"}, status=400)
