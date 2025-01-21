@@ -469,15 +469,15 @@ def student_course_subject_registration(request):
 
 
 def register_admin_teacher_course(request):
+    teachers = Teacher.objects.all()
+    subjects = Subject.objects.all()
+    student_class = StudentClass.objects.all()
+    context = {
+        'teachers': teachers,
+        'subjects': subjects,
+        'studentClass': student_class
+    }
     if request.method == 'GET':
-        teachers = Teacher.objects.all()
-        subjects = Subject.objects.all()
-        studentClass = StudentClass.objects.all()
-        context = {
-            'teachers': teachers,
-            'subjects': subjects,
-            'studentClass': studentClass
-        }
         return render(request, 'register_admin_teacher_course.html', context)
 
     if request.method == 'POST':
@@ -489,7 +489,13 @@ def register_admin_teacher_course(request):
         is_special_class = class_format == '1'
 
         if Enrollment.objects.filter(instructor_id=teacher_id,subject_id=subject_id).exists():
-            return render(request, 'register_admin_teacher_course.html', {'message': 'この講師には既に選択された教科が割り当てられています。'})
+            context = {
+                'teachers': teachers,
+                'subjects': subjects,
+                'studentClass': student_class,
+                'message': 'この講師には既に選択された教科が割り当てられています。'
+            }
+            return render(request, 'register_admin_teacher_course.html', context)
 
         enrollment = Enrollment(
             instructor_id=Teacher.objects.get(teacher_id=teacher_id),
@@ -829,19 +835,19 @@ def student_change(request):
 
 
 
-# import locale
-#
-# # ロケールを日本語に設定
-# try:
-#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-# except locale.Error:
-#     locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
+import locale
 
-# 日付を日本語形式にフォーマット
-# def format_japanese_date(date):
-#     if date:
-#         return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
-#     return ""
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
+
+日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
+    return ""
 
 def teacher_change(request):
     if request.method == 'POST':
