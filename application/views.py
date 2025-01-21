@@ -3,6 +3,7 @@ from calendar import monthrange
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+import re
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
@@ -384,9 +385,17 @@ def student_course_registration(request):
         classrooms = Classroom.objects.all()
 
         if not (subjects.exists()):
+            teachers = Teacher.objects.all()
+            subjects = Subject.objects.all()
+            student_class = StudentClass.objects.all()
+            context = {
+                'teachers': teachers,
+                'subjects': subjects,
+                'studentClass': student_class,
+                'message': 'この教員に割り当てられている教科がありません。'
+            }
             # リクエスト先をEnrollmentの登録ページに変える
-            return render(request, 'register_admin_teacher_course.html',
-                          {messages: 'この教員に割り当てられている教科がありません。'})
+            return render(request, 'register_admin_teacher_course.html', context)
         another = request.POST.get('another')
         if another == '教科の選択に戻る':
             selected_subjects_data = request.POST.get("selected_subjects")
@@ -796,7 +805,38 @@ def student_change(request):
 
 
 def teacher_change(request):
-    return render(request, 'teacher_change.html', {'teacher': Teacher.objects.get(teacher_id=request.POST.get('teacher_id'))})
+    if request.method == 'POST':
+        mode = request.POST.get('mode')
+        teacher = request.POST.get('teacher_id')
+        teacher = Teacher.objects.get(teacher_id=teacher)
+        message = None
+        if mode == 'delete':
+            teacher.delete()
+            teachers = Teacher.objects.all()
+            return render(request, 'student_search.html', {'teachers':teachers, 'message': teacher.name+'は削除されました'})
+        elif mode == 'change':
+            change_mode = request.POST.get('radio')
+            text = request.POST.getlist('text')
+            if text[0] == '' and text[1] == '' and text[2] == '':
+                message = '変更に失敗しました。変更する値が空白でした'
+            elif change_mode == 'name' and (not text[0] or not re.match("[a-zA-Z\s.,]+", text[1])):
+                message = '変更に失敗しました。変更する値が不正です'
+            elif change_mode == 'roll' and not text[2]:
+                message = '変更に失敗しました。役割の値が空白でした'
+            elif change_mode == 'password' and not text[0]:
+                message = '変更に失敗しました。パスワードの値が空白でした'
+            else:
+                if change_mode == 'name':
+                    teacher.name = text[0]
+                    teacher.alphabet_last_name = text[1]
+                elif change_mode == 'roll':
+                    teacher.roll = text[2]
+                elif change_mode == 'password':
+                    teacher.password = text[0]
+                teacher.save()
+                message = '正常に変更されました。'
+        teacher = Teacher.objects.get(teacher_id=teacher.teacher_id)
+        return render(request, 'teacher_change.html', {'teacher': teacher, 'message': message})
 
 
 # 時間を日本語形式にフォーマット
