@@ -25,7 +25,7 @@
                 <th>講師ID</th>
                 <th>名前</th>
                 <th>名前アルファベット</th>
-                <th>役割</th>
+                <th>権限</th>
                 <th>パスワード</th>
             </tr>
         </thead>
@@ -50,7 +50,7 @@
     <form action="/teacher_change" method="post" id="change">
         ・変更する項目を選択してください<br>
         <input type="radio" id="name" name="radio" value="name"><label for="name">名前</label>
-        <input type="radio" id="roll" name="radio" value="roll"><label for="roll">役割</label>
+        <input type="radio" id="roll" name="radio" value="roll"><label for="roll">権限</label>
         <input type="radio" id="password" name="radio" value="password"><label for="password">パスワード</label><br>
         <input type="hidden" name="mode" value="change">
         <input type="hidden" name="teacher_id" value="{{ teacher.teacher_id }}">

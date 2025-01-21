@@ -1,16 +1,15 @@
 import asyncio
+import re
 from calendar import monthrange
 from collections import defaultdict
-from datetime import datetime, timedelta
 
-import re
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 from django.db import transaction
 from django.shortcuts import render, redirect
 
 from .ble_utils import scan_beacons
-from .models import Student, Teacher, StudentClass, Subject, Enrollment,Classroom # modelsはDB
+from .models import Student, Teacher, StudentClass, Subject, Enrollment  # modelsはDB
 
 
 # Create your views here.
@@ -183,19 +182,23 @@ def register_teacher(request):
         # フォームデータを取得
         teacher_id = request.POST.get('teacher_id')
         name = request.POST.get('name')
-        romanized_last_name = request.POST.get('romanized_last_name')
+        alphabet_last_name = request.POST.get('alphabet_last_name')
         roll = request.POST.get('roll')
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
         # 必須フィールドのバリデーション
-        if not all([teacher_id, name, romanized_last_name, roll, password, confirm_password]):
+        if not all([teacher_id, name, alphabet_last_name, roll, password, confirm_password]):
             messages.error(request, "すべてのフィールドを入力してください。")
             return render(request, 'register_teacher.html')
 
         # `teacher_id`の重複チェック
         if Teacher.objects.filter(teacher_id=teacher_id).exists():
-            messages.error(request, "この教師IDは既に使用されています。")
+            messages.error(request, "この講師IDは既に使用されています。")
+            return render(request, 'register_teacher.html')
+
+        if not re.match("[a-zA-Z\s.,]+", alphabet_last_name):
+            messages.error(request, "ローマ字の姓にはローマ字を入力してください。")
             return render(request, 'register_teacher.html')
 
         # パスワードの確認
@@ -207,19 +210,14 @@ def register_teacher(request):
         Teacher.objects.create(
             teacher_id=teacher_id,
             name=name,
-            alphabet_last_name=romanized_last_name,
+            alphabet_last_name=alphabet_last_name,
             roll=int(roll),
             password=make_password(password)
         )
-
-        messages.success(request, "教師が正常に登録されました！")
-        return redirect('teacher_registration_success')  # 登録成功ページにリダイレクト
+        messages.success(request, "講師が正常に登録されました。")
+        return render(request, 'register_teacher.html')  # 登録成功ページ
 
     return render(request, 'register_teacher.html')
-
-
-def registration_success(request):
-    return render(request, 'registration_success.html')
 
 
 def register_student(request):
@@ -254,8 +252,8 @@ def register_student(request):
         student.save()  # データベースに保存
 
         messages.success(request, "生徒が正常に登録されました。")
-        return render(request, 'register_student.html')
-    return render(request, 'register_student.html')
+        return render(request, 'register_student.html', {'student_classes': StudentClass.objects.all()})
+    return render(request, 'register_student.html', {'student_classes': StudentClass.objects.all()})
 
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
@@ -782,7 +780,6 @@ def edit_attendance_course(request):
         # 更新完了後にリダイレクト
         return redirect('adomin_teacher_home')
 
-import locale
 
 def student_change(request):
     if request.method == 'POST':
@@ -829,19 +826,19 @@ def student_change(request):
 
 
 
-import locale
-
-# ロケールを日本語に設定
-try:
-    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
+# import locale
+#
+# # ロケールを日本語に設定
+# try:
+#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+# except locale.Error:
+#     locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
 
 # 日付を日本語形式にフォーマット
-def format_japanese_date(date):
-    if date:
-        return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
-    return ""
+# def format_japanese_date(date):
+#     if date:
+#         return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
+#     return ""
 
 def teacher_change(request):
     if request.method == 'POST':

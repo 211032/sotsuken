@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教師登録</title>
+    <title>講師登録</title>
     <link rel="stylesheet" href="/static/CSS/css.css">
 </head>
 <body>
     <div>
     <form method="post">
         {% csrf_token %}
-        <h2>教師登録</h2>
+        <h2>講師登録</h2>
 
     <!-- メッセージ表示エリア -->
     {% if messages %}
@@ -25,11 +25,15 @@
         <label for="name">名前:</label>
         <input type="text" id="name" name="name" required>
 
-        <label for="romanized_last_name">ローマ字の姓:</label>
-        <input type="text" id="romanized_last_name" name="romanized_last_name" required>
+        <label for="alphabet_last_name">ローマ字の姓:</label>
+        <input type="text" id="alphabet_last_name" name="alphabet_last_name" required>
 
-        <label for="roll">ロール (0: 管理者, 1: 教師):</label>
-        <input type="number" id="roll" name="roll" required min="0" max="1">
+        <label for="roll">権限:</label>
+        <select name="roll" id="roll" style="width: 275px">
+            <option value="" disabled selected>権限を選択してください</option>
+            <option value="0">管理講師</option>
+            <option value="1">普通講師</option>
+        </select>
 
         <label for="password">パスワード:</label>
         <input type="password" id="password" name="password" required>
