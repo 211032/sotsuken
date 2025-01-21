@@ -212,7 +212,7 @@ def register_teacher(request):
             name=name,
             alphabet_last_name=alphabet_last_name,
             roll=int(roll),
-            password=make_password(password)
+            password=password
         )
         messages.success(request, "講師が正常に登録されました。")
         return render(request, 'register_teacher.html')  # 登録成功ページ
@@ -835,19 +835,19 @@ def student_change(request):
 
 
 
-import locale
-
-# ロケールを日本語に設定
-try:
-    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-except locale.Error:
-    locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
-
-# 日付を日本語形式にフォーマット
-def format_japanese_date(date):
-    if date:
-        return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
-    return ""
+# import locale
+#
+# # ロケールを日本語に設定
+# try:
+#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+# except locale.Error:
+#     locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
+#
+# # 日付を日本語形式にフォーマット
+# def format_japanese_date(date):
+#     if date:
+#         return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
+#     return ""
 
 def teacher_change(request):
     if request.method == 'POST':
@@ -856,6 +856,9 @@ def teacher_change(request):
         teacher = Teacher.objects.get(teacher_id=teacher)
         message = None
         if mode == 'delete':
+            if teacher.teacher_id == request.session['teacher_id']:
+                return render(request, 'teacher_change.html',
+                              {'message': '自分は削除できません'})
             teacher.delete()
             teachers = Teacher.objects.all()
             Enrollment.objects.filter(instructor_id=teacher.teacher_id).delete()
