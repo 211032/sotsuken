@@ -843,7 +843,7 @@ try:
 except locale.Error:
     locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
 
-日付を日本語形式にフォーマット
+# 日付を日本語形式にフォーマット
 def format_japanese_date(date):
     if date:
         return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
