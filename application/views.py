@@ -488,6 +488,9 @@ def register_admin_teacher_course(request):
 
         is_special_class = class_format == '1'
 
+        if Enrollment.objects.filter(instructor_id=teacher_id,subject_id=subject_id).exists():
+            return render(request, 'register_admin_teacher_course.html', {'message': 'この講師には既に選択された教科が割り当てられています。'})
+
         enrollment = Enrollment(
             instructor_id=Teacher.objects.get(teacher_id=teacher_id),
             subject=Subject.objects.get(subject_id=subject_id),

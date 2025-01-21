@@ -10,7 +10,7 @@
     <h1>教師科目登録</h1>
     {% csrf_token %}
     {% if message %}
-        {{ message }}
+        <p style="color: red">{{ message }}</p>
     {% endif %}
     <label for="teacher">教師を選択する:</label>
     <select name="teacher" id="teacher">
