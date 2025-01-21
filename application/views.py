@@ -858,7 +858,7 @@ def teacher_change(request):
         if mode == 'delete':
             if teacher.teacher_id == request.session['teacher_id']:
                 return render(request, 'teacher_change.html',
-                              {'message': '自分は削除できません'})
+                              {'teacher': teacher, 'message': '自分は削除できません'})
             teacher.delete()
             teachers = Teacher.objects.all()
             Enrollment.objects.filter(instructor_id=teacher.teacher_id).delete()
