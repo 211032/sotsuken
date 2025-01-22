@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <title>生徒の時間割登録</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
 </head>
 <body>
 <form action="/student_course_registration/" method="post">
     {% csrf_token %}
     <h1>生徒の選択</h1>
+    
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
     <label for="student-class">
         <input type="radio" id="student-class" name="student_select" value="search_class" onclick="toggleInput()">
         クラスで検索
@@ -66,8 +71,10 @@
         </tbody>
     </table><br>
 <br>
+<div class="no-wrap">
 <input type="submit" class="button registration-button" value="教科の登録へ">
 <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</div>
 </form>
 
 <script>

@@ -9,14 +9,14 @@
         margin: 0;
         }
     form {
-        width: 1200px; /* フォームの幅を100%に設定 */
+        width: auto; /* フォームの幅を100%に設定 */
         max-height: 10000px;
         background-color: rgba(255, 255, 255, 0.9); /* 半透明の白背景 */
         padding: 20px;
         border-radius: 10px; /* 角を丸める */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ボックスシャドウ */
         animation: slideIn 0.5s; /* スライドインアニメーション */
-
+        margin: 10px;
         flex-direction: column;
     }
 
@@ -274,4 +274,10 @@
 
 .grid-cell.selected {
     background-color: #cce5ff; /* 選択時の色 */
+}
+
+.no-wrap {
+    white-space: nowrap;
+    overflow: hidden; /* テキストが溢れた場合に隠す */
+    text-overflow: ellipsis; /* テキストが溢れる場合、省略記号を表示 */
 }

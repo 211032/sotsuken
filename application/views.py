@@ -392,6 +392,21 @@ def student_course_registration(request):
                 'message': 'この教員に割り当てられている教科がありません。'
             }
             # リクエスト先をEnrollmentの登録ページに変える
+            if Teacher.objects.get(teacher_id=request.session.get('teacher_id')).roll == 1:
+                number = 0
+                students = []
+                student_all = Student.objects.all()
+                for student in student_all:
+                    number += 1
+                    show_student = {
+                        'number': number,
+                        'email': student.email,
+                        'name': student.name,
+                        'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name
+                    }
+                    students.append(show_student)
+
+                return render(request, 'student_course_registration.html', { 'students': students, 'student_classes': student_classes, 'message': 'この教員に割り当てられている教科がありません。' })
             return render(request, 'register_admin_teacher_course.html', context)
         another = request.POST.get('another')
         if another == '教科の選択に戻る':
