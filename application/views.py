@@ -341,6 +341,7 @@ def register_beacon(request):
             'classrooms': classrooms,
             'success_message': 'beacon登録成功！'
         }
+        messages.success(request, 'beacon登録成功！')
 
         return render(request, 'register_beacon.html', context)
 
