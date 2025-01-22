@@ -40,7 +40,7 @@
 <body>
 <div class = "container">
 
-    <h1><b>{{ name }}</b>の出席状況</h1>
+    <h1><b>{{ name }}</b>さんの出席状況</h1>
     <table>
     <thead>
         <tr>
@@ -62,7 +62,15 @@
                         出席時間: {{ periods.period1.start_time }}<br>
                         退席時間: {{ periods.period1.end_time }}<br>
                         出席状況: {{ periods.period1.status }}
-                        <a href="{% url 'edit_attendance' periods.period1.id %}" class="btn btn-primary">出席状況を編集</a>
+                        <a>
+                            <form action="{% url 'edit_attendance' %}" method="post">
+                                <input type="hidden" id="attendance_id" name="attendance_id" value="{{ periods.period1.id }}">
+                                <input type="hidden" id="email" name="email" value="{{ email }}">
+                                <input type="hidden" id="end_date" name="end_date" value="{{ end_date }}">
+                                <input type="hidden" id="start_date" name="start_date" value="{{ start_date }}">
+                                <input type="submit" value="出席状況を編集" class="btn btn-primary">
+                            </form>
+                        </a>
                     {% else %}
                         <span class="centered-message">{{ periods.period1.message }}</span>
                     {% endif %}
@@ -74,7 +82,15 @@
                         出席時間: {{ periods.period2.start_time }}<br>
                         退席時間: {{ periods.period2.end_time }}<br>
                         出席状況: {{ periods.period2.status }}
-                        <a href="{% url 'edit_attendance' periods.period2.id %}" class="btn btn-primary">出席状況を編集</a>
+                        <a>
+                            <form action="{% url 'edit_attendance' %}" method="post">
+                                <input type="hidden" id="attendance_id" name="attendance_id" value="{{ periods.period2.id }}">
+                                <input type="submit" value="出席状況を編集" class="btn btn-primary">
+                                <input type="hidden" id="email" name="email" value="{{ email }}">
+                                <input type="hidden" id="end_date" name="end_date" value="{{ end_date }}">
+                                <input type="hidden" id="start_date" name="start_date" value="{{ start_date }}">
+                            </form>
+                        </a>
                     {% else %}
                         <span class="centered-message">{{ periods.period2.message }}</span>
                     {% endif %}
@@ -86,7 +102,15 @@
                         出席時間: {{ periods.period3.start_time }}<br>
                         退席時間: {{ periods.period3.end_time }}<br>
                         出席状況: {{ periods.period3.status }}
-                        <a href="{% url 'edit_attendance' periods.period3.id %}" class="btn btn-primary">出席状況を編集</a>
+                        <a>
+                            <form action="{% url 'edit_attendance' %}" method="post">
+                                <input type="hidden" id="attendance_id" name="attendance_id" value="{{ periods.period3.id }}">
+                                <input type="hidden" id="email" name="email" value="{{ email }}">
+                                <input type="hidden" id="end_date" name="end_date" value="{{ end_date }}">
+                                <input type="hidden" id="start_date" name="start_date" value="{{ start_date }}">
+                                <input type="submit" value="出席状況を編集" class="btn btn-primary">
+                            </form>
+                        </a>
                     {% else %}
                         <span class="centered-message">{{ periods.period3.message }}</span>
                     {% endif %}
@@ -98,7 +122,15 @@
                         出席時間: {{ periods.period4.start_time }}<br>
                         退席時間: {{ periods.period4.end_time }}<br>
                         出席状況: {{ periods.period4.status }}
-                        <a href="{% url 'edit_attendance' periods.period4.id %}" class="btn btn-primary">出席状況を編集</a>
+                        <a>
+                            <form action="{% url 'edit_attendance' %}" method="post">
+                                <input type="hidden" id="attendance_id" name="attendance_id" value="{{ periods.period4.id }}">
+                                <input type="hidden" id="email" name="email" value="{{ email }}">
+                                <input type="hidden" id="end_date" name="end_date" value="{{ end_date }}">
+                                <input type="hidden" id="start_date" name="start_date" value="{{ start_date }}">
+                                <input type="submit" value="出席状況を編集" class="btn btn-primary">
+                            </form>
+                        </a>
                     {% else %}
                         <span class="centered-message">{{ periods.period4.message }}</span>
                     {% endif %}

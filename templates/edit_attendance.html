@@ -20,9 +20,14 @@
        <option value="早退">早退</option>
    </select>
     
+    <input type="hidden" id="attendance_id" name="attendance_id" value="{{ attendance_id }}">
+    <input type="hidden" id="email" name="email" value="{{ email }}">
+    <input type="hidden" id="end_date" name="end_date" value="{{ end_date }}">
+    <input type="hidden" id="start_date" name="start_date" value="{{ start_date }}">
+    
     <button type="submit">登録</button>
     
-   <a href="{% url 'adomin_teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+   <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
 </form>
 </body>
 </html>

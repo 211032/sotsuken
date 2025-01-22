@@ -88,6 +88,7 @@ def login_android(request):
         "success": False
     })
 
+
 def home(request):
     # セッションからメールアドレスを取得
     student_email = request.session.get('student_email')
@@ -174,8 +175,10 @@ def adomin_teacher_home(request):
         # If no teacher_id in session, redirect to the login page
         return redirect('login_teacher')
 
+
 def register_view(request):
     return render(request, 'accountReg.html')
+
 
 def register_teacher(request):
     if request.method == 'POST':
@@ -254,6 +257,7 @@ def register_student(request):
         messages.success(request, "生徒が正常に登録されました。")
         return render(request, 'register_student.html', {'student_classes': StudentClass.objects.all()})
     return render(request, 'register_student.html', {'student_classes': StudentClass.objects.all()})
+
 
 async def beacon_connect(request):
     return render(request, 'beacon_connect.html')
@@ -407,7 +411,9 @@ def student_course_registration(request):
                     }
                     students.append(show_student)
 
-                return render(request, 'student_course_registration.html', { 'students': students, 'student_classes': student_classes, 'message': 'この教員に割り当てられている教科がありません。' })
+                return render(request, 'student_course_registration.html',
+                              {'students': students, 'student_classes': student_classes,
+                               'message': 'この教員に割り当てられている教科がありません。'})
             return render(request, 'register_admin_teacher_course.html', context)
         another = request.POST.get('another')
         if another == '教科の選択に戻る':
@@ -504,7 +510,7 @@ def register_admin_teacher_course(request):
 
         is_special_class = class_format == '1'
 
-        if Enrollment.objects.filter(instructor_id=teacher_id,subject_id=subject_id).exists():
+        if Enrollment.objects.filter(instructor_id=teacher_id, subject_id=subject_id).exists():
             context = {
                 'teachers': teachers,
                 'subjects': subjects,
@@ -619,7 +625,7 @@ def student_course_comp_registration(request):
                                         elif day_same['period'] == '3':
                                             start_time = '13:30:00'
                                             end_time = '15:00:00'
-                                        elif day_same['period'] ==  '4':
+                                        elif day_same['period'] == '4':
                                             start_time = '15:15:00'
                                             end_time = '16:45:00'
 
@@ -665,6 +671,7 @@ def student_course_comp_registration(request):
             print("Error saving data:", e)
             return render(request, 'error.html', {'message': e})
 
+
 def student_course_ok(request):
     if request.method == 'POST':
         student_email = request.POST.getlist('student')
@@ -678,6 +685,7 @@ def student_course_ok(request):
 
         return render(request, 'student_course_subject_registration.html',
                       {'students': students, 'subjects': subjects, 'classrooms': classrooms})
+
 
 def student_search(request):
     students = []
@@ -705,7 +713,6 @@ def student_attendance_confirmation(request):
         student_all = Student.objects.all()
 
         for student in student_all:
-
             number += 1
 
             show_student = {
@@ -752,10 +759,11 @@ def student_attendance_confirmation(request):
 
         # コンテキストに渡す
         context = {
+            "email": email,
             "grouped_data": grouped_data,
             "name": student.name,
-            "start_date": start_date,
             "end_date": end_date,
+            "start_date": start_date
         }
         return render(request, 'timetable_results.html', context)
 
@@ -783,10 +791,17 @@ def get_attendance_and_classroom(period_id):
     }
 
 
-def edit_attendance(request, attendance_id):
+def edit_attendance(request):
     # 出席状況編集のロジックをここに記述します
-    request.session['attendance_id'] = attendance_id
-    return render(request, 'edit_attendance.html')
+    context = {
+        'attendance_id': request.POST.get('attendance_id'),
+        'grouped_data': request.POST.get('grouped_data'),
+        'name': request.POST.get('name'),
+        'email': request.POST.get('email'),
+        'end_date': request.POST.get('end_date'),
+        'start_date': request.POST.get('start_date')
+    }
+    return render(request, 'edit_attendance.html', context)
 
 
 def edit_attendance_course(request):
@@ -794,16 +809,51 @@ def edit_attendance_course(request):
         # フォームデータから選択された出席状況を取得
         new_status = request.POST.get('edit')
 
-        attendance_id = request.session.get('attendance_id', None)
-
+        attendance_id = request.POST.get('attendance_id', None)
         attendance = Attendance.objects.get(attendance_id=attendance_id)
 
         # attendance_status を更新
         attendance.attendance_status = new_status
         attendance.save()
 
+        email = request.POST.get('email')
+
+        start_date = request.POST.get('start_date')
+
+        end_date = request.POST.get('end_date')
+
+        student = Student.objects.filter(email=email).first()
+
+        # Timetableから条件に一致するデータを取得
+        timetables = Timetable.objects.filter(
+            email=email,
+            date__range=[start_date, end_date]
+        )
+
+        # grouped_dataを辞書形式で構築
+        grouped_data = defaultdict(dict)
+        for timetable in timetables:
+            grouped_data[str(timetable.date)] = {
+                "period1": get_attendance_and_classroom(timetable.period1_id),
+                "period2": get_attendance_and_classroom(timetable.period2_id),
+                "period3": get_attendance_and_classroom(timetable.period3_id),
+                "period4": get_attendance_and_classroom(timetable.period4_id),
+            }
+
+        # grouped_dataを普通の辞書に変換
+        grouped_data = dict(grouped_data)
+
+        # コンテキストに渡す
+        context = {
+            "email": email,
+            "grouped_data": grouped_data,
+            "name": student.name,
+            "end_date": end_date,
+            "start_date": start_date
+        }
+
         # 更新完了後にリダイレクト
-        return redirect('adomin_teacher_home')
+        return render(request, 'timetable_results.html', context)
 
 
 def student_change(request):
@@ -825,11 +875,12 @@ def student_change(request):
                     'class_name': StudentClass.objects.get(class_id=target_student.class_name_id).class_name
                 }
                 students.append(show_student)
-            return render(request, 'student_search.html', {'student_classes':student_classes, 'students':students, 'message': student.name+'は削除されました'})
+            return render(request, 'student_search.html', {'student_classes': student_classes, 'students': students,
+                                                           'message': student.name + 'は削除されました'})
         elif mode == 'change':
             change_mode = request.POST.get('radio')
             text = request.POST.getlist('text')
-            if text[0] =='' and text[1] =='':
+            if text[0] == '' and text[1] == '':
                 message = '変更する値が不正です'
             else:
                 if change_mode == 'name':
@@ -847,8 +898,8 @@ def student_change(request):
             'class_name': StudentClass.objects.get(class_id=student.class_name_id).class_name,
         }
 
-        return render(request, 'student_change.html', {'student': student, 'student_classes':student_classes, 'message': message})
-
+        return render(request, 'student_change.html',
+                      {'student': student, 'student_classes': student_classes, 'message': message})
 
 
 # import locale
@@ -878,7 +929,8 @@ def teacher_change(request):
             teacher.delete()
             teachers = Teacher.objects.all()
             Enrollment.objects.filter(instructor_id=teacher.teacher_id).delete()
-            return render(request, 'teacher_list.html', {'teachers':teachers, 'message': teacher.name+'は削除されました'})
+            return render(request, 'teacher_list.html',
+                          {'teachers': teachers, 'message': teacher.name + 'は削除されました'})
         elif mode == 'change':
             change_mode = request.POST.get('radio')
             text = request.POST.getlist('text')
@@ -972,8 +1024,6 @@ def monthly_schedule(request):
     })
 
 
-
-
 def monthly_schedule_teacher(request):
     student_email = request.session.get('student_email')
     if not student_email:
@@ -1034,12 +1084,12 @@ def monthly_schedule_teacher(request):
     })
 
 
-
 from .models import Equipment, Classroom, Timetable, Attendance
 import json
 from datetime import datetime, timedelta
 
 from django.http import JsonResponse
+
 
 def api(request):
     if request.method == "POST":
@@ -1086,7 +1136,8 @@ def api(request):
                         attendance_updated = True
                         break
                     else:
-                        print(f"時間外です: 現在時刻: {current_time}, 有効範囲: {valid_start_time.time()} - {end_time.time()}")
+                        print(
+                            f"時間外です: 現在時刻: {current_time}, 有効範囲: {valid_start_time.time()} - {end_time.time()}")
 
                     # 退席時間の登録
                     if current_time > end_time.time():
