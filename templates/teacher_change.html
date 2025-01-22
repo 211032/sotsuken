@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>講師情報変更</title>
     <link rel="stylesheet" href="/static/CSS/student_search.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 <div id="about">
@@ -32,9 +33,9 @@
         <tbody>
             <tr>
                 <td class="teacher-id">{{ teacher.teacher_id }}</td>
-                <td class="teacher-name">{{ teacher.name }}</td>
+                <td class="teacher-name no-wrap">{{ teacher.name }}</td>
                 <td class="teacher-class">{{ teacher.alphabet_last_name }}</td>
-                <td class="teacher-roll">
+                <td class="teacher-roll no-wrap">
                     {% if teacher.roll == 0 %}
                         管理講師
                     {% elif teacher.roll == 1 %}

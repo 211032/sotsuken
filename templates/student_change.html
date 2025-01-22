@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>生徒情報変更</title>
     <link rel="stylesheet" href="/static/CSS/student_search.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 <div id="about">
@@ -30,8 +31,8 @@
         </thead>
         <tbody>
             <tr>
-                <td class="student-id">{{ student.email }}</td>
-                <td class="student-name">{{ student.name }}</td>
+                <td class="student-id no-wrap">{{ student.email }}</td>
+                <td class="student-name no-wrap">{{ student.name }}</td>
                 <td class="student-class">{{ student.class_name }}</td>
                 <td class="student-class">****</td>
             </tr>

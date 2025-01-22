@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <title>時間割登録完了</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration3.css">
+    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=0.6">
     <style>
         .container {
             border: 1px solid #ccc; /* 枠線の色 */
             background-color: #fff; /* 背景色を白に設定 */
             padding: 20px; /* 内側の余白 */
             border-radius: 8px; /* 角を丸くする */
-            margin: 50px auto; /* 上下中央揃え */
+            margin: 10px; /* 上下中央揃え */
             text-align: center; /* テキストを中央揃え */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 影を追加 */
         }
@@ -141,7 +142,7 @@
                             {{ subject.classroom_name }}
                         </td>
                         <td>
-                            {{ subject.date_first }} ～<br> {{ subject.date_last }}
+                            <div class="no-wrap">{{ subject.date_first }}</div> ～<br> {{ subject.date_last }}
                         </td>
                         <td class="subject-unit">
                             <div class="schedule-grid">
@@ -154,7 +155,7 @@
                                 <div class="grid-header">土</div>
                                 <div class="grid-header">日</div>
                             
-                                <div class="grid-time">1限</div>
+                                <div class="grid-time no-wrap" style="width: 40px">1限</div>
                                 <div class="grid-cell" data-day="月" data-period="1"></div>
                                 <div class="grid-cell" data-day="火" data-period="1"></div>
                                 <div class="grid-cell" data-day="水" data-period="1"></div>

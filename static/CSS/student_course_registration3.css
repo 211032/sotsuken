@@ -274,3 +274,9 @@
 .grid-cell.selected {
     background-color: #cce5ff; /* 選択時の色 */
 }
+
+.no-wrap {
+    white-space: nowrap;
+    overflow: hidden; /* テキストが溢れた場合に隠す */
+    text-overflow: ellipsis; /* テキストが溢れる場合、省略記号を表示 */
+}

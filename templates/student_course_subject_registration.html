@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>生徒に教科を登録</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
-    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=0.8">
+    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=0.9">
     <style>
         .modal {
             display: none; /* 初期状態で非表示 */
@@ -303,6 +303,7 @@
                 rows[i].classList.add("hidden-row");
             }
             subjectTable.style.display = "none";
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.9')
             return;
         }
 
@@ -313,9 +314,11 @@
                 const isMatch = content.toLowerCase().indexOf(input) > -1;
                 if (isMatch) {
                     rows[i].classList.remove("hidden-row");
+                    viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.6')
                     hasResults = true;
                 } else {
                     rows[i].classList.add("hidden-row");
+                    viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.9')
                 }
             }
         }
@@ -334,6 +337,7 @@
             if (subjectNameCell) {
                 rows[i].classList.remove("hidden-row");
                 hasResults = true;
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.6')
             }
         }
         subjectTable.style.display = hasResults ? "table" : "none";
