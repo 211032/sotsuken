@@ -80,11 +80,11 @@
      }
 
 
-    // ページがロードされたときにビーコンデータをフェッチし、一定間隔で更新
-    window.onload = async function() {
-        await fetchBeacons()
-        setInterval(fetchBeacons, 10000);  // 5秒ごとにスキャンを実行
-    };
+    {#// ページがロードされたときにビーコンデータをフェッチし、一定間隔で更新#}
+    {#window.onload = async function() {#}
+    {#    await fetchBeacons()#}
+    {#    setInterval(fetchBeacons, 10000);  // 5秒ごとにスキャンを実行#}
+    {#;#}
 
 {#    document.getElementById('scanButton').addEventListener('click', async () => {#}
 {#  try {#}

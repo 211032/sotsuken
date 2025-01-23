@@ -1089,6 +1089,8 @@ def monthly_schedule(request):
     })
 
 
+
+
 def monthly_schedule_teacher(request):
     student_email = request.session.get('student_email')
     if not student_email:
@@ -1149,6 +1151,7 @@ def monthly_schedule_teacher(request):
     })
 
 
+
 from .models import Equipment, Classroom, Timetable, Attendance
 import json
 from datetime import datetime, timedelta
@@ -1194,18 +1197,23 @@ def api(request):
                     # 現在時刻が有効範囲内であるか確認
                     if valid_start_time.time() <= current_time <= end_time.time():
                         if attendance_obj.attendance_time is not None:
-                            # 退席時間の登録
-                            attendance_obj.exit_time = current_time
-                            attendance_obj.save()
-                            print("退席時間を登録しました。")
-                            if (current_time - datetime.combine(datetime.today(), start_time.time())) < timedelta(minutes=60):
-                                print('欠席')
+                            # attendance_timeから20秒以上経過しているか確認
+                            attendance_datetime = datetime.combine(today, attendance_obj.attendance_time)
+                            if (datetime.now() - attendance_datetime) >= timedelta(seconds=20):
+                                # 20秒以上経過して再接続した場合、欠席として登録
+                                attendance_obj.attendance_status = '欠席'
+                                attendance_obj.exit_time = current_time  # exit_timeに現在時刻を登録
+                                attendance_obj.save()
+                                print('20秒以上経過して再接続したため、欠席として登録しました。')
                         else:
                             attendance_obj.attendance_time = current_time
                             attendance_obj.save()
                             print("出席した時間を登録しました。")
-                            if start_time.time() < current_time:
-                                print('遅刻')
+                            print('遅刻')
+                            # attendance_statusを欠席に設定
+                            attendance_obj.attendance_status = '遅刻'
+                            attendance_obj.save()
+                            #break
                         attendance_updated = True
                         #break
                     else:
@@ -1236,6 +1244,12 @@ def api(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+
+
+
 
 
 def attend_check(request):
