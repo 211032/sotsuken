@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>生徒の出席状況検索</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration.css">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
 </head>
 <body>
 <form action="/student_attendance_confirmation/" method="post">
@@ -126,7 +127,14 @@
                 cell = rows[i].getElementsByClassName("student-id")[0];
             }
             if (cell) {
-                const content = cell.textContent || cell.innerText;
+                let content = cell.textContent || cell.innerText;
+                if (method === "search_id") {
+                    // 学籍番号（メールアドレス）から「@」前の部分だけを取り出して検索
+                    const atIndex = content.indexOf('@');
+                    if (atIndex !== -1) {
+                        content = content.substring(0, atIndex);
+                    }
+                }
                 const isMatch = content.toLowerCase().indexOf(input) > -1;
                 rows[i].style.display = isMatch ? "" : "none";
                 if (isMatch) hasResults = true;

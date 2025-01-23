@@ -4,19 +4,22 @@
    <meta charset="UTF-8">
    <title>教師科目登録</title>
    <link rel="stylesheet" href="/static/CSS/admin_teacher_course.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 <form method="POST" action="{% url 'register_admin_teacher_course' %}">
-   <h1>教師科目登録</h1>
-   {% csrf_token %}
-  
-   <label for="teacher">教師を選択する:</label>
-   <select name="teacher" id="teacher">
+    <h1>教師科目登録</h1>
+    {% csrf_token %}
+    {% if message %}
+        <p style="color: red">{{ message }}</p>
+    {% endif %}
+    <label for="teacher">教師を選択する:</label>
+    <select name="teacher" id="teacher">
        {% for teacher in teachers %}
            <!-- nameを表示し、teacher_idをvalueとして送信 -->
            <option value="{{ teacher.teacher_id }}">{{ teacher.name }}</option>
        {% endfor %}
-   </select>
+    </select>
 
 
    <label for="subject">科目選択:</label>

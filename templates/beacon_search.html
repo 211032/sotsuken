@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>講師一覧</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビーコン一覧機能</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/CSS/student_search.css">
     <style>
         /* シンプルなテーブルスタイル */
@@ -32,54 +32,49 @@
 </head>
 <body>
  <div id="about">
-    <h2>講師一覧</h2>
+    <h2>ビーコン一覧</h2>
     {% if message %}
         <p>{{ message }}</p>
     {% endif %}
 
     <!-- 検索ボックス -->
-    <input type="text" id="searchBox" placeholder="名前で検索" onkeyup="filterTeachers()">
+    <input type="text" id="searchBox" placeholder="クラスで検索" onkeyup="filterBeacons()">
 
-    <!-- 教師一覧テーブル -->
-    <table id="teacherTable">
+    <!-- ビーコン一覧テーブル -->
+    <table id="beaconTable">
         <thead>
             <tr>
-                <th>名前</th>
-                <th>権限</th>
+                <th>minor</th>
+                <th>クラス</th>
             </tr>
         </thead>
         <tbody>
-            {% for teacher in teachers %}
+            {% for beacon in beacons %}
                 <tr>
-                    <td class="teacher-name">
-                        <form method="post" id="{{ teacher.teacher_id }}" action="/teacher_change">
-                            <a href="javascript:document.getElementById('{{ teacher.teacher_id }}').submit();" style="text-decoration: none; color: #333333">{{ teacher.name }}</a>
-                            <input type="hidden" name="teacher_id" id="teacher_id" value="{{ teacher.teacher_id }}">
+                    <td class="beacon-name">
+                        <form method="post" id="{{ beacon.device_id }}" action="/beacon_change">
+                            <a href="javascript:document.getElementById('{{ beacon.device_id }}').submit();" style="text-decoration: none; color: #333333">{{ beacon.minor }}</a>
+                            <input type="hidden" name="device_id" id="device_id" value="{{ beacon.device_id }}">
                         </form>
                     </td>
-                    <td>
-                        {% if teacher.roll == 0 %}
-                            管理講師
-                        {% elif teacher.roll == 1 %}
-                            通常講師
-                        {% else %}
-                            不明
-                        {% endif %}
+                    <td class="class-name">
+                        {{ beacon.classroom }}
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table><br>
- <a href="{% url 'adomin_teacher_home' %}" class="logout-button">ホームへ戻る</a> 
+ <a href="/adomin_teacher_home/" class="logout-button">ホームへ戻る</a> 
  </div>
     <!-- JavaScriptで動的検索機能を実装 -->
     <script>
-        function filterTeachers() {
+        function filterBeacons() {
             const input = document.getElementById("searchBox").value.toLowerCase();
-            const rows = document.getElementById("teacherTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+            const rows = document.getElementById("beaconTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
 
             for (let i = 0; i < rows.length; i++) {
-                const nameCell = rows[i].getElementsByClassName("teacher-name")[0];
+                const nameCell = rows[i].getElementsByClassName("class-name")[0];
+                console.log(nameCell)
                 if (nameCell) {
                     const name = nameCell.textContent || nameCell.innerText;
                     rows[i].style.display = name.toLowerCase().indexOf(input) > -1 ? "" : "none";
@@ -87,6 +82,5 @@
             }
         }
     </script>
-
 </body>
 </html>

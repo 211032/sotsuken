@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>生徒一覧</title>
     <link rel="stylesheet" href="/static/CSS/student_search.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-        #checkboxes {
+    #checkboxes {
         grid-template-columns: 1fr 1fr; /* 2列 */
         gap: 5px; /* 各チェックボックス間の隙間 */
         margin-left: 20px;
@@ -27,6 +28,7 @@
     {% if message %}
         <p>{{ message }}</p>
     {% endif %}
+    <div class="no-wrap">
     <label for="student-class">
         <input type="radio" id="student-class" name="student_select" value="search_class" onclick="toggleInput()">
         クラスで検索
@@ -39,6 +41,7 @@
         <input type="radio" id="student-id" name="student_select" value="search_id" onclick="toggleInput()">
         学籍番号で検索
     </label>
+    </div>
     
     <!-- チェックボックス -->
     <div id="checkboxes" style="display: none;">
@@ -131,7 +134,14 @@
                 cell = rows[i].getElementsByClassName("student-id")[0];
             }
             if (cell) {
-                const content = cell.textContent || cell.innerText;
+                let content = cell.textContent || cell.innerText;
+                if (method === "search_id") {
+                    // 学籍番号（メールアドレス）から「@」前の部分だけを取り出して検索
+                    const atIndex = content.indexOf('@');
+                    if (atIndex !== -1) {
+                        content = content.substring(0, atIndex);
+                    }
+                }
                 const isMatch = content.toLowerCase().indexOf(input) > -1;
                 rows[i].style.display = isMatch ? "" : "none";
                 if (isMatch) hasResults = true;

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>入力内容の確認</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
+    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=0.6">
      <style>
         .modal {
             display: none; /* 初期状態で非表示 */
@@ -117,7 +118,7 @@
                             {{ subject.classroom_name }}
                         </td>
                         <td>
-                            {{ subject.date_first }} <br>～<br> {{ subject.date_last }}
+                            {{ subject.date_first }} ～<br> {{ subject.date_last }}まで
                         </td>
                         <td class="subject-unit">
                             <div class="schedule-grid">
@@ -130,7 +131,7 @@
                                 <div class="grid-header">土</div>
                                 <div class="grid-header">日</div>
                             
-                                <div class="grid-time">1限目</div>
+                                <div class="grid-time no-wrap" style="width: 40px">1限</div>
                                 <div class="grid-cell" data-day="月" data-period="1"></div>
                                 <div class="grid-cell" data-day="火" data-period="1"></div>
                                 <div class="grid-cell" data-day="水" data-period="1"></div>
@@ -139,7 +140,7 @@
                                 <div class="grid-cell" data-day="土" data-period="1"></div>
                                 <div class="grid-cell" data-day="日" data-period="1"></div>
                             
-                                <div class="grid-time">2限目</div>
+                                <div class="grid-time">2限</div>
                                 <div class="grid-cell" data-day="月" data-period="2"></div>
                                 <div class="grid-cell" data-day="火" data-period="2"></div>
                                 <div class="grid-cell" data-day="水" data-period="2"></div>
@@ -148,7 +149,7 @@
                                 <div class="grid-cell" data-day="土" data-period="2"></div>
                                 <div class="grid-cell" data-day="日" data-period="2"></div>
                             
-                                <div class="grid-time">3限目</div>
+                                <div class="grid-time">3限</div>
                                 <div class="grid-cell" data-day="月" data-period="3"></div>
                                 <div class="grid-cell" data-day="火" data-period="3"></div>
                                 <div class="grid-cell" data-day="水" data-period="3"></div>
@@ -157,7 +158,7 @@
                                 <div class="grid-cell" data-day="土" data-period="3"></div>
                                 <div class="grid-cell" data-day="日" data-period="3"></div>
                             
-                                <div class="grid-time">4限目</div>
+                                <div class="grid-time">4限</div>
                                 <div class="grid-cell" data-day="月" data-period="4"></div>
                                 <div class="grid-cell" data-day="火" data-period="4"></div>
                                 <div class="grid-cell" data-day="水" data-period="4"></div>

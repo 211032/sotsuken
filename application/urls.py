@@ -10,6 +10,8 @@ urlpatterns = [
     # path('beacon_connect/', views.beacon_connect, name='beacon_connect'),
     # path('beacon_scan/', views.scan_beacon, name='beacon_scan'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
+    path('edit-attendance/', views.edit_attendance, name='edit_attendance'),
+    path('edit_attendance_course/', views.edit_attendance_course, name='edit_attendance_course'),
     path('login/', views.login_student, name='login'),  # login_studentに変更
     path('login_android/', views.login_android, name='login_android'),
     path('logout/', views.logout, name='logout'),
@@ -19,7 +21,6 @@ urlpatterns = [
     path('adomin_teacher_home/', views.adomin_teacher_home, name='adomin_teacher_home'),
     path('attendance_confirmation/', views.attendance_confirmation, name='attendance_confirmation'),
     path('register-teacher/', views.register_teacher, name='register_teacher'),
-    path('teacher-registration-success/', views.registration_success, name='teacher_registration_success'),
     path('teacher_list/', views.teacher_list, name='teacher_list'),  # 教師一覧ページ
     path('time_table/', views.time_table, name='time_table'), #時間割登録機能にとぶ
     path('subject_registration/', views.subject_registration, name='course_registration'), #科目登録機能にとぶ
@@ -33,11 +34,14 @@ urlpatterns = [
     path('course_registration_comp/', views.subject_registration_comp, name='course_registration_comp'),
     path('student_change', views.student_change, name='student_change'),
     path('teacher_change', views.teacher_change, name='teacher_change'),
+    path('beacon_search/', views.beacon_search, name='beacon_search'),
+    path('beacon_change', views.beacon_change, name='beacon_change'),
     path('monthly_schedule/', views.monthly_schedule, name='monthly_schedule'),
     path('api/',views.api, name='api'),
     path('attend_check/',views.attend_check,name='attend_check'),
-    path('api/',views.api, name='api'),
-    path('monthly_schedule_teacher/', views.monthly_schedule_teacher,name='monthly_schedule_teacher'),
-    path('student_attendance_confirmation/', views.student_attendance_confirmation, name='student_attendance_confirmation')
+    path('api/', views.api, name='api'),
+    path('monthly_schedule_teacher/', views.monthly_schedule_teacher, name='monthly_schedule_teacher'),
+    path('student_attendance_confirmation/', views.student_attendance_confirmation,
+         name='student_attendance_confirmation')
 
 ]

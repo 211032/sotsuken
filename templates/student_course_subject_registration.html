@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>生徒に教科を登録</title>
     <link rel="stylesheet" href="/static/CSS/student_course_registration2.css">
+    <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=0.9">
     <style>
         .modal {
             display: none; /* 初期状態で非表示 */
@@ -127,7 +128,7 @@
                     </td>
                     <td class="subject-date">
                         <label>
-                            <input type="date" name="subject_date_first" data-subject-id="{{ subject.subject_id }}">～
+                            <input type="date" name="subject_date_first" data-subject-id="{{ subject.subject_id }}">～<br>
                             <input type="date" name="subject_date_last" data-subject-id="{{ subject.subject_id }}">まで
                         </label>
                     </td>
@@ -142,7 +143,7 @@
                             <div class="grid-header">土</div>
                             <div class="grid-header">日</div>
                         
-                            <div class="grid-time">1限目</div>
+                            <div class="grid-time no-wrap" style="width: 40px">1限</div>
                             <div class="grid-cell" data-day="月" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="火" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="水" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
@@ -151,7 +152,7 @@
                             <div class="grid-cell" data-day="土" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="日" data-period="1" data-subject-id="{{ subject.subject_id }}"></div>
                         
-                            <div class="grid-time">2限目</div>
+                            <div class="grid-time no-wrap">2限</div>
                             <div class="grid-cell" data-day="月" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="火" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="水" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
@@ -160,7 +161,7 @@
                             <div class="grid-cell" data-day="土" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="日" data-period="2" data-subject-id="{{ subject.subject_id }}"></div>
                         
-                            <div class="grid-time">3限目</div>
+                            <div class="grid-time no-wrap">3限</div>
                             <div class="grid-cell" data-day="月" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="火" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="水" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
@@ -169,7 +170,7 @@
                             <div class="grid-cell" data-day="土" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="日" data-period="3" data-subject-id="{{ subject.subject_id }}"></div>
                         
-                            <div class="grid-time">4限目</div>
+                            <div class="grid-time no-wrap">4限</div>
                             <div class="grid-cell" data-day="月" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="火" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
                             <div class="grid-cell" data-day="水" data-period="4" data-subject-id="{{ subject.subject_id }}"></div>
@@ -185,10 +186,13 @@
     </table></div><br>
     <br>
     <div id="anotherSubjects" style="display: none;">{{ another_subjects|json_script }}</div>
+<div class="no-wrap">
     <input type="submit" class="button registration-button" value="入力内容の確認">
     <a href="{% url 'teacher_home' %}" class="button logout-button">ホームへ戻る</a>
+</div>
 </form>
 <script>
+    const viewportMeta = document.getElementById('viewport-meta');
     filterSubjects()
     document.querySelector("form").addEventListener("submit", function (event) {
         const rows = document.getElementById("subjectTable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
@@ -299,6 +303,7 @@
                 rows[i].classList.add("hidden-row");
             }
             subjectTable.style.display = "none";
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.9')
             return;
         }
 
@@ -309,9 +314,11 @@
                 const isMatch = content.toLowerCase().indexOf(input) > -1;
                 if (isMatch) {
                     rows[i].classList.remove("hidden-row");
+                    viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.6')
                     hasResults = true;
                 } else {
                     rows[i].classList.add("hidden-row");
+                    viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.9')
                 }
             }
         }
@@ -330,6 +337,7 @@
             if (subjectNameCell) {
                 rows[i].classList.remove("hidden-row");
                 hasResults = true;
+                viewportMeta.setAttribute('content', 'width=device-width, initial-scale=0.6')
             }
         }
         subjectTable.style.display = hasResults ? "table" : "none";

@@ -15,7 +15,7 @@
         border-radius: 10px; /* 角を丸める */
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* ボックスシャドウ */
         animation: slideIn 0.5s; /* スライドインアニメーション */
-
+        margin: 10px;
         flex-direction: column;
     }
     #checkboxes, #textInput {
@@ -96,4 +96,10 @@ a.home-button {
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.no-wrap {
+    white-space: nowrap;
+    overflow: hidden; /* テキストが溢れた場合に隠す */
+    text-overflow: ellipsis; /* テキストが溢れる場合、省略記号を表示 */
 }
