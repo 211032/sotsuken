@@ -882,6 +882,10 @@ def student_change(request):
             text = request.POST.getlist('text')
             if text[0] == '' and text[1] == '':
                 message = '変更する値が不正です'
+            if (change_mode == 'password' or change_mode == 'name') and text[0] == '':
+                message = '変更する値がありません'
+            if (change_mode == 'class') and text[1] == '':
+                message = '変更する値がありません'
             else:
                 if change_mode == 'name':
                     student.name = text[0]
@@ -902,19 +906,19 @@ def student_change(request):
                       {'student': student, 'student_classes': student_classes, 'message': message})
 
 
-# import locale
-#
-# # ロケールを日本語に設定
-# try:
-#     locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-# except locale.Error:
-#     locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
-#
-# # 日付を日本語形式にフォーマット
-# def format_japanese_date(date):
-#     if date:
-#         return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
-#     return ""
+import locale
+
+# ロケールを日本語に設定
+try:
+    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+except locale.Error:
+    locale.setlocale(locale.LC_TIME, "C")  # デフォルトロケール
+
+# 日付を日本語形式にフォーマット
+def format_japanese_date(date):
+    if date:
+        return date.strftime("%Y年%m月%d日 (%a)")  # 例: "2025年01月20日 (月)"
+    return ""
 
 def teacher_change(request):
     if request.method == 'POST':
@@ -954,6 +958,66 @@ def teacher_change(request):
                 message = '正常に変更されました。'
         teacher = Teacher.objects.get(teacher_id=teacher.teacher_id)
         return render(request, 'teacher_change.html', {'teacher': teacher, 'message': message})
+
+
+def beacon_search(request):
+    if request.method == 'GET':
+        beacons = []
+        for beacon in Equipment.objects.all().order_by('minor'):
+            show_beacon = {
+                'device_id': beacon.device_id,
+                'minor': beacon.minor,
+                'classroom': Classroom.objects.get(classroom_id=beacon.location_id).classroom_name
+            }
+            beacons.append(show_beacon)
+        return render(request, 'beacon_search.html', {'beacons': beacons,})
+
+
+def beacon_change(request):
+    if request.method == 'POST':
+        device_id = request.POST.get('device_id')
+        mode = request.POST.get('mode')
+        beacon = Equipment.objects.get(device_id=device_id)
+        message = None
+        if mode == 'delete':
+            beacon.delete()
+            beacons = []
+            for target_beacon in Equipment.objects.all().order_by('minor'):
+                show_beacon = {
+                    'device_id': target_beacon.device_id,
+                    'minor': target_beacon.minor,
+                    'classroom': Classroom.objects.get(classroom_id=target_beacon.location_id).classroom_name
+                }
+                beacons.append(show_beacon)
+            return render(request, 'beacon_search.html',
+                          {'beacons': beacons, 'message': 'minor番号：'+ str(beacon.minor) + 'は削除されました'})
+        elif mode == 'change':
+            change_mode = request.POST.get('radio')
+            text = request.POST.getlist('text')
+            if text[0] == '' and text[1] == '':
+                message = '変更する値がありません'
+            if change_mode == 'minor' and text[0] == '':
+                message = '変更する値がありません'
+            if change_mode == 'classroom' and text[1] == '':
+                message = '変更する値がありません'
+            else:
+                if change_mode == 'minor':
+                        beacon.minor = text[0]
+                elif change_mode == 'classroom':
+                    beacon.location_id = text[1]
+                try:
+                    beacon.save()
+                    message = '正常に変更されました。'
+                except ValueError:
+                    message = '不正な値が入力されました。'
+        beacon = Equipment.objects.get(device_id=device_id)
+        show_beacon = {
+            'device_id': beacon.device_id,
+            'minor': beacon.minor,
+            'classroom': Classroom.objects.get(classroom_id=beacon.location_id).classroom_name
+        }
+        return render(request, 'beacon_change.html', {'beacon': show_beacon,
+                                                      'classrooms': Classroom.objects.all(), 'message': message})
 
 
 # 時間を日本語形式にフォーマット
