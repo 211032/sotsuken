@@ -990,21 +990,24 @@ def api(request):
                     # 現在時刻が有効範囲内であるか確認
                     if valid_start_time.time() <= current_time <= end_time.time():
                         if attendance_obj.attendance_time is not None:
-                            print('登録しない')
-                        else:
-                            attendance_obj.attendance_time = current_time
-                            attendance_obj.save()
-                        attendance_updated = True
-                        break
-                    else:
-                        print(f"時間外です: 現在時刻: {current_time}, 有効範囲: {valid_start_time.time()} - {end_time.time()}")
-
-                    # 退席時間の登録
-                    if current_time > end_time.time():
-                        if attendance_obj.exit_time is None:
+                            # 退席時間の登録
                             attendance_obj.exit_time = current_time
                             attendance_obj.save()
                             print("退席時間を登録しました。")
+                            if (current_time - datetime.combine(datetime.today(), start_time.time())) < timedelta(minutes=60):
+                                print('欠席')
+                        else:
+                            attendance_obj.attendance_time = current_time
+                            attendance_obj.save()
+                            print("出席した時間を登録しました。")
+                            if start_time.time() < current_time:
+                                print('遅刻')
+                        attendance_updated = True
+                        #break
+                    else:
+                        print(f"時間外です: 現在時刻: {current_time}, 有効範囲: {valid_start_time.time()} - {end_time.time()}")
+
+
 
             if not attendance_updated:
                 return JsonResponse({"error": "出席可能な時間範囲外です"}, status=400)
@@ -1050,10 +1053,11 @@ def attend_check(request):
             if student.time is not None:
                 student_datetime = datetime.combine(now.date(), student.time)
                 if (now - student_datetime) <= timedelta(seconds=90):
+                    # 最後の教室と現在の教室が同じか確認
                     if student.room == str(minor):
                         data = {"message": "入室"}
                     else:
-                        data = {"message": "入室"}
+                        data = {"message": "別教室"}
                 else:
                     # 1分半以上通信がなかった場合、退席として登録
                     student.exit_time = now.time()
