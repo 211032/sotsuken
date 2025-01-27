@@ -1280,7 +1280,7 @@ def attend_check(request):
                     # 1分半以上通信がなかった場合、退席として登録
                     student.exit_time = now.time()
                     student.save()
-                    data = {"message": "退出"}
+                    data = {"message": "入室"}
             else:
                 data = {"message": "error"}
             # データを更新
